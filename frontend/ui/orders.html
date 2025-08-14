@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>自助台球厅 - 我的订单</title>
+    <style>
+        :root {
+            --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --primary-text-color: #1d1d1f;
+            --secondary-text-color: #6e6e73;
+            --tertiary-text-color: #86868b;
+            --background-color: #f0f0f5; 
+            --card-background-color: #ffffff;
+            --border-color: #d2d2d7;
+            --interactive-color: #007aff; 
+            --separator-color: #c6c6c8;
+        }
+
+        body {
+            font-family: var(--system-font);
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--primary-text-color);
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .page-header-container {
+            position: sticky; 
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background-color: rgba(249, 249, 249, 0.85); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 0.5px solid var(--border-color);
+            display: flex; /* For back button and title alignment */
+            align-items: center;
+            padding: 0 10px; /* Padding for header content */
+            height: 44px; /* Standard iOS nav bar height */
+        }
+        .back-button {
+            font-size: 17px;
+            color: var(--interactive-color);
+            text-decoration: none;
+            padding: 8px 10px 8px 0; /* More tappable area on left */
+            line-height: 1;
+        }
+        .page-header-title {
+            flex-grow: 1; /* Allow title to take remaining space */
+            padding: 0 16px; /* Original padding for title */
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--primary-text-color);
+             /* Adjust for back button, if it makes title off-center, more complex centering might be needed */
+            position: absolute; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: fit-content; /* Ensure it doesn't overflow if title is long */
+            max-width: calc(100% - 120px); /* Prevent overlap with potential left/right buttons */
+        }
+
+        .filter-container {
+            padding: 10px 16px;
+            background-color: var(--background-color); /* Match body background */
+            /* border-bottom: 0.5px solid var(--border-color); Optional: if you want a separator */
+        }
+
+        .segmented-control {
+            display: flex;
+            width: 100%;
+            border-radius: 8px; /* iOS style */
+            overflow: hidden;
+            border: 1px solid var(--interactive-color);
+        }
+
+        .segment-button {
+            flex-grow: 1;
+            padding: 8px 10px;
+            background-color: var(--card-background-color);
+            color: var(--interactive-color);
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .segment-button:not(:last-child) {
+            border-right: 1px solid var(--interactive-color); /* Separator between buttons */
+        }
+
+        .segment-button.active {
+            background-color: var(--interactive-color);
+            color: white;
+        }
+
+        .scrollable-content {
+            flex-grow: 1;
+            overflow-y: auto; 
+            padding: 20px 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            margin-top: 80px;
+        }
+        .empty-state .icon {
+            font-size: 48px;
+            color: var(--tertiary-text-color);
+            margin-bottom: 16px;
+        }
+        .empty-state .message {
+            font-size: 17px;
+            color: var(--secondary-text-color);
+            margin-bottom: 8px;
+        }
+        .empty-state .sub-message {
+            font-size: 14px;
+            color: var(--tertiary-text-color);
+        }
+
+        /* Example order card styling - can be expanded */
+        .order-card {
+            background-color: var(--card-background-color);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .order-card .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px; /* Increased margin */
+            font-size: 15px;
+        }
+        .order-card .store-name {
+            font-weight: 600; /* Made bolder */
+            font-size: 17px; /* Slightly larger */
+            color: var(--primary-text-color);
+        }
+        .order-card .status {
+            font-size: 14px; /* Adjusted size */
+            font-weight: 500;
+        }
+        .order-card .status.completed {
+            color: var(--secondary-text-color);
+        }
+        .order-card .status.in-progress {
+            color: var(--interactive-color);
+        }
+        .order-card .status.cancelled {
+            color: #FF3B30; /* Apple Red */
+        }
+        .order-card .details p {
+            margin: 6px 0; /* Adjusted spacing */
+            font-size: 13px; /* Slightly smaller */
+            color: var(--secondary-text-color);
+        }
+        .order-card .details p strong {
+            color: var(--primary-text-color);
+            font-weight: 500;
+        }
+         .order-card .total {
+            margin-top: 14px; /* Increased margin */
+            font-size: 16px; /* Adjusted size */
+            font-weight: 500;
+            text-align: right;
+            color: var(--primary-text-color);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="page-header-container">
+        <a href="my.html" class="back-button">‹ 返回</a>
+        <div class="page-header-title">我的订单</div>
+    </div>
+
+    <div class="filter-container">
+        <div class="segmented-control">
+            <button class="segment-button active" data-filter="all">全部</button>
+            <button class="segment-button" data-filter="month">近一个月</button>
+            <button class="segment-button" data-filter="3months">近三个月</button>
+            <!-- <button class="segment-button" data-filter="custom">自定义</button> -->
+        </div>
+    </div>
+
+    <div class="scrollable-content">
+        <!-- Example: If there are orders -->
+        
+        <div class="order-card">
+            <div class="header">
+                <span class="store-name">星辉台球自助厅 - 3号台</span>
+                <span class="status completed">已完成</span>
+            </div>
+            <div class="details">
+                <p><strong>订单号:</strong> 2023092510235588</p>
+                <p><strong>开台时间:</strong> 2023-09-25 14:30</p>
+                <p><strong>使用时长:</strong> 1小时25分钟</p>
+            </div>
+            <div class="total">实付: ¥25.50</div>
+        </div>
+        <div class="order-card">
+            <div class="header">
+                <span class="store-name">月宫休闲台球室 - VIP房</span>
+                <span class="status in-progress">进行中</span>
+            </div>
+            <div class="details">
+                <p><strong>订单号:</strong> 2023092816450012</p>
+                <p><strong>开台时间:</strong> 2023-09-28 16:45</p>
+                <p><strong>已用时长:</strong> 0小时32分钟</p>
+            </div>
+            <div class="total">当前: ¥8.00</div>
+        </div>
+        <div class="order-card">
+            <div class="header">
+                <span class="store-name">极速台球俱乐部 - 8号台</span>
+                <span class="status cancelled">已取消</span>
+            </div>
+            <div class="details">
+                <p><strong>订单号:</strong> 2023093011051145</p>
+                <p><strong>下单时间:</strong> 2023-09-30 11:05</p>
+                <p><strong>备注:</strong> 用户主动取消</p>
+            </div>
+            <div class="total">应付: ¥0.00</div>
+        </div>
+
+        <!-- Example: If no orders -->
+        <!--
+        <div class="empty-state">
+            <div class="icon">📄</div>
+            <div class="message">您还没有订单记录哦</div>
+            <div class="sub-message">快去开一台，开始您的桌球之旅吧！</div>
+        </div>
+        -->
+    </div>
+
+    <!-- No bottom nav bar on sub-pages -->
+</body>
+</html> 

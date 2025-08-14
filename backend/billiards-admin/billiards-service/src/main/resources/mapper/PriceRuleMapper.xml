@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.billiards.mapper.PriceRuleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.PriceRule">
+        <id column="id" property="id"/>
+        <result column="merchant_id" property="merchantId"/>
+        <result column="name" property="name"/>
+        <result column="rule_type" property="ruleType"/>
+        <result column="price_unit" property="priceUnit"/>
+        <result column="member_price" property="memberPrice"/>
+        <result column="min_minutes" property="minMinutes"/>
+        <result column="max_price" property="maxPrice"/>
+        <result column="ladder_rules" property="ladderRules"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 根据商家ID查询计费规则列表 -->
+    <select id="selectByMerchantId" resultMap="BaseResultMap">
+        SELECT * FROM bls_price_rule WHERE merchant_id = #{merchantId} ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据ID查询计费规则详情 -->
+    <select id="selectRuleById" resultMap="BaseResultMap">
+        SELECT * FROM bls_price_rule WHERE id = #{id}
+    </select>
+
+    <!-- 根据桌台类型查询默认计费规则 -->
+    <select id="selectDefaultByTableType" resultMap="BaseResultMap">
+        SELECT * FROM bls_price_rule WHERE merchant_id = #{merchantId} AND default_type = #{tableType} LIMIT 1
+    </select>
+
+    <select id="findMinStandardPriceUnitForStore" resultType="java.math.BigDecimal">
+        SELECT MIN(pr.price_unit) * pr.member_discount
+        FROM bls_price_rule pr
+        INNER JOIN bls_table t ON pr.id = t.price_rule_id
+        WHERE t.store_id = #{storeId}
+          AND pr.rule_type = 1
+          AND pr.status = 0
+          AND pr.price_unit IS NOT NULL
+    </select>
+
+</mapper>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>自助台球厅 - 开台确认</title>
+    <style>
+        :root {
+            --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --primary-text-color: #1d1d1f;
+            --secondary-text-color: #6e6e73;
+            --tertiary-text-color: #86868b;
+            --background-color: #f5f5f7;
+            --card-background-color: #ffffff;
+            --border-color: #d2d2d7;
+            --interactive-color: #007aff; /* Apple Blue */
+            --green-color: #34c759; /* Apple Green */
+            --orange-color: #ff9500; /* Apple Orange */
+            --gray-color: #8e8e93; /* Apple Gray */
+            --red-color: #ff3b30; /* Apple Red */
+        }
+
+        body {
+            font-family: var(--system-font);
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--primary-text-color);
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            box-sizing: border-box;
+            padding-bottom: 100px; /* 为底部按钮预留空间 */
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--card-background-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .back-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--interactive-color);
+        }
+
+        .nav-title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* 球桌卡片 */
+        .table-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+
+        .table-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--interactive-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: white;
+            font-size: 36px;
+        }
+
+        .table-number {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .table-type {
+            color: var(--secondary-text-color);
+            margin-bottom: 16px;
+        }
+
+        .store-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .current-time {
+            color: var(--tertiary-text-color);
+            font-size: 14px;
+        }
+
+        /* 计费规则卡片 */
+        .pricing-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-text-color);
+        }
+
+        .pricing-info {
+            margin-bottom: 16px;
+        }
+
+        .pricing-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pricing-item:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-label {
+            color: var(--secondary-text-color);
+        }
+
+        .pricing-value {
+            font-weight: 600;
+            color: var(--interactive-color);
+        }
+
+        .member-pricing {
+            background-color: #f8f8fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .member-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .member-title {
+            color: var(--interactive-color);
+            font-weight: 600;
+        }
+
+        .member-value {
+            color: var(--interactive-color);
+            font-weight: 600;
+        }
+
+        .member-note {
+            font-size: 13px;
+            color: var(--tertiary-text-color);
+        }
+
+        /* 预计费用卡片 */
+        .estimate-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .estimate-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .estimate-label {
+            color: var(--secondary-text-color);
+        }
+
+        .estimate-value {
+            font-weight: 600;
+        }
+
+        .estimate-total {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .total-label {
+            font-weight: 600;
+        }
+
+        .total-value {
+            font-weight: 700;
+            color: var(--interactive-color);
+            font-size: 18px;
+        }
+
+        /* 提示信息 */
+        .tip-card {
+            background-color: #fff9e6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .tip-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            color: var(--orange-color);
+            flex-shrink: 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tip-content {
+            flex-grow: 1;
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            line-height: 1.5;
+        }
+
+        /* 底部按钮区 */
+        .button-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-background-color);
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .primary-button {
+            background-color: var(--interactive-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .primary-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
+        }
+
+        .secondary-button {
+            background-color: transparent;
+            color: var(--interactive-color);
+            border: none;
+            padding: 10px 0;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-nav">
+        <button class="back-button" onclick="history.back()">←</button>
+        <h1 class="nav-title">开台确认</h1>
+        <div style="width: 32px;"></div> <!-- 占位，保持标题居中 -->
+    </div>
+
+    <div class="container">
+        <!-- 球桌信息卡片 -->
+        <div class="table-card">
+            <div class="table-icon">🎱</div>
+            <div class="table-number">3号台</div>
+            <div class="table-type">标准九球台 · 最佳状态</div>
+            <div class="store-name">星辉台球自助厅</div>
+            <div class="current-time">当前时间：2023-05-20 15:30</div>
+        </div>
+
+        <!-- 计费规则卡片 -->
+        <div class="pricing-card">
+            <h3 class="card-title">计费规则</h3>
+            <div class="pricing-info">
+                <div class="pricing-item">
+                    <div class="pricing-label">标准费率</div>
+                    <div class="pricing-value">¥15.00/小时</div>
+                </div>
+                <div class="pricing-item">
+                    <div class="pricing-label">最低消费</div>
+                    <div class="pricing-value">¥10.00</div>
+                </div>
+                <div class="pricing-item">
+                    <div class="pricing-label">特惠时段</div>
+                    <div class="pricing-value">10:00-17:00 ¥9.9/小时</div>
+                </div>
+            </div>
+            
+            <!-- 会员价格区 -->
+            <div class="member-pricing">
+                <div class="member-header">
+                    <div class="member-title">会员价格</div>
+                    <div class="member-value">¥12.00/小时</div>
+                </div>
+                <div class="member-note">成为会员即可享受优惠价格，更多会员特权请查看会员中心</div>
+            </div>
+        </div>
+
+        <!-- 预计费用卡片 -->
+        <div class="estimate-card">
+            <h3 class="card-title">预计费用示例</h3>
+            <div class="estimate-row">
+                <div class="estimate-label">使用1小时</div>
+                <div class="estimate-value">¥15.00</div>
+            </div>
+            <div class="estimate-row">
+                <div class="estimate-label">使用2小时</div>
+                <div class="estimate-value">¥30.00</div>
+            </div>
+            <div class="estimate-row">
+                <div class="estimate-label">使用3小时</div>
+                <div class="estimate-value">¥45.00</div>
+            </div>
+            <div class="estimate-total">
+                <div class="total-label">当前适用费率</div>
+                <div class="total-value">¥15.00/小时</div>
+            </div>
+        </div>
+
+        <!-- 温馨提示 -->
+        <div class="tip-card">
+            <div class="tip-icon">ℹ️</div>
+            <div class="tip-content">
+                开始计费后，系统将自动记录使用时间，结束使用时将根据实际使用时长计算费用。请爱惜球桌设备，使用完毕请及时结束，谢谢合作！
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部按钮区 -->
+    <div class="button-container">
+        <button class="primary-button" id="confirmButton">确认开台</button>
+        <button class="secondary-button" id="contactButton">联系客服</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 更新当前时间
+            function updateCurrentTime() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}`;
+                document.querySelector('.current-time').textContent = `当前时间：${formattedTime}`;
+            }
+            
+            // 初始更新时间
+            updateCurrentTime();
+            
+            // 每分钟更新一次时间
+            setInterval(updateCurrentTime, 60000);
+
+            // 确认开台按钮点击事件
+            document.getElementById('confirmButton').addEventListener('click', function() {
+                // 这里添加确认开台的逻辑
+                // 通常会包括请求服务器创建开台记录并开始计费
+                // 然后跳转到计时中页面
+                window.location.href = 'timing.html';
+            });
+
+            // 联系客服按钮点击事件
+            document.getElementById('contactButton').addEventListener('click', function() {
+                // 这里添加联系客服的逻辑
+                // 例如拨打电话
+                alert('即将拨打客服电话：020-12345678');
+                // 实际应用中可以使用 window.location.href = 'tel:020-12345678';
+            });
+        });
+    </script>
+</body>
+</html> 

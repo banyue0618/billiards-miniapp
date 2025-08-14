@@ -1,0 +1,89 @@
+<!-- 用户页面 -->
+<view class="user-container">
+  <!-- 用户信息头部 -->
+  <view class="user-header">
+    <block wx:if="{{isLogin}}">
+      <view class="avatar-wrap">
+        <image class="avatar" src="{{userInfo.avatarUrl || '/images/default/default-avatar.svg'}}" mode="aspectFill"></image>
+      </view>
+      <view class="user-info">
+        <view class="nickname">{{userInfo.nickname || '少侠'}}</view>
+        <!-- 用户信息不完整时显示获取信息按钮 -->
+        <view class="get-profile-btn" wx:if="{{!userInfo.nickname}}" bindtap="handleGetUserProfile">
+          <text class="get-profile-text">完善资料</text>
+          <text class="get-profile-arrow">></text>
+        </view>
+        <view class="member-info" wx:if="{{userInfo.isMember}}">
+          <view class="member-badge">
+            <!-- <text class="iconfont icon-member-{{userInfo.memberLevel}}"></text> -->
+            <text class="member-text">{{memberLevelText}} | {{userInfo.points}} 积分</text>
+          </view>
+          <text class="member-expire" wx:if="{{userInfo.member_expire_time}}">{{memberExpireText}}</text>
+        </view>
+        <view class="member-tip" wx:if="{{!userInfo.isMember}}">
+          <text class="member-tip-text" bindtap="handleBuyMember">开通会员享8折优惠</text>
+          <text class="member-tip-arrow">></text>
+        </view>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="avatar-wrap">
+        <image class="avatar" src="/images/default/default-avatar.svg" mode="aspectFill"></image>
+      </view>
+      <view class="login-btn-wrap">
+        <button class="login-btn" bindtap="handleLogin">点击登录</button>
+      </view>
+    </block>
+  </view>
+  
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-title">我的服务</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/order/list">
+        <text class="iconfont icon-order menu-icon"></text>
+        <text class="menu-text">我的订单</text>
+        <text class="iconfont icon-arrow-right arrow-icon"></text>
+      </view>
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/user/collect">
+        <text class="iconfont icon-collect menu-icon"></text>
+        <text class="menu-text">我的收藏</text>
+        <text class="iconfont icon-arrow-right arrow-icon"></text>
+      </view>
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/user/points">
+        <text class="iconfont icon-points menu-icon"></text>
+        <text class="menu-text">我的积分</text>
+        <text class="iconfont icon-arrow-right arrow-icon"></text>
+      </view>
+    </view>
+  </view>
+  
+  <view class="menu-section">
+    <view class="menu-title">更多服务</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/user/feedback">
+        <text class="iconfont icon-feedback menu-icon"></text>
+        <text class="menu-text">意见反馈</text>
+        <text class="iconfont icon-arrow-right arrow-icon"></text>
+      </view>
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/user/about">
+        <text class="iconfont icon-about menu-icon"></text>
+        <text class="menu-text">关于我们</text>
+        <text class="iconfont icon-arrow-right arrow-icon"></text>
+      </view>
+      <view class="menu-item" bindtap="handleContact">
+        <text class="iconfont icon-service menu-icon"></text>
+        <text class="menu-text">联系客服</text>
+        <text class="iconfont icon-arrow-right arrow-icon"></text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 退出登录 -->
+  <view class="logout-btn-wrap" wx:if="{{isLogin}}">
+    <button class="logout-btn" bindtap="handleLogout">退出登录</button>
+  </view>
+</view>
+
+<!-- 使用登录弹窗组件 -->
+<login-modal show="{{showLoginModal}}" bind:close="closeLoginModal" bind:login-success="onLoginSuccess"></login-modal> 

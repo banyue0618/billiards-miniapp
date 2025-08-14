@@ -1,0 +1,147 @@
+.ongoing-card-wrapper {
+  box-sizing: border-box;
+  background-color: var(--card-background-color, #ffffff);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin: 0 0 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  border: none;
+}
+
+.ongoing-swiper {
+  height: 220rpx;
+  background-color: transparent;
+  border-radius: 12rpx;
+  overflow: visible; /* 避免内部按钮被裁剪 */
+  position: relative;
+}
+
+.ongoing-swiper .wx-swiper-dots {
+  left: 20rpx !important;
+  text-align: left !important;
+}
+
+.swiper-item {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 8rpx 10rpx; /* 适度留白，避免拥挤 */
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rpx 12rpx 4rpx;
+  margin-bottom: 2rpx; /* 与内容区拉开一点距离 */
+}
+
+.store-info-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--primary-text-color, #333);
+}
+
+.status-badge-ongoing {
+  font-size: 24rpx;
+  color: #ffffff;
+  background-color: var(--interactive-color, #07c160);
+  padding: 6rpx 14rpx;
+  border-radius: 10rpx;
+  font-weight: 500;
+}
+
+.card-details-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rpx 12rpx 6rpx; /* 上下增加一些透气空间 */
+  margin-bottom: 2rpx;
+}
+
+/* 左列与右列拉开距离 */
+.card-details-flex > view:first-child {
+  padding-right: 24rpx;
+}
+
+.time-info-text {
+  font-size: 28rpx;
+  color: var(--secondary-text-color, #666);
+  margin-bottom: 6rpx;
+}
+
+.time-updating {
+  animation: blink 2s infinite;
+  color: var(--primary-text-color, #333);
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  49% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  99% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.cost-info-block {
+  text-align: right;
+  padding-left: 8rpx;
+}
+
+.cost-info-text {
+  font-size: 28rpx;
+  color: var(--secondary-text-color, #666);
+  margin-bottom: 4rpx;
+}
+
+.amount-text {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: var(--primary-text-color, #1d1d1f);
+}
+
+.card-actions-right {
+  display: flex;
+  justify-content: flex-end;
+  padding: 2rpx 10rpx 2rpx; /* 进一步减少上下留白，避免按钮被裁剪 */
+  text-align: right;
+  width: 100%;
+}
+
+.end-session-button {
+  display: inline-block;
+  font-size: 28rpx;
+  color: #ffffff;
+  background-color: #ff4d4f;
+  border: none;
+  border-radius: 24rpx;
+  padding: 0 16rpx;
+  line-height: 52rpx;
+  min-height: 52rpx;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: fit-content !important;
+  margin: 0;
+  box-shadow: 0 2rpx 6rpx rgba(255, 77, 79, 0.2);
+}
+
+.end-session-button::after {
+  border: none;
+}
+
+.end-session-button:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+} 

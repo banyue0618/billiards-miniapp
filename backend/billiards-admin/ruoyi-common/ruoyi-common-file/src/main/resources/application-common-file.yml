@@ -1,0 +1,59 @@
+# ===================================================================
+# 共通文件存储配置 (ruoyi-common-file 模块)
+# ===================================================================
+resource:
+  storage:
+    # 存储类型：local(本地文件系统), minio(MinIO对象存储), oss(阿里云OSS对象存储), cdn(CDN加速)
+    # 根据选择的类型，下方对应的配置块需要填写完整。
+    type: minio  # <--- 修改这里来切换存储方式
+
+    # 本地存储配置 (当 type = local 时生效)
+    local:
+      # 本地文件存储的基础物理路径 (例如: /var/www/upload, D:/project/uploads)
+      # 必须配置，否则本地存储无法工作。
+      base-path: ./uploads/files # 示例: 项目根目录下的 uploads/files 文件夹
+      # 访问本地存储资源的基础URL (例如: http://localhost:8080/upload-files, https://yourdomain.com/static-files)
+      # 需要配合Web服务器（如Nginx或Spring MVC静态资源处理器）配置静态资源映射。
+      # 如果为空，则无法直接通过URL访问文件。
+      base-url: /upload-files # 示例: 通过应用的 /upload-files 路径访问 (需配置Spring MVC静态资源映射)
+
+    # MinIO对象存储配置 (当 type = minio 时生效)
+    minio:
+      endpoint: http://localhost:9000 # MinIO服务节点的URL (例如: http://minio.example.com:9000)
+      access-key: minioadmin          # MinIO的Access Key
+      secret-key: minioadmin          # MinIO的Secret Key
+      bucket: billiards-app           # 默认存储桶名称
+      # 访问MinIO资源的基础URL（可选, 如果MinIO通过域名或反向代理直接暴露bucket内容）
+      # (例如: http://minio-bucket.example.com, 或 endpoint + \"/\" + bucket)
+      base-url: http://localhost:9000/billiards-app
+      # 缩略图配置
+      thumbnailSizes: # 您希望生成的缩略图尺寸列表
+        - "150x150"
+        - "300x300"
+        - "80x80"
+      thumbnailSubDir: "thumbs" # 存储缩略图的子目录
+      alwaysUsePresignedUrl: true   # 设置为 true 来强制使用预签名 URL
+      presignedUrlExpiryMinutes: 1440 # 1天, 可以根据需要调整或省略以使用类中的默认值
+
+    # 阿里云OSS对象存储配置 (当 type = oss 时生效)
+    oss:
+      endpoint: https://oss-cn-hangzhou.aliyuncs.com # OSS服务的Endpoint
+      access-key-id: YOUR_OSS_ACCESS_KEY_ID                # Access Key ID
+      access-key-secret: YOUR_OSS_ACCESS_KEY_SECRET          # Access Key Secret
+      bucket: billiards-app                            # 默认存储桶名称
+      # 访问OSS资源的基础URL (可选, 例如: https://billiards-app.oss-cn-hangzhou.aliyuncs.com)
+      # 如果配置了customDomain，则baseUrl通常基于customDomain
+      base-url:
+      # 自定义域名 (CName) (可选, 例如: oss.yourdomain.com)
+      custom-domain:
+      alwaysUsePresignedUrl: true   # 设置为 true 来强制使用预签名 URL
+      presignedUrlExpiryMinutes: 1440 # 1天, 可以根据需要调整或省略以使用类中的默认值
+
+    # CDN加速配置 (当 type = cdn 时生效)
+    cdn:
+      # CDN域名 (例如: https://static.yourdomain.com)
+      domain:
+      # CDN后的实际存储后端类型 (例如: minio, oss, local)
+      storage-backend-type: oss # 或 minio, local
+      # CDN私钥 (如果CDN使用URL鉴权, 具体看CDN服务商文档)
+      private-key:

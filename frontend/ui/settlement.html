@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>自助台球厅 - 结算页面</title>
+    <style>
+        :root {
+            --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --primary-text-color: #1d1d1f;
+            --secondary-text-color: #6e6e73;
+            --tertiary-text-color: #86868b;
+            --background-color: #f5f5f7;
+            --card-background-color: #ffffff;
+            --border-color: #d2d2d7;
+            --interactive-color: #007aff; /* Apple Blue */
+            --green-color: #34c759; /* Apple Green */
+            --orange-color: #ff9500; /* Apple Orange */
+            --gray-color: #8e8e93; /* Apple Gray */
+            --red-color: #ff3b30; /* Apple Red */
+        }
+
+        body {
+            font-family: var(--system-font);
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--primary-text-color);
+            line-height: 1.4;
+            padding-bottom: 100px; /* 为底部按钮预留空间 */
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--card-background-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* 成功图标 */
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--green-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            color: white;
+            font-size: 40px;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+        }
+
+        /* 结算标题 */
+        .settlement-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .settlement-subtitle {
+            text-align: center;
+            color: var(--secondary-text-color);
+            margin-bottom: 30px;
+        }
+
+        /* 基本信息卡片 */
+        .info-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: var(--secondary-text-color);
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        /* 费用信息卡片 */
+        .cost-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cost-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .cost-total .total-value {
+            color: var(--primary-text-color);
+        }
+
+        /* 评价卡片 */
+        .rating-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+
+        .rating-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .star {
+            width: 40px;
+            height: 40px;
+            margin: 0 4px;
+            background-color: #f0f0f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--tertiary-text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .star.active {
+            background-color: #FDCC0D;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .rating-input {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: none;
+            font-family: var(--system-font);
+        }
+
+        /* 底部按钮区 */
+        .button-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-background-color);
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .primary-button {
+            background-color: var(--interactive-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            flex-grow: 1;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .primary-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
+        }
+
+        /* 分享卡片 */
+        .share-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+
+        .share-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .share-button {
+            display: inline-block;
+            background-color: #f0f0f5;
+            border-radius: 30px;
+            padding: 10px 24px;
+            font-size: 14px;
+            color: var(--interactive-color);
+            cursor: pointer;
+        }
+
+        .share-button .share-icon {
+            margin-right: 6px;
+        }
+
+        /* 感谢消息 */
+        .thank-message {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--primary-text-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-nav">
+        <h1 class="nav-title">结算完成</h1>
+    </div>
+
+    <div class="container">
+        <!-- 成功图标 -->
+        <div class="success-icon">✓</div>
+        
+        <!-- 结算标题 -->
+        <h2 class="settlement-title">结算成功</h2>
+        <p class="settlement-subtitle">感谢您的使用，期待您的再次光临！</p>
+
+        <!-- 基本信息卡片 -->
+        <div class="info-card">
+            <div class="card-title">
+                <span class="card-title-icon">🎱</span>
+                使用详情
+            </div>
+            <div class="info-item">
+                <div class="info-label">门店</div>
+                <div class="info-value">星辉台球自助厅</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">桌台</div>
+                <div class="info-value">3号台</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">开始时间</div>
+                <div class="info-value">2023-05-20 15:30</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">结束时间</div>
+                <div class="info-value">2023-05-20 17:15</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">使用时长</div>
+                <div class="info-value">1小时45分钟</div>
+            </div>
+        </div>
+
+        <!-- 费用信息卡片 -->
+        <div class="cost-card">
+            <div class="card-title">
+                <span class="card-title-icon">💰</span>
+                费用明细
+            </div>
+            <div class="cost-item">
+                <div class="info-label">基础费用</div>
+                <div class="info-value">¥15.00 × 1小时45分钟</div>
+            </div>
+            <div class="cost-item">
+                <div class="info-label">计费金额</div>
+                <div class="info-value">¥26.25</div>
+            </div>
+            <div class="cost-item">
+                <div class="info-label">会员折扣</div>
+                <div class="info-value">-¥0.00</div>
+            </div>
+            <div class="cost-total">
+                <div>实付金额</div>
+                <div class="total-value">¥26.25</div>
+            </div>
+        </div>
+
+        <!-- 评价卡片 -->
+        <div class="rating-card">
+            <div class="rating-title">为本次体验评分</div>
+            <div class="rating-stars">
+                <div class="star" data-value="1">★</div>
+                <div class="star" data-value="2">★</div>
+                <div class="star" data-value="3">★</div>
+                <div class="star" data-value="4">★</div>
+                <div class="star" data-value="5">★</div>
+            </div>
+            <textarea class="rating-input" placeholder="分享您的使用体验，帮助我们提升服务质量（选填）" rows="3"></textarea>
+        </div>
+
+        <!-- 分享卡片 -->
+        <div class="share-card">
+            <div class="share-title">与好友分享这家店</div>
+            <div class="share-button">
+                <span class="share-icon">↗️</span>
+                分享给微信好友
+            </div>
+        </div>
+
+        <!-- 感谢消息 -->
+        <div class="thank-message">
+            高手，欢迎下次再来！
+        </div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="button-container">
+        <button class="primary-button" id="homeButton">返回首页</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const cost = urlParams.get('cost') || "26.25";
+            const hours = parseInt(urlParams.get('hours') || "1");
+            const minutes = parseInt(urlParams.get('minutes') || "45");
+            const seconds = parseInt(urlParams.get('seconds') || "0");
+            
+            // 更新使用时长
+            const usageTimeElement = document.querySelector('.info-item:nth-child(5) .info-value');
+            usageTimeElement.textContent = `${hours}小时${minutes}分钟`;
+            
+            // 更新基础费用
+            const baseCostElement = document.querySelector('.cost-item:nth-child(1) .info-value');
+            baseCostElement.textContent = `¥15.00 × ${hours}小时${minutes}分钟`;
+            
+            // 更新计费金额和实付金额
+            const calculatedCostElement = document.querySelector('.cost-item:nth-child(2) .info-value');
+            const totalCostElement = document.querySelector('.cost-total .total-value');
+            calculatedCostElement.textContent = `¥${cost}`;
+            totalCostElement.textContent = `¥${cost}`;
+            
+            // 更新结束时间
+            const startTime = new Date();
+            startTime.setHours(15, 30, 0); // 模拟15:30开始
+            const endTime = new Date(startTime.getTime() + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000));
+            
+            const endTimeFormatted = `${endTime.getFullYear()}-${String(endTime.getMonth() + 1).padStart(2, '0')}-${String(endTime.getDate()).padStart(2, '0')} ${String(endTime.getHours()).padStart(2, '0')}:${String(endTime.getMinutes()).padStart(2, '0')}`;
+            
+            const endTimeElement = document.querySelector('.info-item:nth-child(4) .info-value');
+            endTimeElement.textContent = endTimeFormatted;
+            
+            // 星级评价功能
+            const stars = document.querySelectorAll('.star');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    
+                    // 重置所有星星
+                    stars.forEach(s => s.classList.remove('active'));
+                    
+                    // 设置当前及之前的星星为激活状态
+                    for (let i = 0; i < stars.length; i++) {
+                        if (i < value) {
+                            stars[i].classList.add('active');
+                        }
+                    }
+                });
+            });
+            
+            // 返回首页按钮点击事件
+            document.getElementById('homeButton').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+            
+            // 分享按钮点击事件
+            document.querySelector('.share-button').addEventListener('click', function() {
+                // 分享逻辑，在实际应用中会调用微信分享API
+                alert('调用微信分享接口...');
+            });
+        });
+    </script>
+</body>
+</html> 

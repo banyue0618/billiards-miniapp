@@ -1,0 +1,368 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+    background: #f2f7ff;
+    color: #1d1d1f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 背景图案 */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 25% 25%, #e6f0ff 2%, transparent 10%),
+        radial-gradient(circle at 75% 75%, #e6f0ff 2%, transparent 10%),
+        radial-gradient(circle at 85% 15%, #e6f0ff 1%, transparent 8%),
+        radial-gradient(circle at 15% 85%, #e6f0ff 1%, transparent 8%),
+        radial-gradient(circle at 50% 50%, #e6f0ff 1%, transparent 12%);
+    background-size: 100px 100px;
+    opacity: 0.6;
+    z-index: -1;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* 头部样式 */
+header {
+    margin-bottom: 2rem;
+    position: relative;
+    transition: all 0.5s ease;
+}
+
+h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #4a6baf;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
+    display: inline-block;
+    transition: all 0.5s ease;
+}
+
+h1::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: #4a6baf;
+    border-radius: 3px;
+    transition: all 0.5s ease;
+}
+
+/* 主要内容区 */
+main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+    padding-bottom: 30px;
+}
+
+/* 按钮容器 */
+.button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0 2rem 0;
+    z-index: 20;
+}
+
+/* 抽奖按钮 */
+.lottery-btn {
+    background: #4a6baf;
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding: 0.8rem 2.5rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(74, 107, 175, 0.3);
+    transition: all 0.3s ease;
+    margin-top: 0;
+    z-index: 20;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 1px;
+}
+
+.lottery-btn::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        rgba(255, 255, 255, 0) 100%);
+    transform: rotate(45deg);
+    animation: buttonShine 3s infinite linear;
+    z-index: 1;
+}
+
+.lottery-btn span {
+    position: relative;
+    z-index: 2;
+}
+
+.lottery-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(74, 107, 175, 0.4);
+    background: #5679c3;
+}
+
+.lottery-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(74, 107, 175, 0.3);
+}
+
+.lottery-btn.stop-btn {
+    background: #e74c3c;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.lottery-btn.stop-btn:hover {
+    background: #f55b4b;
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+
+.lottery-btn.stop-btn:active {
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.lottery-btn:disabled {
+    background: #b3b3b3;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.lottery-btn:disabled::before {
+    display: none;
+}
+
+@keyframes buttonShine {
+    0% {
+        left: -150%;
+    }
+    100% {
+        left: 150%;
+    }
+}
+
+/* 抽奖容器 */
+.lottery-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 180px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 抽奖框 */
+.lottery-box {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(74, 107, 175, 0.15);
+    border: 2px solid #e1e8f5;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 名字容器 */
+.names-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    padding: 10px 0;
+}
+
+/* 高亮带 */
+.highlight-band {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 60px;
+    background: #e9f0ff;
+    border-top: 1px solid #d0e0ff;
+    border-bottom: 1px solid #d0e0ff;
+    z-index: 1;
+}
+
+/* 名字项样式 */
+.name-item {
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: #4a6baf;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: transform 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+
+.name-item.center {
+    color: #e74c3c;
+    font-size: 36px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    z-index: 3;
+}
+
+.name-item.result {
+    color: #e74c3c;
+    font-size: 36px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    animation: resultPulse 2s infinite alternate;
+    letter-spacing: 2px;
+    z-index: 3;
+    opacity: 1 !important;
+}
+
+@keyframes resultPulse {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.05);
+        text-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+    }
+}
+
+/* 文件输入框样式 */
+.file-input-container {
+    margin: 1rem auto;
+    width: 100%;
+    max-width: 300px;
+    position: relative;
+    transition: all 0.5s ease;
+}
+
+#file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: #4a6baf;
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(74, 107, 175, 0.3);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 1px;
+}
+
+.file-label:hover {
+    background: #5679c3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(74, 107, 175, 0.4);
+}
+
+.file-label:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(74, 107, 175, 0.3);
+}
+
+/* 底部样式 */
+footer {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #86868b;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+/* 烟花效果 */
+.firework {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .lottery-container {
+        max-width: 350px;
+        height: 180px;
+    }
+    
+    .lottery-btn {
+        font-size: 1.1rem;
+        padding: 0.8rem 2rem;
+    }
+    
+    .name-item {
+        font-size: 30px;
+    }
+    
+    .name-item.result, .name-item.center {
+        font-size: 34px;
+    }
+    
+    .highlight-band {
+        height: 60px;
+    }
+}

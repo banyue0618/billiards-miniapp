@@ -1,0 +1,116 @@
+<!-- 法律协议页面 -->
+<view class="legal-container">
+  <view class="tab-header">
+    <view class="tab-item {{currentTab == 0 ? 'active' : ''}}" bindtap="switchTab" data-tab="0">用户协议</view>
+    <view class="tab-item {{currentTab == 1 ? 'active' : ''}}" bindtap="switchTab" data-tab="1">隐私政策</view>
+  </view>
+  
+  <view class="tab-content">
+    <!-- 用户协议内容 -->
+    <view class="protocol-content" wx:if="{{currentTab == 0}}">
+      <view class="section">
+        <view class="section-title">一、服务内容</view>
+        <view class="section-content">
+          <text>本小程序提供台球馆预订、会员管理等服务。用户可以通过本小程序浏览门店信息、预订台球桌、查看订单等。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">二、用户账号</view>
+        <view class="section-content">
+          <text>1. 用户需要通过微信授权登录使用本小程序的服务。</text>
+          <text>2. 用户应当妥善保管自己的账号信息，对账号下的所有行为负责。</text>
+          <text>3. 禁止将账号借给他人使用，或进行任何违法、违规活动。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">三、预订规则</view>
+        <view class="section-content">
+          <text>1. 用户可以通过小程序预订台球桌，预订成功后系统会生成订单。</text>
+          <text>2. 用户应当按照预订时间准时到店使用服务。</text>
+          <text>3. 如需取消预订，请提前在小程序内操作，以免影响您的信用记录。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">四、会员规则</view>
+        <view class="section-content">
+          <text>1. 用户可通过小程序开通会员，享受相应的优惠和权益。</text>
+          <text>2. 会员有效期自开通日起计算，到期后权益自动失效。</text>
+          <text>3. 会员权益仅限会员本人使用，不得转让或出售。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">五、用户行为规范</view>
+        <view class="section-content">
+          <text>用户在使用本小程序服务时，应当遵守中华人民共和国相关法律法规，不得从事任何违法违规活动。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">六、协议修改</view>
+        <view class="section-content">
+          <text>我们保留随时修改本协议的权利，修改后的协议将在小程序内公布。您继续使用本小程序服务，即表示同意受修改后的协议约束。</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 隐私政策内容 -->
+    <view class="privacy-content" wx:if="{{currentTab == 1}}">
+      <view class="section">
+        <view class="section-title">一、信息收集</view>
+        <view class="section-content">
+          <text>我们可能会收集您的以下信息：</text>
+          <text>1. 个人身份信息：如手机号码、微信昵称、头像等。</text>
+          <text>2. 设备信息：如设备型号、操作系统版本等。</text>
+          <text>3. 位置信息：为了提供最近门店服务，我们可能会收集您的位置信息。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">二、信息使用</view>
+        <view class="section-content">
+          <text>我们使用收集的信息用于：</text>
+          <text>1. 提供、维护和改进我们的服务。</text>
+          <text>2. 实现个性化推荐和内容展示。</text>
+          <text>3. 处理您的订单和预约。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">三、信息安全</view>
+        <view class="section-content">
+          <text>我们采取合理的安全措施保护您的个人信息，防止未经授权的访问、使用或披露。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">四、第三方共享</view>
+        <view class="section-content">
+          <text>我们不会将您的个人信息出售给第三方。但在以下情况下，我们可能会与第三方共享您的信息：</text>
+          <text>1. 获得您的明确同意。</text>
+          <text>2. 遵守法律法规要求。</text>
+          <text>3. 与我们的服务提供商合作，以提供服务。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">五、隐私政策更新</view>
+        <view class="section-content">
+          <text>我们可能会不时更新本隐私政策。更新后，我们会在应用内通知您。</text>
+        </view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">六、联系我们</view>
+        <view class="section-content">
+          <text>如果您对我们的隐私政策有任何疑问，请联系我们的客服。</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="update-time">更新日期：2023年12月1日</view>
+</view> 

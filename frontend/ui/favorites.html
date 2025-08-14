@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>自助台球厅 - 我的收藏</title>
+    <style>
+        :root {
+            --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --primary-text-color: #1d1d1f;
+            --secondary-text-color: #6e6e73;
+            --tertiary-text-color: #86868b;
+            --background-color: #f0f0f5; 
+            --card-background-color: #ffffff;
+            --border-color: #d2d2d7;
+            --interactive-color: #007aff; 
+        }
+
+        body {
+            font-family: var(--system-font);
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--primary-text-color);
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .page-header-container {
+            position: sticky; 
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background-color: rgba(249, 249, 249, 0.85); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 0.5px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            height: 44px;
+        }
+        .back-button {
+            font-size: 17px;
+            color: var(--interactive-color);
+            text-decoration: none;
+            padding: 8px 10px 8px 0;
+            line-height: 1;
+        }
+        .page-header-title {
+            flex-grow: 1; 
+            padding: 0 16px; 
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--primary-text-color);
+            position: absolute; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: fit-content; 
+            max-width: calc(100% - 120px); 
+        }
+
+        .scrollable-content {
+            flex-grow: 1;
+            overflow-y: auto; 
+            padding: 20px 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            margin-top: 80px;
+        }
+        .empty-state .icon {
+            font-size: 48px;
+            color: var(--tertiary-text-color);
+            margin-bottom: 16px;
+        }
+        .empty-state .message {
+            font-size: 17px;
+            color: var(--secondary-text-color);
+            margin-bottom: 8px;
+        }
+        .empty-state .sub-message {
+            font-size: 14px;
+            color: var(--tertiary-text-color);
+        }
+        /* Example favorite card styling - can be expanded from store card */
+        .favorite-store-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out;
+        }
+        .favorite-store-card:active {
+            transform: scale(0.98);
+        }
+
+        .favorite-store-card .image-placeholder {
+            width: 100%;
+            height: 130px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tertiary-text-color);
+            font-size: 14px;
+        }
+        .favorite-store-card .name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--primary-text-color);
+        }
+        .favorite-store-card .address-info {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .favorite-store-card .address-info .icon {
+            margin-right: 6px;
+            opacity: 0.7;
+        }
+        .favorite-store-card .table-status-info {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .favorite-store-card .table-status-info .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .favorite-store-card .table-status-info .status-dot.open {
+            background-color: var(--green-color);
+        }
+        .favorite-store-card .table-status-info .status-dot.busy {
+            background-color: #FF9500; /* Orange */
+        }
+        .favorite-store-card .table-status-info .status-dot.closed {
+            background-color: var(--tertiary-text-color);
+        }
+        .favorite-store-card .table-status-info .status-text {
+            color: var(--secondary-text-color);
+        }
+        .favorite-store-card .table-status-info .availability {
+            color: var(--primary-text-color);
+            font-weight: 500;
+        }
+
+        /* Remove or hide old actions if not needed */
+        .favorite-store-card .actions {
+            display: none; 
+        }
+
+    </style>
+</head>
+<body>
+    <div class="page-header-container">
+        <a href="my.html" class="back-button">‹ 返回</a>
+        <div class="page-header-title">我的收藏</div>
+    </div>
+
+    <div class="scrollable-content">
+        <!-- Example: If there are favorites -->
+        
+        <div class="favorite-store-card">
+            <div class="image-placeholder">📷 店铺图片</div>
+            <div class="name">星辉台球自助厅 (天河总店)</div>
+            <div class="address-info">
+                <span class="icon">📍</span>
+                <span>广州市天河区黄埔大道西888号</span>
+            </div>
+            <div class="table-status-info">
+                <span class="status-dot open"></span>
+                <span class="status-text">营业中</span> - 
+                <span class="availability">空闲 3 张</span>
+            </div>
+        </div>
+        <div class="favorite-store-card">
+            <div class="image-placeholder">📷 店铺图片</div>
+            <div class="name">月宫休闲台球室 (大学城分店)</div>
+            <div class="address-info">
+                <span class="icon">📍</span>
+                <span>广州市番禺区大学城中环东路100号</span>
+            </div>
+            <div class="table-status-info">
+                <span class="status-dot busy"></span>
+                <span class="status-text">繁忙</span> - 
+                <span class="availability">空闲 0 张</span>
+            </div>
+        </div>
+        <div class="favorite-store-card">
+            <div class="image-placeholder">📷 店铺图片</div>
+            <div class="name">杆法研究社 (体育西路店)</div>
+            <div class="address-info">
+                <span class="icon">📍</span>
+                <span>广州市天河区体育西路横街12号</span>
+            </div>
+            <div class="table-status-info">
+                <span class="status-dot closed"></span>
+                <span class="status-text">已打烊</span>
+            </div>
+        </div>
+
+        <!-- Example: If no favorites -->
+        <!-- 
+        <div class="empty-state">
+            <div class="icon">❤️</div>
+            <div class="message">您还没有收藏任何门店</div>
+            <div class="sub-message">去首页看看有哪些值得收藏的吧！</div>
+        </div>
+        -->
+    </div>
+</body>
+</html> 

@@ -1,0 +1,38 @@
+<view class="ongoing-card-wrapper" wx:if="{{isLoggedIn && orders.length > 0}}">
+  <swiper 
+    class="ongoing-swiper"
+    bindchange="handleSwiperChange"
+    current="{{currentIndex}}"
+    indicator-dots="{{orders.length > 1}}"
+    indicator-color="rgba(0, 0, 0, .3)"
+    indicator-active-color="#07c160"
+    indicator-position="left">
+    <swiper-item wx:for="{{orders}}" wx:key="id" bindtap="handleViewOrder" data-order-id="{{item.id}}">
+      <!-- 卡片标题栏 -->
+      <view class="card-header">
+        <view class="store-info-text">{{item.storeName}} · {{item.tableNumber}}号台</view>
+        <view class="status-badge-ongoing">进行中</view>
+      </view>
+      
+      <!-- 卡片内容区 -->
+      <view class="card-details-flex">
+        <!-- 左侧时间信息 -->
+        <view>
+          <view class="time-info-text">{{item.startTime}} 开始</view> 
+          <view class="time-info-text time-updating">已使用 {{item.timeDuration}}</view>
+        </view>
+        
+        <!-- 右侧费用信息 -->
+        <view class="cost-info-block">
+          <view class="cost-info-text">当前费用</view>
+          <text class="amount-text">¥{{item.amountText}}</text>
+        </view>
+      </view>
+      
+      <!-- 按钮操作区 -->
+      <view class="card-actions-right">
+        <button class="end-session-button" catchtap="handleEndSession" data-order-id="{{item.id}}">结束计费</button> 
+      </view>
+    </swiper-item>
+  </swiper>
+</view> 

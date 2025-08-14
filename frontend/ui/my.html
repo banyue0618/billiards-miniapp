@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>自助台球厅 - 我的</title>
+    <style>
+        :root {
+            --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --primary-text-color: #1d1d1f;
+            --secondary-text-color: #6e6e73;
+            --tertiary-text-color: #86868b;
+            --background-color: #f0f0f5; /* Slightly different gray for grouped lists like settings */
+            --card-background-color: #ffffff;
+            --border-color: #d2d2d7;
+            --interactive-color: #007aff; 
+            --separator-color: #c6c6c8; /* iOS separator color */
+        }
+
+        body {
+            font-family: var(--system-font);
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--primary-text-color);
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .page-header-container {
+            position: sticky; /* Sticky for scroll, but env(safe-area-inset-top) handled by body padding */
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background-color: rgba(249, 249, 249, 0.85); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 0.5px solid var(--border-color);
+        }
+        .page-header-title {
+            padding: 12px 16px;
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--primary-text-color);
+        }
+
+        .scrollable-content {
+            flex-grow: 1;
+            overflow-y: auto; /* Allow content to scroll */
+            padding: 16px;
+            padding-bottom: 30px; /* Add some padding at the bottom */
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            padding: 20px 16px;
+            margin-bottom: 25px; /* Increased space */
+            background-color: var(--card-background-color);
+            border-radius: 10px;
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #e0e0e0; /* Placeholder color */
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--secondary-text-color);
+        }
+
+        .profile-info .name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .profile-info .membership {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+        }
+
+        .list-group {
+            margin-bottom: 25px; /* Increased space */
+        }
+
+        .list-group .group-title {
+            font-size: 13px;
+            color: var(--tertiary-text-color);
+            text-transform: uppercase;
+            padding: 0 16px 8px 16px; /* Match iOS settings section header padding */
+        }
+
+        .list-items {
+            background-color: var(--card-background-color);
+            border-radius: 10px;
+            overflow: hidden; /* To clip border-radius for list items */
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px; /* Slightly increased padding for better touch target */
+            text-decoration: none;
+            color: var(--primary-text-color);
+            position: relative; /* For separator */
+        }
+
+        .list-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 48px; /* Adjusted to align with text if icon bg removed */
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator-color);
+        }
+
+        .list-item .icon {
+            width: 28px;  /* Keep width for alignment */
+            height: 28px;
+            margin-right: 12px; /* Slightly reduced margin if no bg */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* background-color: transparent; Removed background */
+            /* border-radius: 6px; No longer needed if no bg */
+            color: var(--secondary-text-color); /* Icon color changed to gray */
+            font-size: 20px; /* Slightly larger icon if no background */
+        }
+        /* Specific icon colors - can be customized */
+        .list-item .icon.orders { background-color: #ff9500; } /* Orange */
+        .list-item .icon.favorites { background-color: #ff2d55; } /* Pink */
+        .list-item .icon.points { background-color: #34c759; } /* Green */
+        .list-item .icon.feedback { background-color: #5856d6; } /* Indigo */
+        .list-item .icon.about { background-color: #007aff; } /* Blue */
+        .list-item .icon.contact { background-color: #8e8e93; } /* Gray */
+
+
+        .list-item .text {
+            flex-grow: 1;
+            font-size: 17px;
+        }
+
+        .list-item .chevron {
+            font-size: 18px;
+            color: var(--tertiary-text-color);
+            transform: scaleX(0.7) scaleY(1.1); /* Make it look like iOS chevron */
+        }
+
+        .app-version {
+            text-align: center;
+            font-size: 12px;
+            color: var(--tertiary-text-color);
+            padding-top: 10px; /* Space above version text */
+            margin-top: 10px; /* Additional space after the last group */
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            position: sticky; 
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+            background-color: rgba(249, 249, 249, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding-top: 8px;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.03);
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: var(--secondary-text-color);
+            cursor: pointer;
+            text-decoration: none;
+            flex: 1;
+            padding: 4px 0;
+        }
+        .nav-item.active {
+            color: var(--interactive-color);
+        }
+        .nav-item .icon-placeholder {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header-container">
+        <div class="page-header-title">我的</div>
+    </div>
+
+    <div class="scrollable-content">
+        <div class="profile-section">
+            <div class="profile-avatar">👤</div> <!-- Placeholder for avatar -->
+            <div class="profile-info">
+                <div class="name">尊敬的用户</div>
+                <div class="membership">黄金会员 | 1580 积分</div>
+            </div>
+        </div>
+
+        <div class="list-group">
+            <div class="group-title">我的服务</div>
+            <div class="list-items">
+                <a href="orders.html" class="list-item">
+                    <span class="icon">🛍️</span>
+                    <span class="text">我的订单</span>
+                    <span class="chevron">›</span>
+                </a>
+                <a href="favorites.html" class="list-item">
+                    <span class="icon">❤️</span>
+                    <span class="text">我的收藏</span>
+                    <span class="chevron">›</span>
+                </a>
+                <a href="points.html" class="list-item">
+                    <span class="icon">💰</span>
+                    <span class="text">我的积分</span>
+                    <span class="chevron">›</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="list-group">
+            <div class="group-title">更多服务</div>
+            <div class="list-items">
+                <a href="feedback.html" class="list-item">
+                    <span class="icon">📝</span>
+                    <span class="text">意见反馈</span>
+                    <span class="chevron">›</span>
+                </a>
+                <a href="about.html" class="list-item">
+                    <span class="icon">ℹ️</span>
+                    <span class="text">关于我们</span>
+                    <span class="chevron">›</span>
+                </a>
+                <a href="contact.html" class="list-item">
+                    <span class="icon">📞</span>
+                    <span class="text">联系客服</span>
+                    <span class="chevron">›</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="app-version">
+            版本 V1.0.0
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item">
+            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">🏠</div>
+                首页
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="scan.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">📱</div>
+                扫码开台
+            </a>
+        </div>
+        <div class="nav-item active">
+            <a href="my.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">👤</div>
+                我的
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

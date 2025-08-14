@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>自助台球厅 - 首页</title>
+    <style>
+        :root {
+            --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --primary-text-color: #1d1d1f;
+            --secondary-text-color: #6e6e73;
+            --tertiary-text-color: #86868b;
+            --background-color: #f5f5f7;
+            --card-background-color: #ffffff;
+            --border-color: #d2d2d7;
+            --interactive-color: #007aff; /* Apple Blue */
+            --green-color: #34c759; /* Apple Green */
+            --orange-color: #ff9500; /* Apple Orange */
+            --gray-color: #8e8e93; /* Apple Gray */
+            --red-color: #ff3b30; /* Apple Red */
+        }
+
+        body {
+            font-family: var(--system-font);
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--primary-text-color);
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-background-color);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .search-bar input[type="text"] {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background-color: transparent;
+            color: var(--primary-text-color);
+        }
+        .search-bar input[type="text"]::placeholder {
+            color: var(--tertiary-text-color);
+        }
+        .search-bar .search-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            opacity: 0.6;
+            /* Placeholder for actual SVG icon */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236e6e73' width='18px' height='18px'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+
+        /* Ongoing Session Card */
+        .ongoing-session-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 滑动指示器 */
+        .slide-indicators {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .slide-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            margin: 0 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .slide-dot.active {
+            background-color: var(--interactive-color);
+        }
+
+        .ongoing-session-card .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .ongoing-session-card .store-info {
+            font-size: 17px;
+            font-weight: 600;
+        }
+        .ongoing-session-card .status-badge {
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background-color: var(--interactive-color); /* Green */
+            color: white;
+            font-weight: 500;
+        }
+        .ongoing-session-card .details {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end; /* Align button and text */
+            margin-bottom: 12px;
+        }
+        .ongoing-session-card .time-info, .ongoing-session-card .cost-info {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+        }
+         .ongoing-session-card .cost-info .amount {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-text-color);
+        }
+        .ongoing-session-card .actions .end-button {
+            background-color: var(--red-color); /* Red */
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* List Title */
+        .list-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--primary-text-color);
+        }
+
+        /* Store List */
+        .store-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .store-card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out;
+        }
+        .store-card:active {
+            transform: scale(0.98);
+        }
+
+        .store-card .image-placeholder {
+            width: 100%;
+            height: 150px; /* Adjust as needed */
+            background-color: #e9ecef; /* Light gray for placeholder */
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tertiary-text-color);
+            font-size: 14px;
+        }
+
+        .store-card .name-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .store-card .name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-text-color);
+        }
+        .store-card .status {
+            font-size: 13px;
+            padding: 3px 7px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        .store-card .status.open {
+            background-color: var(--green-color); /* Apple Green */
+            color: white;
+        }
+        .store-card .status.closed {
+            background-color: var(--gray-color); /* Apple Gray */
+            color: white;
+        }
+         .store-card .status.full {
+            background-color: var(--orange-color); /* Apple Orange */
+            color: white;
+        }
+
+
+        .store-card .table-info {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            margin-bottom: 8px;
+        }
+         .store-card .table-info .available {
+            color: var(--green-color);
+            font-weight: 500;
+        }
+
+        .store-card .location-info, .store-card .hours-info {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .store-card .location-info .icon, .store-card .hours-info .icon {
+            margin-right: 6px;
+            opacity: 0.7;
+        }
+
+
+        .store-card .price-info {
+            font-size: 14px;
+            color: var(--interactive-color);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .store-card .announcement {
+            font-size: 13px;
+            color: var(--tertiary-text-color);
+            background-color: #f0f0f5; /* Slightly different background for announcement */
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        .store-card .announcement p {
+             margin:0;
+        }
+
+        /* Helper for icons (simple text for now) */
+        .icon-text {
+            font-weight: bold;
+            color: var(--interactive-color);
+        }
+
+        /* Basic Navigation Bar Placeholder */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(249, 249, 249, 0.94); /* Translucent white */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom)); /* For iPhone X notches */
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.03);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: var(--secondary-text-color);
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: var(--interactive-color);
+        }
+        .nav-item .icon-placeholder {
+            width: 28px;
+            height: 28px;
+            background-color: #ccc; /* Placeholder */
+            border-radius: 6px; /* Simple shape */
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size:14px;
+        }
+
+        /* 内容容器 */
+        .session-content {
+            display: none;
+        }
+
+        .session-content.active {
+            display: block;
+        }
+
+        /* 计时更新动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .time-updating {
+            animation: pulse 2s infinite;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <div class="search-icon"></div>
+            <input type="text" placeholder="搜索门店、球桌...">
+        </div>
+
+        <!-- Store List -->
+        <div class="store-list">
+            <!-- Ongoing Session Card (Example - visible if a session is active) -->
+            <div class="ongoing-session-card">
+                <div class="session-content active" data-index="0">
+                    <div class="header">
+                        <span class="store-info">星球台球俱乐部 · 3号台</span>
+                        <span class="status-badge">进行中</span>
+                    </div>
+                    <div class="details">
+                        <div>
+                            <div class="time-info">14:30开始</div>
+                            <div class="time-info time-updating">已使用 1小时25分钟</div>
+                        </div>
+                        <div class="cost-info">
+                            当前费用 <span class="amount">¥25.50</span>
+                        </div>
+                    </div>
+                    <div class="actions" style="text-align: right;">
+                        <button class="end-button">结束计费</button>
+                    </div>
+                </div>
+                
+                <div class="session-content" data-index="1">
+                    <div class="header">
+                        <span class="store-info">王者风范台球厅 · 8号台</span>
+                        <span class="status-badge">进行中</span>
+                    </div>
+                    <div class="details">
+                        <div>
+                            <div class="time-info">15:45开始</div>
+                            <div class="time-info time-updating">已使用 0小时40分钟</div>
+                        </div>
+                        <div class="cost-info">
+                            当前费用 <span class="amount">¥15.00</span>
+                        </div>
+                    </div>
+                    <div class="actions" style="text-align: right;">
+                        <button class="end-button">结束计费</button>
+                    </div>
+                </div>
+                
+                <!-- 滑动指示器 -->
+                <div class="slide-indicators">
+                    <div class="slide-dot active" data-index="0"></div>
+                    <div class="slide-dot" data-index="1"></div>
+                </div>
+            </div>
+
+            <!-- Store Card 1 -->
+            <div class="store-card">
+                <div class="image-placeholder">门店图片 (750x350)</div>
+                <div class="name-status">
+                    <span class="name">星辉台球自助厅</span>
+                    <span class="status open">营业中</span>
+                </div>
+                <div class="table-info">
+                    12张球桌 · <span class="available">剩余3张</span>
+                </div>
+                <div class="location-info">
+                    <span class="icon">📍</span>天河区某某街道88号 · 800米
+                </div>
+                <div class="hours-info">
+                     <span class="icon">🕒</span>09:00 - 23:00
+                </div>
+                <div class="price-info">
+                    最低 ¥9.9/小时
+                </div>
+                <div class="announcement">
+                    <p>五一期间正常营业，充值满100送20元 (2小时前更新)</p>
+                </div>
+            </div>
+
+            <!-- Store Card 2 -->
+            <div class="store-card">
+                <div class="image-placeholder">门店图片 (750x350)</div>
+                <div class="name-status">
+                    <span class="name">月宫休闲台球室</span>
+                    <span class="status closed">休息中</span>
+                </div>
+                <div class="table-info">
+                    8张球桌
+                </div>
+                <div class="location-info">
+                    <span class="icon">📍</span>白云区清风路12号 · 1.2公里
+                </div>
+                 <div class="hours-info">
+                    <span class="icon">🕒</span>10:00 - 02:00
+                </div>
+                <div class="price-info">
+                    最低 ¥12/小时
+                </div>
+            </div>
+            
+            <!-- Store Card 3 - Full -->
+            <div class="store-card">
+                <div class="image-placeholder">门店图片 (750x350)</div>
+                <div class="name-status">
+                    <span class="name">王者风范台球厅</span>
+                    <span class="status full">已满</span>
+                </div>
+                <div class="table-info">
+                    20张球桌 · <span style="color: var(--orange-color); font-weight: 500;">已满</span>
+                </div>
+                <div class="location-info">
+                    <span class="icon">📍</span>越秀区人民大道中路333号 · 550米
+                </div>
+                 <div class="hours-info">
+                    <span class="icon">🕒</span>24小时营业
+                </div>
+                <div class="price-info">
+                    最低 ¥15/小时
+                </div>
+                 <div class="announcement">
+                    <p>新店开业！全场8折优惠！</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Basic Navigation Bar Placeholder -->
+    <div class="nav-bar">
+        <div class="nav-item active">
+            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">🏠</div>
+                首页
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="scan.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">📱</div>
+                扫码开台
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="my.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">👤</div>
+                我的
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 内容替换方式实现滑动效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const sessionContents = document.querySelectorAll('.session-content');
+            const dots = document.querySelectorAll('.slide-dot');
+            const totalContents = sessionContents.length;
+            
+            // 初始显示第一个内容
+            let currentIndex = 0;
+            
+            // 更新显示内容
+            function updateContent() {
+                // 更新内容显示状态
+                sessionContents.forEach((content, index) => {
+                    if (index === currentIndex) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+                
+                // 更新指示器状态
+                dots.forEach((dot, index) => {
+                    if (index === currentIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            // 点击指示器切换内容
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', function() {
+                    currentIndex = parseInt(this.getAttribute('data-index'));
+                    updateContent();
+                });
+            });
+            
+            // 支持左右滑动手势
+            const cardElement = document.querySelector('.ongoing-session-card');
+            let startX, moveX;
+            
+            cardElement.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+            });
+            
+            cardElement.addEventListener('touchmove', function(e) {
+                moveX = e.touches[0].clientX;
+            });
+            
+            cardElement.addEventListener('touchend', function() {
+                if (startX - moveX > 50 && currentIndex < totalContents - 1) {
+                    // 向左滑动，显示下一个
+                    currentIndex++;
+                    updateContent();
+                } else if (moveX - startX > 50 && currentIndex > 0) {
+                    // 向右滑动，显示上一个
+                    currentIndex--;
+                    updateContent();
+                }
+            });
+            
+            // 模拟实时更新时间和费用
+            function updateTimes() {
+                document.querySelectorAll('.time-updating').forEach(element => {
+                    // 提取当前时间信息
+                    const timeText = element.textContent;
+                    const hourMatch = timeText.match(/(\d+)小时/);
+                    const minuteMatch = timeText.match(/(\d+)分钟/);
+                    
+                    let hours = hourMatch ? parseInt(hourMatch[1]) : 0;
+                    let minutes = minuteMatch ? parseInt(minuteMatch[1]) : 0;
+                    
+                    // 增加1分钟
+                    minutes++;
+                    if (minutes >= 60) {
+                        hours++;
+                        minutes = 0;
+                    }
+                    
+                    // 更新显示
+                    element.textContent = `已使用 ${hours}小时${minutes}分钟`;
+                    
+                    // 同时更新费用
+                    const costElement = element.closest('.session-content').querySelector('.cost-info .amount');
+                    if (costElement) {
+                        // 简单的费用更新逻辑 (每分钟增加0.25元)
+                        const currentCost = parseFloat(costElement.textContent.replace('¥', ''));
+                        const newCost = (currentCost + 0.25).toFixed(2);
+                        costElement.textContent = `¥${newCost}`;
+                        
+                        // 添加简单的更新动画
+                        costElement.classList.add('time-updating');
+                        setTimeout(() => {
+                            costElement.classList.remove('time-updating');
+                        }, 1000);
+                    }
+                });
+            }
+            
+            // 每60秒更新一次时间和费用
+            setInterval(updateTimes, 60000);
+            
+            // 结束计费按钮点击事件
+            document.querySelectorAll('.end-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 阻止事件冒泡，避免触发卡片点击事件
+                    e.stopPropagation();
+                    // 跳转到结算页面
+                    window.location.href = 'usage-detail.html';
+                });
+            });
+            
+            // 进行中卡片点击事件
+            document.querySelectorAll('.ongoing-session-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // 跳转到使用详情页面
+                    window.location.href = 'usage-detail.html';
+                });
+            });
+            
+            // 店铺卡片点击事件
+            document.querySelectorAll('.store-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // 跳转到门店详情页
+                    window.location.href = 'store-detail.html';
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

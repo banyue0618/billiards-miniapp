@@ -1,0 +1,18 @@
+<view class="tab-bar">
+  <view class="tab-bar-border"></view>
+  <view 
+    wx:for="{{list}}" 
+    wx:key="index" 
+    class="tab-bar-item {{item.isSpecial ? 'special' : ''}} {{selected === index ? 'selected' : ''}}" 
+    data-index="{{index}}" 
+    bindtap="switchTab"
+  >
+    <view class="icon-container {{item.isSpecial ? 'special-icon-container' : ''}}">
+      <!-- 标准图标用法：class中直接添加图标类名 -->
+      <view class="iconfont icon-{{selected === index ? item.selectedIconPath : item.iconPath}}"></view>
+    </view>
+    <view class="text-container">
+      <text>{{item.text}}</text>
+    </view>
+  </view>
+</view> 

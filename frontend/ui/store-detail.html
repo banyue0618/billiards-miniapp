@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>自助台球厅 - 门店详情</title>
+    <style>
+        :root {
+            --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --primary-text-color: #1d1d1f;
+            --secondary-text-color: #6e6e73;
+            --tertiary-text-color: #86868b;
+            --background-color: #f5f5f7;
+            --card-background-color: #ffffff;
+            --border-color: #d2d2d7;
+            --interactive-color: #007aff; /* Apple Blue */
+            --green-color: #34c759; /* Apple Green */
+            --orange-color: #ff9500; /* Apple Orange */
+            --gray-color: #8e8e93; /* Apple Gray */
+            --red-color: #ff3b30; /* Apple Red */
+        }
+
+        body {
+            font-family: var(--system-font);
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--primary-text-color);
+            line-height: 1.4;
+            padding-bottom: 60px; /* 为底部导航栏预留空间 */
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--card-background-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .back-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--interactive-color);
+        }
+
+        .nav-title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* 图片轮播 */
+        .image-carousel {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+        }
+
+        .carousel-wrapper {
+            display: flex;
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+
+        .carousel-slide {
+            flex: 0 0 100%;
+            background-color: #e9ecef;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tertiary-text-color);
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            margin: 0 4px;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background-color: white;
+            width: 12px;
+            height: 12px;
+        }
+
+        /* 基本信息卡片 */
+        .info-card {
+            background-color: var(--card-background-color);
+            padding: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .store-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .store-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .store-status {
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .store-status.open {
+            background-color: var(--green-color);
+            color: white;
+        }
+
+        .store-status.closed {
+            background-color: var(--gray-color);
+            color: white;
+        }
+
+        .store-status.full {
+            background-color: var(--orange-color);
+            color: white;
+        }
+
+        .store-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .rating-stars {
+            color: #FDCC0D;
+            margin-right: 8px;
+        }
+
+        .rating-count {
+            color: var(--secondary-text-color);
+            font-size: 14px;
+        }
+
+        /* 操作按钮区 */
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin: 16px 0;
+        }
+
+        .action-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--primary-text-color);
+            width: 60px;
+        }
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+            font-size: 20px;
+            color: var(--interactive-color);
+        }
+
+        .action-label {
+            font-size: 12px;
+        }
+
+        /* 球桌状态卡片 */
+        .table-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .table-count {
+            color: var(--secondary-text-color);
+            font-size: 14px;
+        }
+
+        .table-status {
+            margin-top: 12px;
+        }
+
+        .status-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+            margin-bottom: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-fill {
+            height: 100%;
+            background-color: var(--green-color);
+            border-radius: 4px;
+        }
+
+        .status-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--secondary-text-color);
+        }
+
+        /* 营业信息区 */
+        .business-info-item {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            color: var(--secondary-text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .info-content {
+            flex-grow: 1;
+        }
+
+        .info-label {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            color: var(--secondary-text-color);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* 计费规则区 */
+        .pricing-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .pricing-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .pricing-toggle {
+            color: var(--interactive-color);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .pricing-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pricing-row:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-type {
+            font-weight: 500;
+        }
+
+        .pricing-value {
+            color: var(--interactive-color);
+            font-weight: 600;
+        }
+
+        /* 门店简介区 */
+        .description-content {
+            color: var(--secondary-text-color);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 用户评价区 */
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .all-reviews {
+            color: var(--interactive-color);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .review-item {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .reviewer-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tertiary-text-color);
+        }
+
+        .reviewer-name {
+            font-weight: 500;
+        }
+
+        .review-time {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--tertiary-text-color);
+        }
+
+        .review-stars {
+            color: #FDCC0D;
+            margin-bottom: 4px;
+        }
+
+        .review-content {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* 主按钮 */
+        .primary-button {
+            position: fixed;
+            bottom: 70px;
+            left: 16px;
+            right: 16px;
+            background-color: var(--interactive-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .primary-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
+        }
+
+        /* 基本导航栏 */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(249, 249, 249, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.03);
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: var(--secondary-text-color);
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: var(--interactive-color);
+        }
+        .nav-item .icon-placeholder {
+            width: 28px;
+            height: 28px;
+            background-color: #ccc;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size:14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-nav">
+        <button class="back-button" onclick="history.back()">←</button>
+        <h1 class="nav-title">门店详情</h1>
+        <div style="width: 32px;"></div> <!-- 占位，保持标题居中 -->
+    </div>
+
+    <div class="container">
+        <!-- 图片轮播 -->
+        <div class="image-carousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-slide">
+                    <img src="https://via.placeholder.com/750x450" alt="门店图片1">
+                </div>
+                <div class="carousel-slide">
+                    <img src="https://via.placeholder.com/750x450" alt="门店图片2">
+                </div>
+                <div class="carousel-slide">
+                    <img src="https://via.placeholder.com/750x450" alt="门店图片3">
+                </div>
+            </div>
+            <div class="carousel-indicators">
+                <div class="carousel-dot active"></div>
+                <div class="carousel-dot"></div>
+                <div class="carousel-dot"></div>
+            </div>
+        </div>
+
+        <!-- 基本信息卡片 -->
+        <div class="info-card">
+            <div class="store-header">
+                <h2 class="store-name">星辉台球自助厅</h2>
+                <span class="store-status open">营业中</span>
+            </div>
+            <div class="store-rating">
+                <div class="rating-stars">★★★★☆</div>
+                <div class="rating-count">4.7 (289条评价)</div>
+            </div>
+            
+            <!-- 操作按钮区 -->
+            <div class="action-buttons">
+                <a href="#" class="action-button">
+                    <div class="action-icon">📍</div>
+                    <span class="action-label">导航</span>
+                </a>
+                <a href="#" class="action-button">
+                    <div class="action-icon">📞</div>
+                    <span class="action-label">电话</span>
+                </a>
+                <a href="#" class="action-button">
+                    <div class="action-icon">❤️</div>
+                    <span class="action-label">收藏</span>
+                </a>
+                <a href="#" class="action-button">
+                    <div class="action-icon">↗️</div>
+                    <span class="action-label">分享</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 球桌状态卡片 -->
+        <div class="info-card">
+            <div class="table-info-header">
+                <h3 class="section-title">球桌状态</h3>
+                <span class="table-count">共12张球桌</span>
+            </div>
+            <div class="table-status">
+                <div class="status-bar">
+                    <div class="status-fill" style="width: 75%;"></div>
+                </div>
+                <div class="status-details">
+                    <span>空闲：3张</span>
+                    <span>使用中：9张</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 营业信息区 -->
+        <div class="info-card">
+            <h3 class="section-title">营业信息</h3>
+            <div class="business-info-item">
+                <div class="info-icon">🕒</div>
+                <div class="info-content">
+                    <div class="info-label">营业时间</div>
+                    <div class="info-value">周一至周五 09:00-23:00<br>周六至周日 08:00-01:00</div>
+                </div>
+            </div>
+            <div class="business-info-item">
+                <div class="info-icon">📍</div>
+                <div class="info-content">
+                    <div class="info-label">门店地址</div>
+                    <div class="info-value">广州市天河区某某街道88号商业中心3楼</div>
+                </div>
+            </div>
+            <div class="business-info-item">
+                <div class="info-icon">📞</div>
+                <div class="info-content">
+                    <div class="info-label">联系电话</div>
+                    <div class="info-value">020-12345678</div>
+                </div>
+            </div>
+            <div class="business-info-item">
+                <div class="info-icon">📋</div>
+                <div class="info-content">
+                    <div class="info-label">门店公告</div>
+                    <div class="info-value">五一期间正常营业，充值满100送20元。新会员首次充值享8折优惠！</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 计费规则区 -->
+        <div class="info-card">
+            <div class="pricing-header">
+                <h3 class="pricing-title">计费规则</h3>
+                <div class="pricing-toggle">查看详情 ></div>
+            </div>
+            <div class="pricing-details">
+                <div class="pricing-row">
+                    <div class="pricing-type">标准费率</div>
+                    <div class="pricing-value">¥15/小时</div>
+                </div>
+                <div class="pricing-row">
+                    <div class="pricing-type">会员费率</div>
+                    <div class="pricing-value">¥12/小时</div>
+                </div>
+                <div class="pricing-row">
+                    <div class="pricing-type">特惠时段</div>
+                    <div class="pricing-value">周一至周五 10:00-17:00 ¥9.9/小时</div>
+                </div>
+                <div class="pricing-row">
+                    <div class="pricing-type">最低消费</div>
+                    <div class="pricing-value">¥10/次</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 门店简介区 -->
+        <div class="info-card">
+            <h3 class="section-title">门店简介</h3>
+            <div class="description-content">
+                星辉台球自助厅位于天河区商业中心，环境优雅，设备一流。配备12张专业比赛级别台球桌，并提供免费Wi-Fi、休息区和饮品服务。我们拥有专业的维护团队，确保每张球桌的品质和体验。欢迎各位球友前来体验！
+            </div>
+        </div>
+
+        <!-- 用户评价区 -->
+        <div class="info-card">
+            <div class="reviews-header">
+                <h3 class="section-title">用户评价</h3>
+                <a href="#" class="all-reviews">查看全部 ></a>
+            </div>
+            <div class="reviews-list">
+                <div class="review-item">
+                    <div class="reviewer-info">
+                        <div class="reviewer-avatar">张</div>
+                        <div class="reviewer-name">张先生</div>
+                        <div class="review-time">2天前</div>
+                    </div>
+                    <div class="review-stars">★★★★★</div>
+                    <div class="review-content">环境很好，球桌保养得非常到位，手感一流！自助开台非常方便，下次还会来。</div>
+                </div>
+                <div class="review-item">
+                    <div class="reviewer-info">
+                        <div class="reviewer-avatar">李</div>
+                        <div class="reviewer-name">李女士</div>
+                        <div class="review-time">1周前</div>
+                    </div>
+                    <div class="review-stars">★★★★☆</div>
+                    <div class="review-content">服务很好，价格实惠。唯一不足是周末人太多，需要等位。建议提前预约。</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 扫码开台按钮 -->
+    <button class="primary-button" id="scanButton">扫码开台</button>
+
+    <!-- 基本导航栏 -->
+    <div class="nav-bar">
+        <div class="nav-item">
+            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">🏠</div>
+                首页
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="scan.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">📱</div>
+                扫码开台
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="my.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                <div class="icon-placeholder">👤</div>
+                我的
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 图片轮播功能
+            const wrapper = document.querySelector('.carousel-wrapper');
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            let currentIndex = 0;
+
+            // 自动轮播
+            setInterval(function() {
+                currentIndex = (currentIndex + 1) % slides.length;
+                updateCarousel();
+            }, 3000);
+
+            // 点击指示器切换
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', function() {
+                    currentIndex = index;
+                    updateCarousel();
+                });
+            });
+
+            // 手势滑动
+            let startX, moveX;
+            wrapper.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+            });
+            
+            wrapper.addEventListener('touchmove', function(e) {
+                moveX = e.touches[0].clientX;
+            });
+            
+            wrapper.addEventListener('touchend', function() {
+                if (startX - moveX > 50 && currentIndex < slides.length - 1) {
+                    // 向左滑动
+                    currentIndex++;
+                    updateCarousel();
+                } else if (moveX - startX > 50 && currentIndex > 0) {
+                    // 向右滑动
+                    currentIndex--;
+                    updateCarousel();
+                }
+            });
+
+            function updateCarousel() {
+                wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+                
+                // 更新指示器
+                dots.forEach((dot, index) => {
+                    if (index === currentIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+
+            // 计费规则展开/收起
+            const pricingToggle = document.querySelector('.pricing-toggle');
+            const pricingDetails = document.querySelector('.pricing-details');
+            
+            pricingToggle.addEventListener('click', function() {
+                if (pricingToggle.textContent === '查看详情 >') {
+                    pricingToggle.textContent = '收起 ∧';
+                } else {
+                    pricingToggle.textContent = '查看详情 >';
+                }
+            });
+
+            // 扫码开台按钮点击
+            const scanButton = document.querySelector('.primary-button');
+            scanButton.addEventListener('click', function() {
+                window.location.href = 'table-confirm.html';
+            });
+            
+            // 操作按钮事件
+            document.querySelectorAll('.action-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const action = this.querySelector('.action-label').textContent;
+                    
+                    switch(action) {
+                        case '导航':
+                            alert('打开导航应用...');
+                            break;
+                        case '电话':
+                            window.location.href = 'tel:020-12345678';
+                            break;
+                        case '收藏':
+                            this.querySelector('.action-icon').textContent = '❤️'; // 切换收藏状态
+                            alert('收藏成功!');
+                            break;
+                        case '分享':
+                            alert('调用系统分享...');
+                            break;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

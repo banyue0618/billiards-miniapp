@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.billiards.mapper.OrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.Order">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="user_id" property="userId"/>
+        <result column="store_id" property="storeId"/>
+        <result column="table_id" property="tableId"/>
+        <result column="price_rule_id" property="priceRuleId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="duration" property="duration"/>
+        <result column="original_amount" property="originalAmount"/>
+        <result column="discount_amount" property="discountAmount"/>
+        <result column="actual_amount" property="actualAmount"/>
+        <result column="payment_status" property="paymentStatus"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="store_name" property="storeName"/>
+        <result column="table_number" property="tableNumber"/>
+    </resultMap>
+
+    <!-- 订单VO结果映射 -->
+    <resultMap id="OrderVOResultMap" type="org.dromara.billiards.domain.vo.OrderVO" extends="BaseResultMap">
+        <result column="refund_amount" property="refundAmount"/>
+        <result column="refund_status" property="refundStatus"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_phone" property="userPhone"/>
+    </resultMap>
+
+    <!-- 查询用户进行中的订单 -->
+    <select id="selectInProgressByUserId" resultMap="OrderVOResultMap">
+        SELECT o.*, s.name as store_name, t.table_number
+        FROM `bls_order` o
+                 LEFT JOIN bls_store s ON o.store_id = s.id
+                 LEFT JOIN bls_table t ON o.table_id = t.id
+        WHERE o.user_id = #{userId} AND o.status = 0
+        ORDER BY o.create_time DESC
+    </select>
+
+    <!-- 查询桌台进行中的订单 -->
+    <select id="selectInProgressByTableId" resultMap="OrderVOResultMap">
+        SELECT o.*, s.name as store_name, t.table_number
+        FROM `bls_order` o
+                 LEFT JOIN bls_store s ON o.store_id = s.id
+                 LEFT JOIN bls_table t ON o.table_id = t.id
+        WHERE o.table_id = #{tableId} AND o.status = 0
+        ORDER BY o.create_time DESC
+    </select>
+
+    <!-- 分页查询用户订单列表 -->
+    <select id="selectUserOrderPage" resultMap="OrderVOResultMap">
+        SELECT o.*, s.name as store_name, t.table_number
+        FROM `bls_order` o
+        LEFT JOIN bls_store s ON o.store_id = s.id
+        LEFT JOIN bls_table t ON o.table_id = t.id
+        WHERE o.user_id = #{userId}
+        ORDER BY o.create_time DESC
+    </select>
+    <select id="selectOrderDetail" resultMap="OrderVOResultMap">
+        SELECT o.*, r.refund_status, r.amount as refund_amount, ifnull(u.user_name, u.nickname) as user_name, u.phone as user_phone
+        FROM `bls_order` o
+                 LEFT JOIN bls_refund_record r ON o.id = r.order_id
+                 LEFT JOIN bls_user u ON o.user_id = u.id
+        WHERE o.id = #{orderId}
+    </select>
+
+</mapper>

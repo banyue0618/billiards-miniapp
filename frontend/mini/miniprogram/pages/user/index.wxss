@@ -1,0 +1,389 @@
+/* 用户页面样式 */
+.user-container {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding-bottom: 30rpx;
+}
+
+/* 用户信息头部 */
+.user-header {
+  background-color: #ffffff;
+  padding: 25rpx 25rpx;
+  display: flex;
+  align-items: center;
+  color: #1d1d1f;
+  margin: 30rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.avatar-wrap {
+  margin-right: 30rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  flex: 1;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+/* 获取用户信息按钮 */
+.get-profile-btn {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.get-profile-text {
+  font-size: 24rpx;
+  color: #1989fa;
+  background-color: rgba(25, 137, 250, 0.1);
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.get-profile-arrow {
+  font-size: 24rpx;
+  color: #1989fa;
+  margin-left: 6rpx;
+}
+
+.member-info {
+  display: flex;
+  align-items: center;
+}
+
+.member-badge {
+  display: flex;
+  align-items: center;
+  border-radius: 30rpx;
+  padding: rpx 16rpx;
+  margin-right: 16rpx;
+}
+
+.member-icon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 6rpx;
+}
+
+.member-text {
+  font-size: 24rpx;
+  color: #333;
+}
+
+.member-info .iconfont {
+  font-size: 28rpx;
+  margin-right: 6rpx;
+}
+
+.member-expire {
+  font-size: 24rpx;
+  color: #6e6e73;
+}
+
+/* 新增会员提示样式 */
+.member-tip {
+  margin-top: 10rpx;
+  display: flex;
+  align-items: center;
+}
+
+.member-tip-text {
+  font-size: 24rpx;
+  color: #6e6e73;
+  background-color: #f5f5f5;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.member-tip-arrow {
+  font-size: 24rpx;
+  color: #6e6e73;
+  margin-left: 6rpx;
+}
+
+.login-btn-wrap {
+  flex: 1;
+}
+
+.login-btn {
+  background-color: #f5f5f5;
+  color: #333;
+  border: none;
+  font-size: 30rpx;
+  padding: 10rpx 40rpx;
+  border-radius: 40rpx;
+}
+
+/* 会员卡片 */
+.member-card {
+  margin: 30rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.member-active {
+  background: linear-gradient(135deg, #f2c94c, #f2994a);
+  color: #fff;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.card-desc {
+  font-size: 26rpx;
+  opacity: 0.8;
+}
+
+.card-points {
+  font-size: 26rpx;
+  margin-top: 10rpx;
+  opacity: 0.8;
+}
+
+.card-btn-wrap {
+  margin-left: 20rpx;
+}
+
+.card-btn {
+  padding: 15rpx 30rpx;
+  font-size: 28rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: inherit;
+  border-radius: 30rpx;
+  line-height: 1.5;
+  border: none;
+}
+
+.member-active .card-btn {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 功能菜单 */
+.menu-section {
+  margin: 30rpx 0;
+}
+
+.menu-title {
+  font-size: 26rpx;
+  color: #86868b;
+  padding: 0 30rpx 16rpx 30rpx;
+  text-transform: uppercase;
+  font-weight: normal;
+}
+
+.menu-list {
+  background-color: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0 30rpx;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  position: relative;
+}
+
+.menu-item::after {
+  content: '';
+  position: absolute;
+  left: 96rpx; /* 与图标对齐 */
+  right: 0;
+  bottom: 0;
+  height: 1rpx;
+  background-color: #c6c6c8; /* 使用iOS分隔线颜色 */
+}
+
+.menu-item:last-child::after {
+  display: none;
+}
+
+.menu-icon {
+  width: 56rpx;
+  height: 56rpx;
+  margin-right: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: #6e6e73;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 34rpx;
+  color: #1d1d1f;
+}
+
+.arrow-icon {
+  font-size: 36rpx;
+  color: #86868b;
+  transform: scaleX(0.7) scaleY(1.1); /* 类似iOS箭头效果 */
+}
+
+/* 退出登录按钮 */
+.logout-btn-wrap {
+  margin: 50rpx 30rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.logout-btn {
+  width: 100%;
+  height: 90rpx;
+  line-height: 90rpx;
+  background-color: #fff;
+  color: #999;
+  font-size: 30rpx;
+  border-radius: 45rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 登录弹窗 */
+.login-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: relative;
+  width: 85%;
+  background-color: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  z-index: 1001;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  position: relative;
+  padding: 30rpx;
+  text-align: center;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-close {
+  position: absolute;
+  top: 30rpx;
+  right: 30rpx;
+  font-size: 40rpx;
+  line-height: 1;
+  color: #999;
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.modal-close:active {
+  background-color: #f5f5f5;
+}
+
+.modal-body {
+  padding: 40rpx;
+}
+
+.login-icon {
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.login-icon image {
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.auth-desc {
+  font-size: 30rpx;
+  color: #666;
+  text-align: center;
+  margin-bottom: 40rpx;
+  line-height: 1.6;
+}
+
+.auth-btn {
+  background-color: #20bd68;
+  color: #fff;
+  border: none;
+  font-size: 32rpx;
+  height: 90rpx;
+  line-height: 90rpx;
+  border-radius: 45rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone-btn {
+  background-color: #07c160;
+}
+
+.btn-icon {
+  margin-right: 10rpx;
+  font-size: 36rpx;
+}
+
+.privacy-tips {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+.link {
+  color: #20bd68;
+} 

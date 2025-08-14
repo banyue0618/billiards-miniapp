@@ -1,0 +1,398 @@
+/* 计时器页面样式 */
+.timer-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8fafc 0%, #f5f7fb 100%);
+  padding: 24rpx 32rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.card {
+  background-color: var(--card-background-color, #ffffff);
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 头部信息 */
+.timer-header {
+  padding: 24rpx;
+  color: var(--primary-text-color, #1d1d1f);
+  margin-bottom: 24rpx;
+}
+
+.store-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.store-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-right: 20rpx;
+}
+
+.table-number {
+  font-size: 32rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 4rpx 16rpx;
+  border-radius: 30rpx;
+}
+
+.start-time {
+  font-size: 28rpx;
+  color: var(--secondary-text-color, #6e6e73);
+}
+
+.time-label {
+  margin-right: 10rpx;
+}
+
+/* 计时器显示 */
+.timer-display {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 10rpx 0 30rpx;
+}
+
+.timer-circle-wrap {
+  position: relative;
+  width: 380rpx;
+  height: 380rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-glow {
+  position: absolute;
+  width: 380rpx;
+  height: 380rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, rgba(59,130,246,0.06) 60%, rgba(59,130,246,0) 70%);
+  animation: glowPulse 2.2s ease-in-out infinite;
+  filter: blur(2rpx);
+}
+
+.timer-circle {
+  width: 360rpx;
+  height: 360rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #ffffff 0%, #f7f9fc 70%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid #eef2f7;
+  position: relative;
+}
+
+.timer-sweep {
+  position: absolute;
+  top: -6rpx;
+  left: -6rpx;
+  right: -6rpx;
+  bottom: -6rpx;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(59,130,246,0.25), rgba(59,130,246,0.0) 25% 100%);
+  animation: sweepRotate 2s linear infinite;
+  pointer-events: none;
+}
+
+.timer-time {
+  font-size: 64rpx;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8rpx;
+  animation: timeBlink 2.4s ease-in-out infinite;
+}
+
+.timer-label {
+  font-size: 26rpx;
+  color: #6b7280;
+  animation: labelPulse 2.6s ease-in-out infinite;
+}
+
+/* 消费信息 */
+.cost-info {
+  margin: 0 0 24rpx;
+  padding: 24rpx;
+}
+
+.cost-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0rpx;
+  margin-bottom: 0rpx;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.cost-label {
+  font-size: 32rpx;
+  color: #333;
+}
+
+.cost-value {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.price-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-text {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.tier-text {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 6rpx;
+}
+
+.member-discount {
+  display: flex;
+  align-items: center;
+  margin-top: 16rpx;
+}
+
+.discount-tag {
+  font-size: 24rpx;
+  background-color: rgba(32, 189, 104, 0.1);
+  color: #20bd68;
+  padding: 4rpx 10rpx;
+  border-radius: 6rpx;
+  margin-right: 10rpx;
+}
+
+.discount-value {
+  font-size: 26rpx;
+  color: #ff9800;
+  font-weight: bold;
+}
+
+/* 操作区域 */
+.action-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10rpx 0 0;
+}
+
+.btn-end {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  font-size: 34rpx;
+  border-radius: 48rpx;
+  background: linear-gradient(180deg, #ff6b6b 0%, #ff3b30 100%);
+  color: #fff;
+  margin: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  box-shadow: 0 6rpx 18rpx rgba(255, 59, 48, 0.3);
+}
+
+.btn-disabled {
+  background-color: #ccc;
+  color: #fff;
+}
+
+.end-tip-banner {
+  margin-top: 16rpx;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f7ff;
+  border: 1rpx solid #cfe3ff;
+  color: #2563eb;
+  border-radius: 14rpx;
+  padding: 16rpx 20rpx;
+}
+
+.end-tip-icon {
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #4ba3ff 0%, #007aff 100%);
+  color: #fff;
+  font-size: 24rpx;
+  line-height: 34rpx;
+  text-align: center;
+  margin-right: 12rpx;
+}
+
+.end-tip-text {
+  font-size: 26rpx;
+}
+
+/* 计时状态提示 */
+.status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  margin: 8rpx 0 20rpx;
+}
+
+.status-banner .status-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 0 6rpx rgba(34, 197, 94, 0.15);
+  animation: pulseDot 1.2s infinite;
+}
+
+.status-banner .status-text {
+  font-size: 28rpx;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.status-banner .status-subtext {
+  font-size: 24rpx;
+  color: #64748b;
+}
+
+@keyframes pulseDot {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3); }
+  70% { box-shadow: 0 0 0 10rpx rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { transform: scale(0.98); opacity: 0.9; }
+  50% { transform: scale(1.02); opacity: 1; }
+}
+
+@keyframes sweepRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes timeBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes labelPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* 结算弹窗 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: relative;
+  width: 80%;
+  background-color: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 30rpx;
+  text-align: center;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-body {
+  padding: 30rpx;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.result-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.result-value {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.result-total {
+  padding-top: 20rpx;
+  margin-top: 20rpx;
+  border-top: 1px solid #f5f5f5;
+}
+
+.result-total .result-label,
+.result-total .result-value {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.result-total .result-value {
+  color: #ff9800;
+}
+
+.modal-footer {
+  padding: 20rpx 30rpx 40rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-footer button {
+  width: 80%;
+  font-size: 30rpx;
+}
+
+.btn-primary {
+  background-color: #20bd68;
+  color: #fff;
+}
+
+.btn-default {
+  background-color: #f8f8f8;
+  color: #333;
+  border: 1rpx solid #ddd;
+} 

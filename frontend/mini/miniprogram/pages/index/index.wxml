@@ -1,0 +1,83 @@
+<!--index.wxml-->
+<view class="index-page-container">
+  <!-- 修改为顶部悬挂式登录提示 -->
+  <view wx:if="{{showLoginPrompt}}" class="top-floating-login-prompt">
+    <view class="login-prompt-content">
+      <text class="login-tip-text">登录后可查看更多内容</text>
+      <button open-type="getPhoneNumber" 
+        bindgetphonenumber="handleGetPhoneNumber"
+        class="login-prompt-button">微信一键登录</button>
+    </view>
+  </view>
+
+  <!-- 使用ongoing-order-card组件 - 现在组件内部自己处理所有逻辑 -->
+  <ongoing-order-card></ongoing-order-card>
+
+  <!-- 搜索栏 (考虑是否仅在登录后显示，或允许未登录搜索但结果页提示登录) -->
+  <view class="search-bar-container">
+    <view class="search-icon-wrapper">
+      <icon type="search" size="18" color="var(--tertiary-text-color)"></icon> 
+    </view>
+    <input 
+      class="search-input-field"
+      placeholder="搜索附近门店..." 
+      value="{{keyword}}"
+      confirm-type="search" 
+      bindconfirm="handleSearch"
+      bindinput="handleInputChange"
+      placeholder-style="color: var(--tertiary-text-color);"
+    />
+    <view class="clear-icon-wrapper" wx:if="{{keyword}}" bindtap="handleClearKeyword">
+      <icon type="clear" size="18" color="var(--tertiary-text-color)"></icon>
+    </view>
+  </view>
+
+  <!-- 门店列表 (仅在登录后显示) -->
+  <view class="store-list-container">
+    <block wx:if="{{stores.length > 0 && hasLocationAuth}}">
+      <store-card wx:for="{{stores}}" wx:key="id" store="{{item}}"></store-card>
+      
+      <!-- 加载更多优化 -->
+      <view class="load-more-container" wx:if="{{loading && stores.length > 0}}">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">加载更多...</text>
+      </view>
+      
+      <view class="no-more-container" wx:if="{{!hasMore && stores.length > 0}}">
+        <view class="no-more-line"></view>
+        <text class="no-more-text">已经到底了</text>
+        <view class="no-more-line"></view>
+      </view>
+    </block>
+    
+    <!-- 空状态优化 -->
+    <view class="empty-state" wx:if="{{stores.length === 0 && hasLocationAuth && !loading}}"> 
+      <image class="empty-state-image" src="/images/default/want-empty.svg" mode="aspectFit"></image>
+      <text class="empty-state-title">附近暂无台球厅</text>
+      <text wx:if="{{keyword}}" class="empty-state-subtitle">尝试更换搜索词或清空筛选</text>
+    </view>
+
+    <!-- 位置授权失败状态 -->
+    <view class="empty-state" wx:if="{{isLoggedIn && !hasLocationAuth && !loading && !checkingLocation}}"> 
+      <image class="empty-state-image" src="/images/location-needed.png" mode="aspectFit"></image>
+      <text class="empty-state-title">需要获取您的位置</text>
+      <text class="empty-state-subtitle">无法获取位置信息，请在设置中打开位置权限</text>
+      <button class="auth-button" bindtap="requestLocationAuth">重新获取位置</button>
+    </view>
+
+    <!-- 加载状态优化 -->
+    <view class="loading-state" wx:if="{{loading && stores.length === 0}}">
+      <view class="loading-animation"></view>
+      <text class="loading-state-text">正在寻找附近的球房...</text>
+    </view>
+  </view>
+  
+  <!-- 如果未登录，且主要的登录提示卡片也未显示（作为后备） -->
+  <view wx:if="{{!isLoggedIn && !showLoginPrompt}}" class="fallback-login-prompt">
+    <button open-type="getPhoneNumber" bindgetphonenumber="handleGetPhoneNumber" class="login-button">
+      立即登录
+    </button>
+  </view>
+
+</view>
+

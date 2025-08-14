@@ -1,0 +1,137 @@
+<wxs module="formatter" src="../../utils/format.wxs"></wxs>
+<!-- 计时器页面 -->
+<view class="timer-container">
+  <!-- 头部信息卡片 -->
+  <view class="card timer-header">
+    <view class="store-info">
+      <text class="store-name">{{order.storeName}}</text>
+      <text class="table-number">{{order.tableNumber}}</text>
+    </view>
+    <view class="start-time">
+      <text class="time-label">开始时间：</text>
+      <text class="time-value">{{order.startTime}}</text>
+    </view>
+  </view>
+  
+  <!-- 计时器 -->
+  <view class="timer-display">
+    <view class="timer-circle-wrap">
+      <view class="timer-glow"></view>
+      <view class="timer-circle">
+        <view class="timer-sweep"></view>
+        <view class="timer-time">{{timeDuration}}</view>
+        <view class="timer-label">已用时间</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 计时状态提示 -->
+  <view class="status-banner running">
+    <view class="status-dot"></view>
+    <text class="status-text">计时中</text>
+    <text class="status-subtext">正在计费</text>
+  </view>
+  
+  <!-- 消费信息 -->
+  <view class="cost-info card">
+    <view class="cost-item">
+      <text class="cost-label">当前消费</text>
+      <text class="cost-value">¥{{amountText}}</text>
+    </view>
+    
+    <view class="price-info" wx:if="{{tableInfo}}">
+      <block wx:if="{{tableInfo.price_rule.type === 'standard'}}">
+        <text class="price-text">标准计费: ¥{{formatter.formatPrice(tableInfo.price_rule.standard_price)}}/分钟</text>
+      </block>
+      <block wx:else>
+        <text class="price-text">阶梯计费</text>
+        <text 
+          class="tier-text" 
+          wx:for="{{tableInfo.price_rule.tiers}}"
+          wx:key="start_minutes"
+        >
+          {{item.start_minutes}}分钟-{{formatter.formatTierMinutes(item.end_minutes)}}: ¥{{formatter.formatTierPrice(item.price)}}/分钟
+        </text>
+      </block>
+      
+      <view class="member-discount" wx:if="{{tableInfo.member_price_rule && userInfo.is_member}}">
+        <text class="discount-tag">会员折扣</text>
+        <text class="discount-value">{{tableInfo.member_price_rule.discount * 10}}折</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 结束按钮 -->
+  <view class="action-area">
+    <button 
+      class="btn-end {{isEnding ? 'btn-disabled' : ''}}" 
+      bindtap="handleEndOrder" 
+      disabled="{{isEnding}}"
+    >
+      结束使用
+    </button>
+    <view class="end-tip-banner">
+      <text class="end-tip-icon">i</text>
+      <text class="end-tip-text">结束使用后将自动计算费用</text>
+    </view>
+  </view>
+</view>
+
+<!-- 结算结果弹窗 -->
+<view class="modal" wx:if="{{showModal}}">
+  <view class="modal-mask"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">使用结算</text>
+    </view>
+    
+    <view class="modal-body">
+      <view class="result-item">
+        <text class="result-label">门店</text>
+        <text class="result-value">{{order.storeName}}</text>
+      </view>
+      
+      <view class="result-item">
+        <text class="result-label">桌台</text>
+        <text class="result-value">{{order.tableNumber}}</text>
+      </view>
+      
+      <view class="result-item">
+        <text class="result-label">开始时间</text>
+        <text class="result-value">{{startTimeText}}</text>
+      </view>
+      
+      <view class="result-item">
+        <text class="result-label">结束时间</text>
+        <text class="result-value">{{endTimeText}}</text>
+      </view>
+      
+      <view class="result-item">
+        <text class="result-label">使用时长</text>
+        <text class="result-value">{{durationText}}</text>
+      </view>
+      
+      <view class="result-item result-total">
+        <text class="result-label">消费金额</text>
+        <text class="result-value">¥{{finalAmountText}}</text>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button 
+        class="btn-primary" 
+        bindtap="handleConfirmPayment" 
+        wx:if="{{!prepayModel}}"
+      >
+        去支付
+      </button>
+      <button 
+        class="btn-default" 
+        bindtap="handleBackToHome" 
+        wx:else
+      >
+        返回首页
+      </button>
+    </view>
+  </view>
+</view> 

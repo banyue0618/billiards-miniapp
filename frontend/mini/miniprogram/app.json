@@ -1,0 +1,55 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/store/detail",
+    "pages/scan/index",
+    "pages/timer/index",
+    "pages/user/index",
+    "pages/order/list",
+    "pages/common/privacy/index",
+    "pages/common/legal/index",
+    "pages/common/protocol/index",
+    "pages/logs/logs",
+    "pages/prepay/prepay"
+  ],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "自助台球厅",
+    "navigationBarBackgroundColor": "#20bd68",
+    "backgroundColor": "#f5f5f5"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于查找附近的台球厅"
+    }
+  },
+  "usingComponents": {},
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents",
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#20bd68",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/scan/index",
+        "text": "扫码开台"
+      },
+      {
+        "pagePath": "pages/user/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
+  "sitemapLocation": "sitemap.json"
+}

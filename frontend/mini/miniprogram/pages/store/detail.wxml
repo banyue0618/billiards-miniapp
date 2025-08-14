@@ -1,0 +1,221 @@
+<!--门店详情页-->
+<view class="container">
+  <!-- 图片轮播 -->
+  <view class="image-placeholder-wrapper">
+    <swiper class="image-carousel" indicator-dots="{{store && store.images && store.images.length > 1}}" 
+      indicator-color="rgba(255, 255, 255, 0.6)" indicator-active-color="#fff" 
+      autoplay="{{true}}" interval="3000" duration="500" circular="{{true}}">
+      <block wx:if="{{store && store.images && store.images.length > 0}}">
+        <swiper-item wx:for="{{store.images}}" wx:key="index" data-index="{{index}}">
+          <image src="{{item}}" mode="aspectFill" class="carousel-image" />
+        </swiper-item>
+      </block>
+      <swiper-item wx:else>
+        <view class="carousel-placeholder">
+          <image src="/images/default/store-placeholder.png" mode="aspectFit" />
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- 基本信息卡片(融合了球桌状态和操作按钮) -->
+  <view class="info-card main-info-card">
+    <!-- 门店名称和状态 -->
+    <view class="store-header">
+      <view class="name-distance-wrapper">
+        <text class="store-name">{{store.name || '加载中...'}}</text>
+        <text class="store-distance-inline" wx:if="{{distanceText}}">{{distanceText}}</text>
+      </view>
+      <view class="store-status {{store.status === '0' ? 'open' : 'closed'}}">
+        {{store.statusText}}
+      </view>
+    </view>
+    
+    <!-- 球桌状态部分 -->
+    <view class="integrated-section table-section">
+      <view class="table-info-header">
+        <text class="section-title">球桌状态</text>
+        <text class="table-count" wx:if="{{store && store.tables}}">共{{store.tables.total}}张球桌</text>
+      </view>
+      <view class="table-status" wx:if="{{store && store.tables}}">
+        <view class="status-bar">
+          <view class="status-fill" style="width: {{store.tables.total > 0 ? (store.tables.total - store.tables.available) / store.tables.total * 100 : 0}}%"></view>
+        </view>
+        <view class="status-details">
+          <text>空闲：{{store.tables.available}}张</text>
+          <text>使用中：{{store.tables.total - store.tables.available}}张</text>
+        </view>
+      </view>
+      <view class="table-status-loading" wx:else>
+        <view class="loading-indicator"></view>
+        <text>加载中...</text>
+      </view>
+    </view>
+    
+    <!-- 操作按钮部分 -->
+    <view class="integrated-section action-section">
+      <view class="action-buttons">
+        <view class="action-button" bindtap="handleNavigate">
+          <view class="action-icon">
+            <text class="iconfont icon-location menu-icon"></text>
+          </view>
+          <text class="action-label">导航</text>
+        </view>
+        <view class="action-button" bindtap="handleContact">
+          <view class="action-icon">
+            <text class="iconfont icon-service menu-icon"></text>
+          </view>
+          <text class="action-label">电话</text>
+        </view>
+        <view class="action-button" bindtap="handleCollect">
+          <view class="action-icon {{isCollected ? 'collected' : ''}}">
+            <text class="iconfont icon-collect menu-icon"></text>
+          </view>
+          <text class="action-label">{{isCollected ? '已收藏' : '收藏'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 计费规则区 - 移动到营业信息之前 -->
+  <view class="info-card pricing-card">
+    <view class="pricing-header">
+      <text class="section-title">计费规则</text>
+      <view class="pricing-icon">
+        <text class="iconfont icon-price menu-icon"></text>
+      </view>
+    </view>
+
+    <view class="pricing-details">
+      <!-- 最低消费与封顶价格 -->
+      <block wx:if="{{priceRule.minConsumption > 0 || priceRule.maxPrice > 0}}">
+        <view class="pricing-info-section">
+          <view class="pricing-info-item" wx:if="{{priceRule.minConsumption > 0}}">
+            <text class="info-label">最低消费</text>
+            <text class="info-value highlight-price">{{minConsumptionText}}</text>
+          </view>
+          <view class="pricing-info-item" wx:if="{{priceRule.maxPrice > 0}}">
+            <text class="info-label">封顶价格</text>
+            <text class="info-value highlight-price">¥{{maxPriceText}}</text>
+          </view>
+        </view>
+      </block>
+
+      <!-- 不同球桌类型价格列表 -->
+      <block wx:if="{{formattedPriceList && formattedPriceList.length > 0}}">
+        <view class="pricing-section price-list-section">
+          <view class="table-type-pricing">
+            <view class="table-type-header">
+              <text>球桌类型</text>
+              <text>普通价格</text>
+              <text>会员价格</text>
+            </view>
+            <view class="table-type-row" wx:for="{{formattedPriceList}}" wx:key="type">
+              <text class="table-type">{{item.type}}</text>
+              <text class="table-price">¥{{item.price}}/小时</text>
+              <text class="table-price member-price">¥{{item.memberPrice}}/小时</text>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 标准计费 - 仅在没有priceList时显示 -->
+      <block wx:elif="{{priceRule.type === 'standard'}}">
+        <view class="pricing-section standard-price-section">
+          <view class="pricing-row">
+            <view class="pricing-type">
+              <text class="type-label">普通价格</text>
+            </view>
+            <view class="pricing-value">¥{{standardPriceText}}/小时</view>
+          </view>
+          <view class="pricing-row">
+            <view class="pricing-type">
+              <text class="type-label">会员价格</text>
+              <text class="member-badge">会员</text>
+            </view>
+            <view class="pricing-value member-price">¥{{memberPriceText}}/小时</view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 简单价格显示 - 当没有详细价格规则时 -->
+      <block wx:elif="{{!formattedPriceList.length && !priceRule.type}}">
+        <view class="pricing-section standard-price-section">
+          <view class="pricing-row">
+            <view class="pricing-type">
+              <text class="type-label">普通价格</text>
+            </view>
+            <view class="pricing-value">¥{{standardPriceText}}/小时</view>
+          </view>
+          <view class="pricing-row">
+            <view class="pricing-type">
+              <text class="type-label">会员价格</text>
+              <text class="member-badge">会员</text>
+            </view>
+            <view class="pricing-value member-price">¥{{memberPriceText}}/小时</view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 会员提示 -->
+      <view class="member-promo-section" wx:if="{{!userInfo || !userInfo.isMember}}" bindtap="handleBuyMember">
+        <view class="member-promo-content">
+          <text class="member-promo-text">开通会员享优惠价格</text>
+          <text class="member-promo-action">立即开通 ></text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 营业信息区 -->
+  <view class="info-card">
+    <text class="section-title">营业信息</text>
+    <view class="business-info-item">
+      <view class="info-icon">
+        <text class="iconfont icon-clock menu-icon"></text>
+      </view>
+      <view class="info-content">
+        <view class="info-label">营业时间</view>
+        <view class="info-value">{{store.businessHours || '暂无营业时间信息'}}</view>
+      </view>
+    </view>
+    <view class="business-info-item">
+      <view class="info-icon">
+        <text class="iconfont icon-location menu-icon"></text>
+      </view>
+      <view class="info-content">
+        <view class="info-label">门店地址</view>
+        <text class="info-value">{{store.address.district || ''}} {{store.address.street || ''}} {{store.address.detail || ''}}</text>
+      </view>
+    </view>
+    <view class="business-info-item" wx:if="{{store.contactPhone}}">
+      <view class="info-icon">
+        <text class="iconfont icon-service menu-icon"></text>
+      </view>
+      <view class="info-content">
+        <view class="info-label">联系电话</view>
+        <view class="info-value">{{store.contactPhone}}</view>
+      </view>
+    </view>
+    <view class="business-info-item" wx:if="{{store.announcement}}">
+      <view class="info-content">
+        <view class="info-label">门店公告</view>
+        <view class="info-value">{{store.announcement.content || '暂无公告'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 门店简介区 -->
+  <view class="info-card" wx:if="{{store.description}}">
+    <text class="section-title">门店简介</text>
+    <view class="description-content">
+      {{store.description}}
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area-bottom"></view>
+</view>
+
+<!-- 扫码开台按钮 -->
+<button class="primary-button" bindtap="handleScan">扫码开台</button> 

@@ -1,0 +1,49 @@
+# Spring配置
+spring:
+  application:
+    name: billiards-service
+# 微信小程序配置
+wx:
+  miniapp:
+    app-id: ${WX_APP_ID:your_app_id}
+    app-secret: ${WX_APP_SECRET:your_app_secret}
+
+# 日志配置
+logging:
+  level:
+    root: info
+    # com.banyue.billiards: debug # 您之前的配置，如果不再需要可以注释或删除
+    cn.dev33.satoken: DEBUG
+    org.springframework.web: DEBUG
+    org.dromara.billiards.config: DEBUG # 监控我们自定义配置的加载
+  file:
+    path: logs
+
+# RuoYi 安全配置的排除路径 (或其他框架可能使用的通用安全排除)
+security:
+  excludes:
+    # - /captchaImage  # 示例：RuoYi 可能已有的默认排除项, 如果您的项目中没有，可以不加或注释掉
+    # - /login         # 示例
+    # - /register      # 示例
+    - /*.html
+    - /api/miniapp/stores/nearby
+    - /api/miniapp/user/auth/login
+
+# 自定义配置 - billiards 部分
+billiards:
+  # 微信相关
+  wechat:
+    appid: wx_appid_here
+    secret: wx_secret_here
+  # 订单相关
+  order:
+    auto-finish-minutes: 1440  # 24小时自动结束未完成订单
+  security:
+    enabled: true # 您可以根据是否还需要 BilliardsSecurityConfig 的其他功能来决定此值
+    # 这里的 excludes 列表现在可以被注释掉或清空，因为主要排除逻辑已移至全局 security.excludes
+    # excludes:
+    #   - /*.html
+    #   - /api/miniapp/stores/nearby
+    #   - /api/miniapp/user/auth/login
+
+
