@@ -105,4 +105,14 @@ public class Order extends BilliardsBaseEntity {
      * 状态 0-进行中 1-已完成
      */
     private Integer status;
+
+    /**
+     * 完成标记 1-用户结束 2-管理员结束 3-超时结束
+     */
+    private Integer completeFlag;
+
+    /**
+     * 备注
+     */
+    private String remark;
 }

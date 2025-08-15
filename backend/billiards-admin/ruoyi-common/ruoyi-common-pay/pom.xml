@@ -17,6 +17,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <xk.time.version>3.2.4</xk.time.version>
+        <weixin-java-pay.version>4.7.0</weixin-java-pay.version>
     </properties>
 
     <dependencies>
@@ -42,9 +43,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.wechatpay-apiv3</groupId>
-            <artifactId>wechatpay-java</artifactId>
-            <version>0.2.17</version>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-pay</artifactId>
+            <version>${weixin-java-pay.version}</version>
         </dependency>
 
     </dependencies>

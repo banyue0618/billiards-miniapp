@@ -1,5 +1,7 @@
 package org.dromara.billiards.controller.miniapp;
 
+import com.github.binarywang.wxpay.constant.WxPayConstants;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +15,7 @@ import org.dromara.billiards.domain.bo.PaymentRequest;
 import org.dromara.billiards.service.IBlsRefundRecordService;
 import org.dromara.billiards.service.IPayRecordService;
 import org.dromara.common.core.domain.R;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -47,8 +50,12 @@ public class PayController {
      */
     @PostMapping("/payNotify")
     @Operation(summary = "支付结果通知", description = "接收微信支付结果通知")
-    public void payNotify(HttpServletRequest request, HttpServletResponse response) {
-        payRecordService.handlePayNotify(request, response);
+    public ResponseEntity<String> payNotify(@RequestBody String notifyData, HttpServletRequest request) {
+        boolean handled = payRecordService.handlePayNotify(notifyData, request);
+        if (handled) {
+            return ResponseEntity.ok("success");
+        }
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body("fail");
     }
 
     /**
@@ -56,8 +63,12 @@ public class PayController {
      */
     @PostMapping("/refundNotify")
     @Operation(summary = "退款结果通知", description = "接收微信退款结果通知")
-    public void refundNotify(HttpServletRequest request, HttpServletResponse response) {
-        refundRecordService.handleRefundNotify(request, response);
+    public ResponseEntity<String> refundNotify(@RequestBody String notifyData, HttpServletRequest request) {
+        boolean handled = refundRecordService.handleRefundNotify(notifyData, request);
+        if (handled) {
+            return ResponseEntity.ok("success");
+        }
+        return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body("fail");
     }
 
     /**
@@ -65,8 +76,8 @@ public class PayController {
      */
     @GetMapping("/query/{payNo}")
     @Operation(summary = "查询支付结果", description = "主动查询支付结果")
-    public R<Boolean> queryPayResult(@Parameter(description = "支付流水号") @PathVariable String payNo) {
-        // TODO: 实现查询支付结果的逻辑
-        return R.ok(false);
+    public R<Boolean> queryPayResult(@Parameter(description = "支付流水号") @PathVariable String payNo) throws WxPayException {
+        String payStatus = payRecordService.queryPayStatus(null, payNo);
+        return R.ok("查询支付结果成功", WxPayConstants.ResultCode.SUCCESS.equals(payStatus));
     }
 }

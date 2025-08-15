@@ -1,6 +1,7 @@
 package org.dromara.billiards.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.domain.bo.BlsWalletAccountBo;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
@@ -27,6 +28,7 @@ import java.util.Collection;
  * @date 2025-06-08
  */
 @RequiredArgsConstructor
+@Slf4j
 @Service
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
 public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
@@ -133,16 +135,15 @@ public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
     }
 
     @Override
-    public Boolean updateWalletBalance(Long userId, BigDecimal amount, String remark) {
+    public BlsWalletAccount updateWalletBalance(Long userId, BigDecimal amount) {
 
         // 查询用户钱包账户
-        BlsWalletAccount account = baseMapper.selectById(userId);
-        if (account == null) {
-            return false; // 用户钱包账户不存在
-        }
+        BlsWalletAccount account = getWalletAccountByUserId(userId);
+
+        BigDecimal currentBalance = account.getBalance();
 
         // 更新余额
-        BigDecimal newBalance = account.getBalance().add(amount);
+        BigDecimal newBalance = currentBalance.add(amount);
         account.setBalance(newBalance);
 
         // 更新总充值或退款金额
@@ -153,9 +154,54 @@ public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
             // 如果是退款
             account.setTotalRefund(account.getTotalRefund().add(amount.abs()));
         }
-        account.setRemark(remark);
 
         // 更新数据库
-        return baseMapper.updateById(account) > 0;
+        if(baseMapper.updateById(account) == 0){
+            throw new RuntimeException("更新钱包余额失败");
+        }
+        log.info("更新用户余额: userId={}, 原余额={}, 变动金额={}, 新余额={}, 结果={}",
+            userId, currentBalance, amount, newBalance, "成功");
+        return account;
+    }
+
+    @Override
+    public BlsWalletAccount initWalletAccount(Long userId, BigDecimal initialBalance) {
+        // 初始化一条钱包记录
+        BlsWalletAccount account = new BlsWalletAccount();
+        account.setUserId(userId);
+        account.setBalance(initialBalance != null ? initialBalance : BigDecimal.ZERO);
+        account.setTotalRecharge(BigDecimal.ZERO);
+        account.setTotalRefund(BigDecimal.ZERO);
+        account.setRemark("初始化钱包账户");
+        // 插入数据库
+        baseMapper.insert(account);
+
+        return account;
+    }
+
+    @Override
+    public BlsWalletAccount getWalletAccountByUserId(Long userId) {
+        if (userId == null) {
+            return null; // 用户ID为空，返回null
+        }
+        LambdaQueryWrapper<BlsWalletAccount> lqw = Wrappers.lambdaQuery();
+        lqw.eq(BlsWalletAccount::getUserId, userId);
+        return baseMapper.selectOne(lqw);
+    }
+
+    @Override
+    public BigDecimal deductBalance(Long userId, BigDecimal amount) {
+        BlsWalletAccount blsWalletAccount = updateWalletBalance(userId, amount.negate());
+
+        BigDecimal freezeAmount = blsWalletAccount.getBalance();
+        // 余额全部冻结，待退款
+        blsWalletAccount.setFreezeAmount(freezeAmount);
+        blsWalletAccount.setBalance(BigDecimal.ZERO);
+        // 更新钱包账户状态
+        if(baseMapper.updateById(blsWalletAccount) == 0 ){
+            throw new RuntimeException("扣减余额失败，更新钱包账户状态失败");
+        }
+        // 返回扣减后的余额
+        return freezeAmount;
     }
 }

@@ -3,12 +3,12 @@ package org.dromara.billiards.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.constant.OrderChannelEnum;
+import org.dromara.billiards.common.constant.OrderCompleteFlagEnum;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.common.utils.OrderNumberGenerator;
 import org.dromara.billiards.convert.OrderConvert;
 import org.dromara.billiards.mapper.OrderMapper;
-import org.dromara.billiards.mapper.TableMapper;
 import org.dromara.billiards.domain.entity.*;
 import org.dromara.billiards.domain.vo.OrderVO;
 import org.dromara.billiards.service.*;
@@ -42,13 +42,14 @@ import java.util.List;
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
 
-    private final TableMapper tableMapper;
     private final PriceRuleService priceRuleService;
     private final PricingStrategyFactory pricingStrategyFactory;
     private final UserService billiardsUserService;
     private final IPayRecordService payRecordService;
     private final IBlsRefundRecordService refundRecordService;
     private final StoreService storeService;
+    private final TableService tableService;
+    private final IBlsWalletAccountService walletAccountService;
     private final OrderConvert orderConvert = OrderConvert.INSTANCE;
 
     @Override
@@ -86,10 +87,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         if (order.getStatus() != null && order.getStatus() != 0) {
             throw BilliardsException.of(ResultCode.ORDER_ALREADY_ENDED);
         }
+        order.setCompleteFlag(OrderCompleteFlagEnum.ADMIN_END.getCode()); // 设置管理员结束标志
+        order.setRemark("管理员手动结束订单");
         endOrder(order);
         return true;
     }
 
+    /**
+     * 管理员取消订单
+     * @param orderId 订单ID
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean cancelAdminOrder(String orderId) {
@@ -107,16 +115,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         if (!success) {
             throw BilliardsException.of(ResultCode.ERROR);
         }
-
-        if (order.getStatus() != null && order.getStatus() == 0) {
-            Table table = tableMapper.selectById(order.getTableId());
-            if (table != null) {
-                table.setStatus(0);
-                tableMapper.updateById(table);
-            } else {
-                log.warn("Order {} references a non-existent tableId {} during cancelOrder.", orderId, order.getTableId());
-            }
-        }
+        // 释放桌台
+        tableService.releaseTable(order.getTableId());
         return true;
     }
 
@@ -128,24 +128,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Order createOrder(String tableId, String channel) {
-        // 检查用户是否有进行中的订单
-//        List<OrderVO> existingOrder = getCurrentOrder(LoginHelper.getUserIdStr());
-//        if (CollectionUtil.isNotEmpty(existingOrder)) {
-//            throw BilliardsException.of(ResultCode.ORDER_IN_PROGRESS);
-//        }
+        // 限定渠道
         if(OrderChannelEnum.fromString(channel) == null) {
             throw BilliardsException.of(ResultCode.INVALID_CHANNEL);
         }
-        // 检查桌台是否被占用
-        if (isTableOccupied(tableId)) {
-            throw BilliardsException.of(ResultCode.TABLE_OCCUPIED);
+
+        // 检查用户是否有进行中的订单
+        List<OrderVO> existingOrder = getCurrentOrder(LoginHelper.getUserId());
+        if (CollectionUtil.isNotEmpty(existingOrder)) {
+            throw BilliardsException.of(ResultCode.ORDER_IN_PROGRESS);
         }
 
         // 获取桌台信息
-        Table table = tableMapper.selectById(tableId);
-        if (table == null) {
-            throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST);
-        }
+        Table table = tableService.lockTable(tableId); // 锁定桌台，防止其他用户同时使用
 
         // 创建订单
         Order order = this.orderInit(table);
@@ -155,9 +150,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         if (!save(order)) {
             throw BilliardsException.of(ResultCode.ERROR);
         }
-
-        table.setStatus(1);
-        tableMapper.updateById(table);
 
         return order;
     }
@@ -232,6 +224,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         if (LoginHelper.getUserId() != order.getUserId()) {
             throw BilliardsException.of(ResultCode.FORBIDDEN);
         }
+        order.setCompleteFlag(OrderCompleteFlagEnum.USER_END.getCode()); // 设置用户结束标志
         return endOrder(order); // Return the updated order
     }
 
@@ -329,6 +322,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             // 判断是否达到临界点，如果已经在临界点范围之内，则发出提醒。 如果差值为0，表示用户余额使用完毕
             if (balanceDifference.compareTo(BigDecimal.ZERO) <= 0) {
                 // 用户余额不足，结束订单
+                order.setRemark("用户余额不足，定时任务自动已结束订单");
+                order.setCompleteFlag(OrderCompleteFlagEnum.TIMEOUT_END.getCode()); // 设置系统结束标志
                 endOrder(order);
                 log.warn("User {} has insufficient balance, ending order {}", order.getUserId(), order.getOrderNo());
             } else if (balanceDifference.compareTo(warningThreshold) <= 0) {
@@ -382,7 +377,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      * @param order
      * @return
      */
+
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public Order endOrder(Order order){
         if (order.getStatus() != null && order.getStatus() != 0) {
             throw BilliardsException.of(ResultCode.ORDER_ALREADY_ENDED);
@@ -393,25 +390,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         fillOrderResult(order, result);
         order.setStatus(1); // 1 for completed
 
-
         // 解锁桌台
-        Table table = tableMapper.selectById(order.getTableId());
-        table.setStatus(0);
-        tableMapper.updateById(table);
+        tableService.releaseTable(order.getTableId());
 
-        // 扣费操作，返回用户余额
-        final BigDecimal deductBalance = billiardsUserService.deductBalance(result.getActualAmount(), order.getUserId());
+        // 扣费操作，返回退款金额
+        final BigDecimal refundAmount = walletAccountService.deductBalance(order.getUserId(), result.getActualAmount());
 
-        // 如果剩余金额大于0，发起微信退款(以后考虑异步，以防止微信调用失败导致无法结束订单)
-        if(deductBalance.compareTo(BigDecimal.ZERO) > 0){
+        // 如果退款金额大于0，发起微信退款(以后考虑异步，以防止微信调用失败导致无法结束订单)
+        if(refundAmount.compareTo(BigDecimal.ZERO) > 0){
             // 更新订单支付状态为退款中
             order.setPaymentStatus(2);
             this.updateById(order);
             // 获取系统中该用户已支付的最新记录，
             PayRecord lastPayRecord = payRecordService.getLastPayRecord(LoginHelper.getUserId());
 
-            // 创建退款记录 BlsRefundRecord
-            refundRecordService.createRefund(order.getId(), lastPayRecord, deductBalance);
+            // 发起退款
+            refundRecordService.refund(order.getId(), lastPayRecord, refundAmount);
             return order;
         }
         // 无需退款，直接更新记录为 已支付

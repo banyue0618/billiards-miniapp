@@ -1,8 +1,8 @@
 package org.dromara.billiards.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.dromara.billiards.domain.bo.PaymentRequest;
 import org.dromara.billiards.domain.entity.PayRecord;
 
@@ -23,14 +23,18 @@ public interface IPayRecordService extends IService<PayRecord> {
      */
     String createPayment(PaymentRequest request, String channel);
 
+
+    String queryPayStatus(String transactionId, String outTradeNo) throws WxPayException;
+
+
     /**
      * 处理支付结果通知
      *
+     * @param xmlData
      * @param request
-     * @param response
      * @return 处理结果
      */
-    boolean handlePayNotify(HttpServletRequest request, HttpServletResponse response);
+    boolean handlePayNotify(String xmlData, HttpServletRequest request);
 
     /**
      * 获取用户最近的一条已支付记录

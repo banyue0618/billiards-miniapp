@@ -385,4 +385,50 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, Table> implements
 
         return this.list(queryWrapper);
     }
+
+    @Override
+    public boolean releaseTable(String tableId) {
+
+        if (StringUtils.isEmpty(tableId)) {
+            throw BilliardsException.of(ResultCode.PARAM_ERROR, "桌台ID不能为空");
+        }
+        // 获取桌台信息
+        Table table = this.getById(tableId);
+        if (table == null) {
+            throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST, "桌台不存在");
+        }
+        // 检查当前状态是否为锁定状态
+        if (table.getStatus() != 1) { // 假设1表示锁定状态
+            log.warn("桌台 {} 当前状态为 {}, 无需解锁", tableId, table.getStatus());
+            return true; // 如果不是锁定状态，直接返回成功
+        }
+        // 更新状态为0（空闲）
+        table.setStatus(0);
+        return this.updateById(table); // 返回更新结果
+    }
+
+    @Override
+    public Table lockTable(String tableId) {
+        if (StringUtils.isEmpty(tableId)) {
+            throw BilliardsException.of(ResultCode.PARAM_ERROR);
+        }
+        // 获取桌台信息
+        Table table = this.getById(tableId);
+        if (table == null) {
+            throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST);
+        }
+        // 检查当前状态是否为空闲状态
+        if (table.getStatus() != 0) { // 假设0表示空闲状态
+            log.warn("桌台 {} 当前状态为 {}, 无法锁定", tableId, table.getStatus());
+            return table; // 如果不是空闲状态，直接返回当前桌台信息
+        }
+        // 更新状态为1（锁定）
+        table.setStatus(1);
+        boolean success = this.updateById(table); // 更新桌台状态
+        if (!success) {
+            throw BilliardsException.of(ResultCode.TABLE_OCCUPIED);
+        }
+
+        return table; // 返回更新后的桌台信息
+    }
 }

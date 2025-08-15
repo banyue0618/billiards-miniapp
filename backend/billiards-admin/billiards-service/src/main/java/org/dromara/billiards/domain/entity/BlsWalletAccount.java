@@ -38,6 +38,11 @@ public class BlsWalletAccount extends BilliardsBaseEntity {
     private BigDecimal balance;
 
     /**
+     * 冻结金额
+     */
+    private BigDecimal freezeAmount;
+
+    /**
      * 累计充值
      */
     private BigDecimal totalRecharge;

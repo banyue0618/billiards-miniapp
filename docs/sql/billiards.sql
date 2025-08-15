@@ -144,6 +144,7 @@ CREATE TABLE `bls_order` (
                          `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
                          `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
                          `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+                         `complete_flag` tinyint DEFAULT 1 COMMENT '完成标记 1-用户结束 2-管理员结束 3-超时结束',
                          `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
                          PRIMARY KEY (`id`),
                          UNIQUE KEY `uk_order_no` (`order_no`),
@@ -256,6 +257,7 @@ CREATE TABLE `bls_wallet_account` (
   `id` varchar(36) NOT NULL COMMENT '记录ID',
   `user_id` bigint(20) NOT NULL COMMENT '用户ID',
   `balance` decimal(10,2) default 0 COMMENT '当前余额',
+  `freeze_amount` decimal(10,2) default 0 COMMENT '冻结金额',
   `total_recharge` decimal(10,2) default 0 COMMENT '累计充值',
   `total_refund` decimal(10,2) default 0 COMMENT '累计退款',
   `remark` varchar(255) DEFAULT NULL COMMENT '备注',
@@ -265,7 +267,7 @@ CREATE TABLE `bls_wallet_account` (
   `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
   `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   PRIMARY KEY (`id`),
-  KEY `idx_user_id` (`user_id`),
+  UNIQUE KEY `uk_user_id` (`user_id`),
   KEY `idx_create_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户钱包账户';
 

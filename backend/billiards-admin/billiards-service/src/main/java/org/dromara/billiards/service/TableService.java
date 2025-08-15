@@ -103,4 +103,19 @@ public interface TableService extends IService<Table> {
      * @return
      */
     List<Table> listTablesByStore(String storeId);
+
+    /**
+     * 解锁桌台
+     * @param tableId
+     * @return
+     */
+    boolean releaseTable(String tableId);
+
+
+    /**
+     * 扫码之后，获取可用桌台，按照正常逻辑不会有多个人对同一个桌台扫码，但是还是需要限制：同一张桌台不可能被两个人同时打开
+     * @param tableId
+     * @return
+     */
+    Table lockTable(String tableId);
 }

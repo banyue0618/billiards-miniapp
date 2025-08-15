@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.domain.entity.User;
+import org.dromara.billiards.service.IBlsWalletAccountService;
 import org.dromara.billiards.service.UserService;
 import org.dromara.common.core.domain.model.XcxLoginBody;
 import org.dromara.common.core.domain.model.XcxLoginUser;
@@ -30,6 +31,7 @@ import org.dromara.web.service.SysLoginService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -45,6 +47,8 @@ public class XcxAuthStrategy implements IAuthStrategy {
     private final SysLoginService loginService;
 
     private final UserService billiardsUserService;
+
+    private final IBlsWalletAccountService walletAccountService;
 
     @Value("${billiards.wechat.appid}")
     private String appid;
@@ -96,6 +100,8 @@ public class XcxAuthStrategy implements IAuthStrategy {
             if (!billiardsUserService.save(user)) {
                 throw BilliardsException.of(ResultCode.ERROR, "创建用户失败");
             }
+            // 初始化一条钱包信息
+            walletAccountService.initWalletAccount(user.getId(), BigDecimal.ZERO);
             isNewUser = true;
         }
         // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了

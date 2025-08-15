@@ -123,4 +123,12 @@ public interface OrderService extends IService<Order> {
      * @return
      */
     OrderVO getOrderDetail(String orderId);
+
+
+    /**
+     * 结束订单
+     * @param order
+     * @return
+     */
+    Order endOrder(Order order);
 }

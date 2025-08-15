@@ -57,28 +57,4 @@ public interface UserService extends IService<User> {
      */
     boolean scanTableEnableCheck();
 
-    /**
-     * 更新用户余额
-     *
-     * @param userId 用户ID
-     * @param amount 变动金额（正数为增加，负数为减少）
-     * @return 更新结果
-     */
-    boolean updateBalance(Long userId, BigDecimal amount);
-
-    /**
-     * 扣减用户余额
-     *
-     * @param amount 扣减额
-     * @return 返回用户余额
-     */
-    BigDecimal deductBalance(BigDecimal amount);
-
-    /**
-     * 扣减用户余额
-     *
-     * @param amount 扣减额
-     * @return 返回用户余额
-     */
-    BigDecimal deductBalance(BigDecimal amount, Long userId); // 支持指定用户ID扣减余额
 }

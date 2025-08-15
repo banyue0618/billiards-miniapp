@@ -1,7 +1,6 @@
 package org.dromara.billiards.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.dromara.billiards.domain.bo.BlsRefundRecordBo;
 import org.dromara.billiards.domain.entity.BlsRefundRecord;
 import org.dromara.billiards.domain.entity.PayRecord;
@@ -75,18 +74,16 @@ public interface IBlsRefundRecordService {
     BlsRefundRecord queryRecordByOrderId(String orderId);
 
     /**
-     * 创建退款记录
+     * 发起退款
      * @param orderId
      * @param lastPayRecord
      * @param deductBalance
      */
-    void createRefund(String orderId, PayRecord lastPayRecord, BigDecimal deductBalance);
+    void refund(String orderId, PayRecord lastPayRecord, BigDecimal deductBalance);
 
     /**
      * 微信退款回调接口
-     * @param request
-     * @param response
      * @return
      */
-    boolean handleRefundNotify(HttpServletRequest request, HttpServletResponse response);
+    boolean handleRefundNotify(String notifyData, HttpServletRequest request);
 }

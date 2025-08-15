@@ -3,6 +3,10 @@ package org.dromara.billiards.service.impl;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
+import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyV3Result;
+import com.github.binarywang.wxpay.constant.WxPayConstants;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,7 +55,6 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
     private final PayService payService;
     private final IBlsWalletTransactionService walletTransactionService;
     private final IBlsWalletAccountService walletAccountService;
-    private final UserService billiardsUservice;
 
     @Resource
     @Lazy
@@ -176,12 +179,12 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
     }
 
     @Override
-    public void createRefund(String orderId, PayRecord lastPayRecord, BigDecimal deductBalance) {
+    public void refund(String orderId, PayRecord lastPayRecord, BigDecimal refundAmount) {
         BlsRefundRecord refundRecord = new BlsRefundRecord();
         refundRecord.setPayRecordId(lastPayRecord.getId());
         refundRecord.setOrderId(orderId);
         refundRecord.setUserId(LoginHelper.getUserId());
-        refundRecord.setAmount(deductBalance);
+        refundRecord.setAmount(refundAmount);
         refundRecord.setRefundStatus(0); // 0 for refunding
         baseMapper.insert(refundRecord);
         if (mockPaymentEnabled) {
@@ -190,51 +193,37 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
             return;
         }
         // 发起退款动作
-        payService.refund(lastPayRecord.getTransactionId(), lastPayRecord.getId(), deductBalance, refundRecord.getId());
+        try {
+            payService.refund(lastPayRecord.getTransactionId(), lastPayRecord.getId(), refundAmount, refundRecord.getId());
+        } catch (WxPayException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public boolean handleRefundNotify(HttpServletRequest request, HttpServletResponse response) {
+    public boolean handleRefundNotify(String notifyData, HttpServletRequest request) {
         try {
-            String notifyData = payService.resolveNotifyData(request);
-            if(notifyData == null){
-                payService.responseError(response);
-                return false;
-            }
-            // 解析回调数据
-            JSONObject jsonObject = JSONUtil.parseObj(notifyData);
-            JSONObject resource = jsonObject.getJSONObject("resource");
-            String transactionId = resource.getStr("transaction_id"); // 微信支付交易号
-            String outRefundNo = resource.getStr("out_refund_no"); // 退款记录id，refund_id
-            String outTradeNo = resource.getStr("out_trade_no"); // 原pay_record的id
-            String state = resource.getStr("status"); // 交易状态
-
-            // 查询支付记录
-            BlsRefundRecord refundRecordVo = baseMapper.selectById(outRefundNo);
+            WxPayRefundNotifyV3Result result = payService.parseRefundNotifyResult(notifyData, request);
+            WxPayRefundNotifyV3Result.DecryptNotifyResult decryptRes = result.getResult();
+            // 查询退款支付记录
+            BlsRefundRecord refundRecordVo = baseMapper.selectById(decryptRes.getOutRefundNo());
 
             if (refundRecordVo == null) {
-                log.error("退款回调找不到对应的退款记录: {}", outRefundNo);
-                payService.responseError(response);
+                log.error("退款回调找不到对应的退款记录: {}", decryptRes.getOutRefundNo());
                 return false;
             }
 
             // 判断微信的支付状态
-            if ("SUCCESS".equals(state)) {
+            if (WxPayConstants.RefundStatus.SUCCESS.equals(decryptRes.getRefundStatus())) {
                 //  更新退款记录
-                refundSuccess(refundRecordVo, notifyData, transactionId);
+                refundSuccess(refundRecordVo, notifyData, decryptRes.getTransactionId());
 
             } else {
-                // 微信退款失败！可能要发送短信通知管理员！ todo
+                // todo 退款失败！
             }
-            payService.responseSuccess(response);
             return true;
         } catch (Exception e) {
             log.error("处理支付回调异常", e);
-            try {
-                payService.responseError(response);
-            } catch (IOException ioException) {
-                log.error("返回错误响应异常", ioException);
-            }
             return false;
         }
     }
@@ -248,9 +237,6 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         refundRecordBo.setRemark("退款成功");
         baseMapper.updateById(refundRecordBo);
 
-        // 更新用户余额
-        billiardsUservice.deductBalance(refundRecordVo.getAmount(), refundRecordVo.getUserId());
-
         // 更新订单的付款状态
         orderService.completeOrder(refundRecordVo.getOrderId());
 
@@ -258,8 +244,7 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         walletTransactionService.addWalletTransaction(refundRecordVo.getUserId(), refundRecordVo.getAmount(), refundRecordVo.getId(), transactionId, "退款成功", TransTypeEnum.REFUND);
 
         // 更新钱包 BlsWalletAccount
-        walletAccountService.updateWalletBalance(refundRecordVo.getUserId(), refundRecordVo.getAmount().negate(), "退款成功");
+        walletAccountService.updateWalletBalance(refundRecordVo.getUserId(), refundRecordVo.getAmount().negate());
     }
-
 
 }

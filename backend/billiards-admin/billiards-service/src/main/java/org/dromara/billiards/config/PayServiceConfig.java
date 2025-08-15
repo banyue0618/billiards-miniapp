@@ -1,14 +1,13 @@
 package org.dromara.billiards.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.common.pay.config.WxPayV3Bean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * 支付服务配置
- * 
+ *
  * @author zhangsip
  * @date 2024-07-02
  */
@@ -25,7 +24,7 @@ public class PayServiceConfig {
         log.info("初始化真实微信支付配置");
         return new WxPayV3Bean();
     }
-    
+
     /**
      * 当开启模拟支付时，提供一个默认的WxPayV3Bean以避免空指针异常
      */
@@ -43,4 +42,4 @@ public class PayServiceConfig {
         bean.setDomain("http://localhost:8080");
         return bean;
     }
-} 
+}
