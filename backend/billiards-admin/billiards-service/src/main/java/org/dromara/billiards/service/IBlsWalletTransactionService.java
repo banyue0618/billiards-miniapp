@@ -68,5 +68,15 @@ public interface IBlsWalletTransactionService {
      */
     Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
 
+    /**
+     *  为用户增加一条钱包流水
+     * @param userId
+     * @param amount
+     * @param payRecordId
+     * @param transactionId
+     * @param remark
+     * @param transType
+     * @return
+     */
     Boolean addWalletTransaction(Long userId, BigDecimal amount, String payRecordId, String transactionId, String remark, TransTypeEnum transType);
 }
