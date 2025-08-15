@@ -59,7 +59,7 @@ public class PayController {
     }
 
     /**
-     * 退款结果通知（在支付完成之后，微信会回调此接口）
+     * 退款结果通知（在发起退款之后，微信会回调此接口）
      */
     @PostMapping("/refundNotify")
     @Operation(summary = "退款结果通知", description = "接收微信退款结果通知")
