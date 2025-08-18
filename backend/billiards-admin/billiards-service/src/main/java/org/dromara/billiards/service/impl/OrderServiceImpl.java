@@ -45,7 +45,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final PriceRuleService priceRuleService;
     private final PricingStrategyFactory pricingStrategyFactory;
     private final UserService billiardsUserService;
-    private final IPayRecordService payRecordService;
+    private final IBlsPayRecordService payRecordService;
     private final IBlsRefundRecordService refundRecordService;
     private final StoreService storeService;
     private final TableService tableService;
@@ -311,7 +311,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             PricingResult result = calculateAmount(order.getStartTime(), null, order.getPriceRuleId(), false);
 
             // 获取当前用户的余额
-            BigDecimal userBalance = billiardsUserService.getById(order.getUserId()).getBalance();
+            BigDecimal userBalance = walletAccountService.getWalletAccountByUserId(order.getUserId()).getBalance();
 
             // 余额不足预警提醒的阈值
             BigDecimal warningThreshold = new BigDecimal("10.00"); // 例如10元
@@ -322,17 +322,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             // 判断是否达到临界点，如果已经在临界点范围之内，则发出提醒。 如果差值为0，表示用户余额使用完毕
             if (balanceDifference.compareTo(BigDecimal.ZERO) <= 0) {
                 // 用户余额不足，结束订单
-                order.setRemark("用户余额不足，定时任务自动已结束订单");
+                order.setRemark("用户余额不足，定时任务自动结束订单");
                 order.setCompleteFlag(OrderCompleteFlagEnum.TIMEOUT_END.getCode()); // 设置系统结束标志
                 endOrder(order);
                 log.warn("User {} has insufficient balance, ending order {}", order.getUserId(), order.getOrderNo());
-            } else if (balanceDifference.compareTo(warningThreshold) <= 0) {
+                continue;
+            }
+            // 如果余额差值小于等于预警阈值，发出余额不足预警提醒
+            if (balanceDifference.compareTo(warningThreshold) <= 0) {
                 // 余额不足预警提醒
                 log.warn("User {} is approaching low balance threshold, current balance: {}, order: {}",
-                         order.getUserId(), userBalance, order.getOrderNo());
-                // todo
+                    order.getUserId(), userBalance, order.getOrderNo());
+                // todo 给用户发出提醒
             }
-
         }
         log.info("Order detection completed, processed {} ongoing orders.", orders.size());
     }

@@ -201,7 +201,7 @@ Page({
       if (error.errMsg && error.errMsg.includes('getUserProfile:fail')) {
         showError('您已拒绝授权获取信息');
       } else {
-        showError(error?.errMsg || '获取资料异常');
+        showError('获取资料异常');
       }
     }
   },

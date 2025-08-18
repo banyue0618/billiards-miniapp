@@ -130,8 +130,7 @@ Page({
 
   async handleGetPhoneNumber(e: WechatMiniprogram.ButtonGetPhoneNumber) {
     if (!e.detail.code) { 
-      wx.showToast({ title: e.detail.errMsg === 'getPhoneNumber:fail user deny' ? '您已拒绝授权' : '获取手机号失败', icon: 'none' });
-      
+      wx.showToast({ title: e.detail.errMsg === 'getPhoneNumber:fail user deny' ? '您已拒绝授权' : e.detail.errMsg, icon: 'none' });
       return;
     }
     

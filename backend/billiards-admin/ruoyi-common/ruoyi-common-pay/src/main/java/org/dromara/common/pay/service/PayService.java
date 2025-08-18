@@ -1,5 +1,6 @@
 package org.dromara.common.pay.service;
 
+import cn.hutool.json.JSONUtil;
 import com.github.binarywang.wxpay.bean.notify.SignatureHeader;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyV3Result;
 import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyV3Result;
@@ -15,6 +16,7 @@ import com.github.binarywang.wxpay.service.WxPayService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,6 +34,12 @@ public class PayService {
 
     @Resource
     private WxPayService wxService;
+
+    @Value("${billiards.payment.notify-url:/api/miniapp/payment/payNotify}")
+    private String payNotifyUrl;
+
+    @Value("${billiards.payment.notify-url:/api/miniapp/payment/refundNotify}")
+    private String refundNotifyUrl;
 
     /**
      * 查询订单
@@ -60,11 +68,15 @@ public class PayService {
         amount.setCurrency("CNY");
         amount.setRefund(refundAmount.intValue());
         request.setAmount(amount);
+
+        request.setNotifyUrl(refundNotifyUrl);
+
         // 发起退款请求
         wxService.refundV3(request);
     }
 
     public String jsApiPay(String openId, BigDecimal amount, String outTradeNo) throws WxPayException {
+
         WxPayUnifiedOrderV3Request request = new WxPayUnifiedOrderV3Request();
         WxPayUnifiedOrderV3Request.Payer payer = new WxPayUnifiedOrderV3Request.Payer();
         payer.setOpenid(openId);
@@ -77,13 +89,15 @@ public class PayService {
 
         request.setOutTradeNo(outTradeNo);
 
+        request.setNotifyUrl(payNotifyUrl);
+
         WxPayUnifiedOrderV3Result.JsapiResult jsapiResult = wxService.createOrderV3(TradeTypeEnum.JSAPI, request);
 
         // 返回prepayId，packageValue为组合字符串,格式如 "prepay_id=wx201410272009395522657a690389285100"
         if (jsapiResult == null || jsapiResult.getPackageValue() == null) {
             throw new WxPayException("创建JSAPI支付订单失败，返回结果为空");
         }
-        log.info("创建JSAPI支付订单成功，返回结果: {}", jsapiResult);
+        log.info("创建JSAPI支付订单成功，返回结果: {}", JSONUtil.toJsonStr(jsapiResult));
         return jsapiResult.getPackageValue().split("=")[1]; // 返回预支付订单的prepay_id
     }
 

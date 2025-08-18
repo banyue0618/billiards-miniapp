@@ -1,5 +1,7 @@
 package org.dromara.billiards.common.utils;
 
+import org.dromara.billiards.common.constant.BilliardsConstants;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
@@ -30,10 +32,9 @@ public class OrderNumberGenerator {
 
     /**
      * 生成带前缀的订单号
-     * @param prefix 前缀
      * @return 带前缀的订单号
      */
-    public static String generateWithPrefix(String prefix) {
-        return prefix + generate();
+    public static String generateWithPrefix() {
+        return BilliardsConstants.ORDER_PREFIX + generate();
     }
 }

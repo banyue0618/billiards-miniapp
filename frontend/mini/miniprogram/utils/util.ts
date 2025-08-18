@@ -52,7 +52,7 @@ export const formatDistance = (distance: number): string => {
 
 // 金额格式化：兼容 number/string/undefined，统一保留两位小数
 export const formatPrice = (amount: number | string | null | undefined): string => {
-  const n = Number(amount ?? 0)
+  const n = Number(amount || 0)
   if (Number.isNaN(n)) return '0.00'
   return n.toFixed(2)
 }

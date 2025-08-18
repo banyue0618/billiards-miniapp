@@ -308,9 +308,9 @@ Component({
 
       // 确认提示 提示框增加显示当前的消费金额
       const order = this.data.orders.find(order => order.id === orderId);
-      const res = await showConfirm('确认结束使用', `当前预估扣除费用：¥ ${order?.amountText},确认结束后余额将原路返回`)
+      const aomuntText = order ? order.amountText : '0元';
+      const res = await showConfirm('确认结束使用', `当前预估扣除费用：¥ ${aomuntText},确认结束后余额将原路返回`)
       if(res.cancel){
-        console.log('用户取消结束使用')
         return;
       }
       // 如果用户确认结束使用，则进行结算

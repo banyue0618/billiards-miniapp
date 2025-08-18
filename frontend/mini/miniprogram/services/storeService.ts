@@ -3,7 +3,11 @@ import type { StoreListParams } from './api'
 import type { IAppOptionExtended } from '../app'
 
 export class StoreService {
-  private app: IAppOptionExtended | null = null;
+  private app: IAppOptionExtended | null;
+
+  constructor() {
+    this.app = null;
+  }
 
   init(app: IAppOptionExtended): void {
     this.app = app;

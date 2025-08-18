@@ -404,8 +404,7 @@ Page({
     } catch (err) {
       hideLoading()
       this.setData({ isCreatingOrder: false , isOngoing: false })
-      const error = err as Error
-      showError(error?.message || '开台失败，请重试')
+      showError('开台失败，请重试')
     }
   }
 }) 

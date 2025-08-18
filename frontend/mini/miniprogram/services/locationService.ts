@@ -1,7 +1,11 @@
 import type { IAppOptionExtended } from '../app'
 
 export class LocationService {
-  private app: IAppOptionExtended | null = null;
+  private app: IAppOptionExtended | null;
+
+  constructor() {
+    this.app = null;
+  }
 
   /**
    * 初始化位置服务

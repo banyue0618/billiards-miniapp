@@ -12,7 +12,7 @@ import org.dromara.billiards.domain.entity.PayRecord;
  * @author zhangsip
  * @date 2024-07-02
  */
-public interface IPayRecordService extends IService<PayRecord> {
+public interface IBlsPayRecordService extends IService<PayRecord> {
 
     /**
      * 创建充值订单

@@ -54,7 +54,7 @@ class Http {
     
     mergedConfig.header = {
       ...mergedConfig.header,
-      'clientid': app?.clientId
+      'clientid': app ? app.clientId : ''
     }
     
     if (token) {

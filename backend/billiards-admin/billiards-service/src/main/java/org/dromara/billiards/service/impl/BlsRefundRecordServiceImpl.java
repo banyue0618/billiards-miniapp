@@ -63,7 +63,7 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
     /**
      * 是否启用模拟支付（开发环境使用）
      */
-    @Value("${payment.mock-enabled:true}")
+    @Value("${billiards.payment.mock-enabled:true}")
     private boolean mockPaymentEnabled;
 
     /**

@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.common.constant.OrderChannelEnum;
 import org.dromara.billiards.domain.bo.PaymentRequest;
 import org.dromara.billiards.service.IBlsRefundRecordService;
-import org.dromara.billiards.service.IPayRecordService;
+import org.dromara.billiards.service.IBlsPayRecordService;
 import org.dromara.common.core.domain.R;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "支付接口", description = "小程序支付相关接口")
 public class PayController {
     @Resource
-    private IPayRecordService payRecordService;
+    private IBlsPayRecordService payRecordService;
 
     @Resource
     private IBlsRefundRecordService refundRecordService;

@@ -39,7 +39,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
-public class PayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRecord> implements IPayRecordService {
+public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRecord> implements IBlsPayRecordService {
 
     @Resource
     private PayService payService;
@@ -56,7 +56,7 @@ public class PayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRecord
     /**
      * 是否启用模拟支付（开发环境使用）
      */
-    @Value("${payment.mock-enabled:true}")
+    @Value("${billiards.payment.mock-enabled:false}")
     private boolean mockPaymentEnabled;
 
     @Override
