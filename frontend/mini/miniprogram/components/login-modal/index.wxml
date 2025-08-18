@@ -11,6 +11,9 @@
       <button class="auth-btn phone-btn" open-type="getPhoneNumber" bindgetphonenumber="handlePhoneLogin">
         <text class="btn-icon iconfont icon-wechat"></text>微信一键登录
       </button>
+      <button wx:if="{{enableGuestLogin}}" class="auth-btn guest-btn" bindtap="handleGuestLogin">
+        <text class="btn-icon iconfont icon-wechat"></text>游客登录
+      </button>
       <view class="privacy-tips">登录即表示同意<text class="link" bindtap="navigateToPrivacy">《用户协议》和《隐私政策》</text></view>
     </view>
   </view>

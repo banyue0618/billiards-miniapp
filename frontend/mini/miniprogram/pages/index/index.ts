@@ -17,12 +17,14 @@ Page({
     isLoggedIn: false,
     customUserInfo: null as CustomUserInfo | null,
     showLoginPrompt: false, // 初始假设需要显示登录提示
+    enableGuestLogin: true,
     hasMore: false, // 是否有更多数据
     checkingLocation: false, // 是否正在检查位置授权状态
   },
 
   onLoad() {
     // onLoad 时，app.ts 的 onLaunch 可能仍在执行
+    this.setData({enableGuestLogin: app.enableGuestLogin });
   },
 
   onShow() {
@@ -62,6 +64,7 @@ Page({
       isLoggedIn: app.isLoggedIn,
       customUserInfo: app.customUserInfo,
       showLoginPrompt: !app.isLoggedIn,
+      enableGuestLogin: app.enableGuestLogin,
     });
   },
 
@@ -142,6 +145,15 @@ Page({
       this.updateLoginStateFromApp(); // 更新页面状态
       wx.showToast({ title: '登录成功!', icon: 'success' });
       // 登录成功，通知其他组件
+      loginCheckAndpublishEvent();
+    }
+  },
+  
+  async handleCodeLogin() {
+    const success = await app.authService.loginByCode();
+    if (success) {
+      this.updateLoginStateFromApp();
+      wx.showToast({ title: '登录成功!', icon: 'success' });
       loginCheckAndpublishEvent();
     }
   },

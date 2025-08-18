@@ -60,17 +60,12 @@ public class XcxAuthStrategy implements IAuthStrategy {
     public LoginVo login(String body, SysClientVo client) {
         XcxLoginBody loginBody = JsonUtils.parseObject(body, XcxLoginBody.class);
         ValidatorUtils.validate(loginBody);
-        // xcxCode 为 小程序调用 wx.login 授权后获取
-        String xcxCode = loginBody.getXcxCode();
-        // 多个小程序识别使用
-        String appid = loginBody.getAppid();
-
         // 校验 appid + appsrcret + xcxCode 调用登录凭证校验接口 获取 session_key 与 openid
         AuthRequest authRequest = new AuthWechatMiniProgramRequest(AuthConfig.builder()
             .clientId(appid).clientSecret(secret)
             .ignoreCheckRedirectUri(true).ignoreCheckState(true).build());
         AuthCallback authCallback = new AuthCallback();
-        authCallback.setCode(xcxCode);
+        authCallback.setCode(loginBody.getXcxCode());
         AuthResponse<AuthUser> resp = authRequest.login(authCallback);
         String openid, unionId;
         if (resp.ok()) {

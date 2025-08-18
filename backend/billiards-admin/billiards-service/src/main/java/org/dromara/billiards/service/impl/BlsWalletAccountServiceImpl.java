@@ -194,13 +194,19 @@ public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
         BlsWalletAccount blsWalletAccount = updateWalletBalance(userId, amount.negate());
 
         BigDecimal freezeAmount = blsWalletAccount.getBalance();
-        // 余额全部冻结，待退款
-        blsWalletAccount.setFreezeAmount(freezeAmount);
-        blsWalletAccount.setBalance(BigDecimal.ZERO);
-        // 更新钱包账户状态
-        if(baseMapper.updateById(blsWalletAccount) == 0 ){
-            throw new RuntimeException("扣减余额失败，更新钱包账户状态失败");
+
+        // 剩余金额大于0，需要退款，并且冻结当前金额
+        if(freezeAmount.compareTo(BigDecimal.ZERO) > 0){
+            // 余额全部冻结，待退款
+            blsWalletAccount.setFreezeAmount(freezeAmount);
+            blsWalletAccount.setBalance(BigDecimal.ZERO);
+
+            // 更新钱包账户状态
+            if(baseMapper.updateById(blsWalletAccount) == 0 ){
+                throw new RuntimeException("扣减余额失败，更新钱包账户状态失败");
+            }
         }
+
         // 返回扣减后的余额
         return freezeAmount;
     }

@@ -4,9 +4,10 @@
   <view wx:if="{{showLoginPrompt}}" class="top-floating-login-prompt">
     <view class="login-prompt-content">
       <text class="login-tip-text">登录后可查看更多内容</text>
-      <button open-type="getPhoneNumber" 
-        bindgetphonenumber="handleGetPhoneNumber"
-        class="login-prompt-button">微信一键登录</button>
+      <view class="login-action-row">
+        <button wx:if="{{!enableGuestLogin}}" open-type="getPhoneNumber" bindgetphonenumber="handleGetPhoneNumber" class="login-prompt-button">微信一键登录</button>
+        <button wx:if="{{enableGuestLogin}}" class="login-prompt-button outline" bindtap="handleCodeLogin">游客登录</button>
+      </view>
     </view>
   </view>
 
@@ -72,11 +73,10 @@
     </view>
   </view>
   
-  <!-- 如果未登录，且主要的登录提示卡片也未显示（作为后备） -->
+  <!-- 如果未登录，且主要的登录提示卡片也未显示（作为后备）；支持被用户主动关闭后不再出现 -->
   <view wx:if="{{!isLoggedIn && !showLoginPrompt}}" class="fallback-login-prompt">
-    <button open-type="getPhoneNumber" bindgetphonenumber="handleGetPhoneNumber" class="login-button">
-      立即登录
-    </button>
+    <button open-type="getPhoneNumber" bindgetphonenumber="handleGetPhoneNumber" class="login-button">立即登录</button>
+    <button wx:if="{{enableGuestLogin}}" bindtap="handleCodeLogin" class="login-button outline">游客登录</button>
   </view>
 
 </view>

@@ -86,6 +86,8 @@ export interface IAppOptionExtended extends IAppOption {
   isLoggedIn: boolean;
   isOngoing: boolean;
   userLocation: WechatMiniprogram.GetLocationSuccessCallbackResult | null; // 修改类型
+  // 是否启用游客登录按钮（使用 wx.login code 实现）
+  enableGuestLogin: boolean;
   
   // 服务实例
   authService: AuthService;  // 认证服务：处理登录、自动登录等认证相关功能
@@ -119,6 +121,8 @@ App<IAppOptionExtended>({
   isOngoing: false,
   userLocation: null,
   isInitialized: false, // 初始状态为未初始化
+  // 默认关闭游客登录按钮，需要时改为 true
+  enableGuestLogin: true,
 
   // globalData 结构应符合 IAppOption 的定义
   // 如果 IAppOption['globalData'] 是可选的或允许为空对象，则可以这样初始化

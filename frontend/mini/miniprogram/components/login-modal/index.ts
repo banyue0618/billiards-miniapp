@@ -11,7 +11,15 @@ Component({
     }
   },
   
-  data: {},
+  data: {
+    enableGuestLogin: false
+  },
+
+  lifetimes: {
+    attached() {
+      this.setData({ enableGuestLogin: app.enableGuestLogin });
+    }
+  },
   
   methods: {
     // 关闭弹窗
@@ -42,6 +50,20 @@ Component({
       wx.navigateTo({
         url: '/pages/common/legal/index?type=privacy'
       });
+    },
+
+    // 游客登录（code 登录）
+    async handleGuestLogin() {
+      const authService = app.authService;
+      if (!authService) {
+        wx.showToast({ title: '授权服务未初始化', icon: 'none' });
+        return;
+      }
+      const success = await authService.loginByCode();
+      if (success) {
+        this.triggerEvent('login-success');
+        this.triggerEvent('close');
+      }
     }
   }
 })

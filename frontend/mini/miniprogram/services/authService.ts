@@ -135,4 +135,64 @@ export class AuthService {
 
     return false
   }
+
+  /**
+   * 使用 wx.login code 直接登录（游客/免手机号登录）
+   */
+  async loginByCode(): Promise<boolean> {
+    if (!this.app) return false;
+    wx.showLoading({ title: '登录中...' });
+    try {
+      const loginRes = await wx.login();
+      if (!loginRes.code) {
+        wx.showToast({ title: '微信登录失败', icon: 'none' });
+        wx.hideLoading();
+        return false;
+      }
+
+      const loginPayload = {
+        clientId: this.app.clientId,
+        grantType: this.app.grantType,
+        tenantId: this.app.tenantId,
+        xcxCode: loginRes.code,
+        appid: this.app.appid,
+        // 可选的游客资料占位，后续可通过 getUserProfile 或资料页完善
+        nickname: '游客',
+        avatarUrl: '',
+        gender: 0
+      };
+
+      const loginResult = await apiService.login(loginPayload);
+      if (loginResult && loginResult.token) {
+        wx.setStorageSync('token', loginResult.token);
+        this.app.token = loginResult.token;
+
+        this.app.customUserInfo = {
+          id: loginResult.userId,
+          nickname: loginResult.nickname || '游客',
+          avatarUrl: loginResult.avatarUrl || '',
+          isMember: loginResult.isMember,
+          memberLevel: loginResult.memberLevel,
+          points: loginResult.points,
+          member_expire_time: loginResult.memberExpireTime
+        } as CustomUserInfo;
+
+        this.app.isLoggedIn = true;
+
+        wx.hideLoading();
+        wx.showToast({ title: '登录成功', icon: 'success' });
+        return true;
+      } else {
+        this.clearLoginState();
+        wx.showToast({ title: '登录认证失败', icon: 'none' });
+        wx.hideLoading();
+        return false;
+      }
+    } catch (error) {
+      this.clearLoginState();
+      wx.showToast({ title: '登录过程异常', icon: 'none' });
+      wx.hideLoading();
+      return false;
+    }
+  }
 } 
