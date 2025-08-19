@@ -191,7 +191,7 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
     @Override
     public List<PriceRule> listPriceRules() {
         LambdaQueryWrapper<PriceRule> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(PriceRule::getMerchantId, StpUtil.getLoginIdAsString());
+        queryWrapper.eq(PriceRule::getMerchantId, LoginHelper.getUserId());
         queryWrapper.orderByDesc(PriceRule::getCreateTime);
         return this.list(queryWrapper);
     }

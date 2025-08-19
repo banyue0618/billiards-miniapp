@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @Slf4j
 @Service("minioResourceService")
-@ConditionalOnProperty(name = "resource.storage.type", havingValue = "minio", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "resource.storage", name = "type", havingValue = "minio")
 public class MinioResourceServiceImpl extends AbstractObjectStorageService {
 
     private final MinioStorageProperties minioProperties;

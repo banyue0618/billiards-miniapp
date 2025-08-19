@@ -5,7 +5,7 @@ resource:
   storage:
     # 存储类型：local(本地文件系统), minio(MinIO对象存储), oss(阿里云OSS对象存储), cdn(CDN加速)
     # 根据选择的类型，下方对应的配置块需要填写完整。
-    type: minio  # <--- 修改这里来切换存储方式
+    type: local  # <--- 修改这里来切换存储方式
 
     # 本地存储配置 (当 type = local 时生效)
     local:

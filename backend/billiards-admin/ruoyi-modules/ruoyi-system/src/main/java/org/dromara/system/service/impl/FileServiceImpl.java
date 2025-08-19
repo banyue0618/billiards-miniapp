@@ -47,7 +47,7 @@ public class FileServiceImpl implements FileService {
     public Map<String, String> uploadFile(MultipartFile file, ResourceType resourceType) {
         Map<String, String> result = new HashMap<>();
         try {
-            String resourceId = activeResourceService.uploadImage(file, resourceType);
+            String resourceId = activeResourceService.uploadResource(file, resourceType);
             String previewUrl = activeResourceService.getResourceUrl(resourceId, resourceType);
             result.put("previewUrl", previewUrl);
             result.put("resourceId", resourceId); // 使用 resourceId 作为文件路径

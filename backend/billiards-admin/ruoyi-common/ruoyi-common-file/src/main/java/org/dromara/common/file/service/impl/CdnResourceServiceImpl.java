@@ -25,7 +25,7 @@ import java.util.Map;
  */
 @Slf4j
 @Service("cdnResourceService")
-@ConditionalOnProperty(name = "resource.storage.type", havingValue = "cdn")
+@ConditionalOnProperty(prefix = "resource.storage", name = "type", havingValue = "cdn")
 public class CdnResourceServiceImpl implements ResourceService {
 
     private final CdnStorageProperties cdnProperties;

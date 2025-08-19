@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Slf4j
 @Service("ossResourceService")
-@ConditionalOnProperty(name = "resource.storage.type", havingValue = "oss")
+@ConditionalOnProperty(prefix = "resource.storage", name = "type", havingValue = "oss")
 public class OssResourceServiceImpl extends AbstractObjectStorageService {
 
     private final OssStorageProperties ossProperties;

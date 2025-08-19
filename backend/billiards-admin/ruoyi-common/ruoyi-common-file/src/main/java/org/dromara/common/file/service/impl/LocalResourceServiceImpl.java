@@ -29,7 +29,7 @@ import java.util.UUID;
  */
 @Slf4j
 @Service("localResourceService") // Bean name for explicit wiring if needed
-@ConditionalOnProperty(name = "resource.storage.type", havingValue = "local") // Match if missing, making local default
+@ConditionalOnProperty(prefix = "resource.storage", name = "type", havingValue = "local")
 public class LocalResourceServiceImpl implements ResourceService {
 
     private final LocalStorageProperties localProperties;
