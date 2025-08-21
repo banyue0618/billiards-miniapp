@@ -23,5 +23,8 @@
         <result column="create_by" property="createBy"/>
         <result column="update_by" property="updateBy"/>
     </resultMap>
+    <select id="findTenantIdByStoreId" resultType="java.lang.String">
+        select tenant_id from bls_store where id = #{storeId} limit 1
+    </select>
 
 </mapper>

@@ -7,6 +7,7 @@ import org.dromara.billiards.domain.bo.TableQueryRequest;
 import org.dromara.billiards.domain.entity.Table;
 import org.dromara.billiards.domain.vo.TableVO;
 import org.dromara.billiards.service.TableService;
+import org.dromara.billiards.service.QrCodeTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,7 @@ import java.util.List;
 public class TableController {
 
     private final TableService tableService;
+    private final QrCodeTokenService qrCodeTokenService;
     private final TableConvert tableConvert = TableConvert.INSTANCE;
 
     /**
@@ -55,7 +57,10 @@ public class TableController {
     @GetMapping("/qrcode/{tableId}")
     @Operation(summary = "二维码查询", description = "根据二维码获取桌台信息")
     public R<TableVO> getTableByQrcode(@PathVariable String tableId) {
-        return ApiResult.success(tableService.getTableInfo(tableId));
+        // 兼容：如果前端传的是短码或旧格式，先尝试解析
+        String parsed = qrCodeTokenService.parseTableIdFromContent(tableId);
+        String realId = parsed != null ? parsed : tableId;
+        return ApiResult.success(tableService.getTableInfo(realId));
     }
 
     /**

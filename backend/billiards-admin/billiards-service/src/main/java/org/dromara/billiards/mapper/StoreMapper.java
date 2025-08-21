@@ -9,4 +9,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface StoreMapper extends BaseMapper<Store> {
+    String findTenantIdByStoreId(String storeId);
 }

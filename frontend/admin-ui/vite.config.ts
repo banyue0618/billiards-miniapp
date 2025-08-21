@@ -29,8 +29,8 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
           changeOrigin: true,
           ws: true,
           rewrite: (path) => path.replace(new RegExp('^' + env.VITE_APP_BASE_API), '')
-        },
-        '/upload-files': { target: 'http://127.0.0.1:8080', changeOrigin: true }
+        }
+        // '/upload-files': { target: 'http://127.0.0.1:8080', changeOrigin: true }
       }
     },
     css: {

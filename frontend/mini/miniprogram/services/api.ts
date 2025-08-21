@@ -84,8 +84,8 @@ export interface TableInfo {
 
 // 订单信息
 export interface OrderInfo {
-  id: string;
-  orderNo: string;
+  id?: string;
+  orderNo?: string;
   userId?: number;
   storeId?: string;
   storeName: string;
@@ -192,7 +192,7 @@ class ApiService {
    * @param tableId 桌台ID
    */
   createOrder(channel: string, tableId: string) {
-    return http.post<{ order: OrderInfo }>('/api/miniapp/orders/create', { channel, tableId })
+    return http.post<OrderInfo>('/api/miniapp/orders/create', { channel, tableId })
   }
 
   /**

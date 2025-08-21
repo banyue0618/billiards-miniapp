@@ -15,7 +15,7 @@ resource:
       # 访问本地存储资源的基础URL (例如: http://localhost:8080/upload-files, https://yourdomain.com/static-files)
       # 需要配合Web服务器（如Nginx或Spring MVC静态资源处理器）配置静态资源映射。
       # 如果为空，则无法直接通过URL访问文件。
-      base-url: /upload-files # 示例: 通过应用的 /upload-files 路径访问 (需配置Spring MVC静态资源映射)
+      base-url: http://localhost:8080/uploads/files # 示例: 通过应用的 /upload-files 路径访问 (需配置Spring MVC静态资源映射)
 
     # MinIO对象存储配置 (当 type = minio 时生效)
     minio:

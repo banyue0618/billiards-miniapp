@@ -36,7 +36,20 @@ public class LocalResourceWebConfig implements WebMvcConfigurer {
             return;
         }
 
-        String pattern = baseUrl.endsWith("/") ? baseUrl + "**" : baseUrl + "/**";
+        // 资源处理器的模式只能是路径前缀，不能包含协议和主机名
+        String urlPathPattern = baseUrl;
+        try {
+            if (baseUrl.startsWith("http://") || baseUrl.startsWith("https://")) {
+                java.net.URI uri = java.net.URI.create(baseUrl);
+                urlPathPattern = uri.getPath();
+            }
+        } catch (Exception e) {
+            // ignore, fallback to raw baseUrl
+        }
+        if (!StringUtils.hasText(urlPathPattern)) {
+            urlPathPattern = "/uploads/files"; // fallback
+        }
+        String pattern = urlPathPattern.endsWith("/") ? urlPathPattern + "**" : urlPathPattern + "/**";
         String location = Paths.get(basePath).toUri().toString(); // 转为 file:/ URI
 
         log.info("注册本地静态资源映射: [{}] -> [{}]", pattern, location);

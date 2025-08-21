@@ -24,6 +24,13 @@ public interface IBlsPayRecordService extends IService<PayRecord> {
     String createPayment(PaymentRequest request, String channel);
 
 
+    /**
+     * 查询支付结果
+     * @param transactionId
+     * @param outTradeNo
+     * @return
+     * @throws WxPayException
+     */
     String queryPayStatus(String transactionId, String outTradeNo) throws WxPayException;
 
 

@@ -167,63 +167,15 @@ Page({
     // })
   },
 
-  // 解析二维码内容
-  parseQrCode(qrCode: string): string {
-    // 尝试不同的解析方式
-    
-    // 1. 尝试作为URL解析
-    if (qrCode.startsWith('http')) {
-      try {
-        const urlObj = new RegExp(/[?&]([^=#]+)=([^&#]*)/g);
-        const params: Record<string, string> = {};
-        let match;
-        
-        while (match = urlObj.exec(qrCode)) {
-          params[match[1]] = match[2];
-        }
-        
-        // 尝试获取tableId或id参数
-        if (params.tableId) return params.tableId;
-        if (params.id) return params.id;
-      } catch (error) {
-        console.log('URL解析失败，按原内容处理', error);
-      }
-    }
-    
-    // 2. 尝试解析JSON
-    if (qrCode.startsWith('{') && qrCode.endsWith('}')) {
-      try {
-        const jsonData = JSON.parse(qrCode);
-        if (jsonData.tableId) return jsonData.tableId;
-        if (jsonData.id) return jsonData.id;
-      } catch (error) {
-        console.log('JSON解析失败，按原内容处理', error);
-      }
-    }
-    
-    // 3. 简单格式解析（例如 table_123）
-    const tablePrefix = /^table_(\w+)$/i;
-    const match = qrCode.match(tablePrefix);
-    if (match && match[1]) {
-      return match[1];
-    }
-    
-    // 4. 其他自定义格式解析可以在这里添加
-    
-    // 默认返回原始内容
-    return qrCode;
-  },
+
 
   // 处理扫码结果
   async handleScanResult(qrCode: string) {
     try {
       showLoading('识别中...')
       
-      // 解析二维码内容
-      const tableId = this.parseQrCode(qrCode);
-      
       // 调用API获取桌台信息
-      const tableInfo = await apiService.scanTable(tableId)
+      const tableInfo = await apiService.scanTable(qrCode)
       
       hideLoading()
       
@@ -389,7 +341,7 @@ Page({
       hideLoading()
       this.setData({ isCreatingOrder: false, isOngoing: true })
       app.isOngoing = true;
-      
+
       // 保存到最近使用
       // this.saveRecentTable(scanResult)
 

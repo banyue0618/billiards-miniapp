@@ -25,6 +25,7 @@ import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.common.file.enums.ResourceType;
 import org.dromara.system.service.FileService;
+import org.dromara.billiards.service.QrCodeTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,13 +61,11 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, Table> implements
 
     private final PriceRuleConvert priceRuleConvert;
 
-    @Autowired
-    private FileService fileService;
+    private final FileService fileService;
 
-    @Autowired
-    private PriceRuleService priceRuleService;
+    private final PriceRuleService priceRuleService;
 
-    private static final String QRCODE_PREFIX = "table_";
+    private final QrCodeTokenService qrCodeTokenService;
 
     /**
      * 重写 getById 方法，以便在未找到对象时抛出标准异常
@@ -318,8 +317,8 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, Table> implements
         Table table = this.getById(tableId); // getById 内部会检查是否存在并抛异常
 
         try {
-            // 1. 生成二维码内容 - 可以考虑加入时间戳和签名等安全措施
-            String qrCodeContent = "table_" + table.getId();
+            // 1. 生成二维码内容：采用短码签名，避免直接暴露ID
+            String qrCodeContent = qrCodeTokenService.generateContentForTable(table.getId());
 
             // 2. 使用ZXing生成二维码图片
             QRCodeWriter qrCodeWriter = new QRCodeWriter();

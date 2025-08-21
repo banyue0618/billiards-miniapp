@@ -274,7 +274,7 @@ websocket:
 --- # warm-flow工作流配置
 warm-flow:
   # 是否开启工作流，默认true
-  enabled: true
+  enabled: false
   # 是否开启设计器ui
   ui: true
   # 默认Authorization，如果有多个token，用逗号分隔

@@ -309,7 +309,7 @@ billiards:
     auto-finish-minutes: 1440  # 24小时自动结束未完成订单
 
   payment:
-    mock-enabled: false # 是否开启模拟支付，true为开启，false为关闭
+    mock-enabled: true # 是否开启模拟支付，true为开启，false为关闭
     notify-url: /api/miniapp/payment/payNotify # 支付回调地址
     refund-url: /api/miniapp/payment/refundNotify # 退款回调地址
 
