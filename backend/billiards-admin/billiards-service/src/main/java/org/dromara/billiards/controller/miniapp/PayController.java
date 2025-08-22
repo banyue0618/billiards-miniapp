@@ -1,5 +1,6 @@
 package org.dromara.billiards.controller.miniapp;
 
+import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryV3Result;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,7 +78,7 @@ public class PayController {
     @GetMapping("/query/{payNo}")
     @Operation(summary = "查询支付结果", description = "主动查询支付结果")
     public R<Boolean> queryPayResult(@Parameter(description = "支付流水号") @PathVariable String payNo) throws WxPayException {
-        String payStatus = payRecordService.queryPayStatus(null, payNo);
-        return R.ok("查询支付结果成功", WxPayConstants.ResultCode.SUCCESS.equals(payStatus));
+        WxPayOrderQueryV3Result payStatus = payRecordService.queryPayStatus(null, payNo);
+        return R.ok("查询支付结果成功", WxPayConstants.ResultCode.SUCCESS.equals(payStatus.getTradeState()));
     }
 }

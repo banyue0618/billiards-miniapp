@@ -35,6 +35,11 @@ public class BlsRefundRecord extends BilliardsBaseEntity {
     private String payRecordId;
 
     /**
+     * 微信支付交易号
+     */
+    private String transactionId;
+
+    /**
      * bls_order订单记录id
      */
     private String orderId;
@@ -68,4 +73,9 @@ public class BlsRefundRecord extends BilliardsBaseEntity {
      * 备注
      */
     private String remark;
+
+    /**
+     * 上一次主动查询时间
+     */
+    private LocalDateTime lastQueryTime;
 }

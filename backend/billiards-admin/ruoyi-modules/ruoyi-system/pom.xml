@@ -115,6 +115,11 @@
             <artifactId>ruoyi-common-pay</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>ruoyi-common-mail</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

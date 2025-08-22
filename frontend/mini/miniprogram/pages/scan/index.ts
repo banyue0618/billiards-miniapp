@@ -141,7 +141,7 @@ Page({
     const isAllow = await apiService.scanTableEnableCheck();
     if(!isAllow){
       // 不允许开发则跳转至充值页面
-      wx.navigateTo({
+      await wx.navigateTo({
         url: '/pages/prepay/prepay',
       })
       return;
@@ -324,7 +324,7 @@ Page({
       // 根据扫码结果查询一次最新的桌台信息
       const latestTableInfo = await apiService.scanTable(scanResult.id)
       hideLoading()
-      this.tableStatusCheck(latestTableInfo.status);
+      await this.tableStatusCheck(latestTableInfo.status);
     } catch (error) {
       hideLoading()
       showError('验证桌台状态失败，请重试')

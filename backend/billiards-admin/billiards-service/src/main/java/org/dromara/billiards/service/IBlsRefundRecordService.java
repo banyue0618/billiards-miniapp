@@ -1,5 +1,6 @@
 package org.dromara.billiards.service;
 
+import com.github.binarywang.wxpay.bean.result.WxPayRefundQueryV3Result;
 import jakarta.servlet.http.HttpServletRequest;
 import org.dromara.billiards.domain.bo.BlsRefundRecordBo;
 import org.dromara.billiards.domain.entity.BlsRefundRecord;
@@ -86,4 +87,21 @@ public interface IBlsRefundRecordService {
      * @return
      */
     boolean handleRefundNotify(String notifyData, HttpServletRequest request);
+
+
+    /**
+     * 主动查询退款结果
+     * @param outRefundNo
+     * @return
+     * @throws Exception
+     */
+    WxPayRefundQueryV3Result queryRefundResult(String outRefundNo) throws Exception;
+
+    /**
+     * 处理退款结果
+     * @param refundStatus
+     * @param refundRecord
+     * @return
+     */
+    boolean handleRefundResult(String refundStatus, BlsRefundRecord refundRecord, boolean ifThrowException);
 }

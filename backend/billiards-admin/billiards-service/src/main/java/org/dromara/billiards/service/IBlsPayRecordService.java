@@ -1,6 +1,7 @@
 package org.dromara.billiards.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryV3Result;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.dromara.billiards.domain.bo.PaymentRequest;
@@ -31,7 +32,7 @@ public interface IBlsPayRecordService extends IService<PayRecord> {
      * @return
      * @throws WxPayException
      */
-    String queryPayStatus(String transactionId, String outTradeNo) throws WxPayException;
+    WxPayOrderQueryV3Result queryPayStatus(String transactionId, String outTradeNo) throws WxPayException;
 
 
     /**

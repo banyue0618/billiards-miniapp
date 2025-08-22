@@ -140,7 +140,7 @@ public enum ResultCode implements IResultCode {
 
     INVALID_CHANNEL(4031, "非法渠道"),
 
-    INVALID_TIME_RANGE(5031, "非法时间区间"), ORDER_NOT_REFUNDING(2012, "订单未处于可退款状态"),;
+    INVALID_TIME_RANGE(5031, "非法时间区间"), ORDER_NOT_REFUNDING(2012, "订单未处于可退款状态"), REFUND_ABNORMAL(2013, "订单退款异常，请前往微信商户平台处理");
 
     /**
      * 状态码

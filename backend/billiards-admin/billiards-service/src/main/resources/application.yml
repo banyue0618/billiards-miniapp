@@ -45,5 +45,32 @@ billiards:
     #   - /*.html
     #   - /api/miniapp/stores/nearby
     #   - /api/miniapp/user/auth/login
+  schedule:
+    pay-timeout-interval-minutes: 10
+    pay-reconcile-interval-minutes: 3
+    refund-failed-scan-interval-minutes: 30
+  payment:
+    timeout-minutes: 30
+  notify:
+    refund-fail:
+      enabled: true
+      channels: [ SSE, EMAIL ]
+      dedup-ttl-minutes: 1440
+      retry-max-times: 3
+      retry-backoff-seconds: 30
+      email:
+        enabled: true
+        to-emails:
+          - admin@example.com
+          - ops@example.com
+        subject-template: "[退款失败告警] 订单:${orderNo}"
+        content-template: "退款单:${refundId}, 金额:${amount}, 状态:${refundStatus}, 原因:${reason}, 查看: ${dashboardUrl}"
+      sse:
+        enabled: true
+        message-template: "退款失败: 订单:${orderNo}, 金额:${amount}"
+
+sse:
+  enabled: true
+
 
 

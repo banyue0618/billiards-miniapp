@@ -12,7 +12,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.common.constant.BilliardsConstants;
-import org.dromara.billiards.common.constant.TransTypeEnum;
+import org.dromara.billiards.common.constant.PaymentStatus;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 /**
  * 充值支付记录 Service 实现
@@ -46,9 +45,6 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
 
     @Resource
     private UserService userService;
-
-    @Resource
-    private IBlsWalletTransactionService walletTransactionService;
 
     @Resource
     private IBlsWalletAccountService walletAccountService;
@@ -72,7 +68,7 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
         payRecord.setUserId(user.getId());
         payRecord.setAmount(request.getAmount());
         payRecord.setChannel(channel);
-        payRecord.setPaymentStatus(0); // 未支付
+        payRecord.setPaymentStatus(PaymentStatus.UNPAID.getCode()); // 未支付
 
         // 保存支付记录
         boolean saved = this.save(payRecord);
@@ -85,8 +81,8 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
             log.info("模拟支付模式已启用，直接更新用户余额");
             BlsWalletAccount walletAccount = walletAccountService.updateWalletBalance(user.getId(), request.getAmount());
             if (walletAccount.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-                // 更新支付记录状态为已支付
-                payRecord.setPaymentStatus(1);
+                // 更新支付记录状态为支付成功
+                payRecord.setPaymentStatus(PaymentStatus.PAID.getCode());
                 payRecord.setRemark("模拟支付成功");
                 payRecord.setUpdateTime(LocalDateTime.now());
                 this.updateById(payRecord);
@@ -109,13 +105,13 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
     }
 
     @Override
-    public String queryPayStatus(String transactionId, String outTradeNo) throws WxPayException {
-        Optional<WxPayOrderQueryV3Result> queryV3Result = Optional.ofNullable(payService.queryOrder(transactionId, outTradeNo));
-        if (queryV3Result.isEmpty()) {
+    public WxPayOrderQueryV3Result queryPayStatus(String transactionId, String outTradeNo) throws WxPayException {
+        WxPayOrderQueryV3Result queryV3Result = payService.queryPayResult(transactionId, outTradeNo);
+        if (queryV3Result == null) {
             log.error("查询支付状态失败，未找到订单: transactionId={}, outTradeNo={}", transactionId, outTradeNo);
             throw BilliardsException.of(ResultCode.ERROR, "查询支付状态失败");
         }
-        return queryV3Result.get().getTradeState();
+        return queryV3Result;
     }
 
     @Override
@@ -137,8 +133,8 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
                 return false;
             }
 
-            // 判断是否已处理过
-            if (payRecord.getPaymentStatus() == 1) {
+            // 判断是否已处理过，判断状态是否是 0或者1，如果不是，则表示已经处理过
+            if(!(payRecord.getPaymentStatus() >= 0 && (payRecord.getPaymentStatus() & (payRecord.getPaymentStatus() - 1)) == 0)){
                 log.info("支付回调重复处理: {}", outTradeNo);
                 return true;
             }
@@ -147,32 +143,24 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
             payRecord.setTransactionId(decryptRes.getTransactionId());
             payRecord.setNotifyTime(LocalDateTime.now());
             payRecord.setNotifyData(notifyData);
-
+            payRecord.setRemark(decryptRes.getTradeStateDesc());
             // 判断支付状态
             if (WxPayConstants.WxpayTradeStatus.SUCCESS.equals(decryptRes.getTradeState())) {
-                // 支付成功
-
-                // 新增钱包流水记录 BlsWalletTransaction
-                walletTransactionService.addWalletTransaction(payRecord.getUserId(), payRecord.getAmount(), payRecord.getId(), decryptRes.getTransactionId(), "支付成功", TransTypeEnum.RECHARGE);
-
-                // 更新钱包 BlsWalletAccount
-                walletAccountService.updateWalletBalance(payRecord.getUserId(), payRecord.getAmount().negate());
-
-                payRecord.setPaymentStatus(1); // 已支付
-
-                payRecord.setRemark("支付成功");
+                payRecord.setPaymentStatus(PaymentStatus.PAID.getCode()); // 支付成功
+                log.info("支付成功: {}", outTradeNo);
+                walletAccountService.updateWalletBalanceAndWalletTransaction(payRecord);
             } else {
-               // todo 付款失败
-
+                payRecord.setPaymentStatus(PaymentStatus.PAY_FAIL.getCode()); // 支付失败
+                // todo 付款失败
             }
-
             payRecord.setUpdateTime(LocalDateTime.now());
             this.updateById(payRecord);
             return true;
         } catch (Exception e) {
             log.error("处理支付回调异常", e);
-            return false;
+            BilliardsException.of(ResultCode.ERROR, "处理支付回调异常: " + e.getMessage());
         }
+        return false;
     }
 
     @Override

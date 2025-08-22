@@ -93,7 +93,7 @@ public interface OrderService extends IService<Order> {
      List<OrderVO> getCurrentOrderWithCalculation();
 
     /**
-     * 获取当前正在退款的订单
+     * 获取当前用户下正在退款的订单
      * @return
      */
     Order getRefundingOrder();
@@ -131,4 +131,10 @@ public interface OrderService extends IService<Order> {
      * @return
      */
     Order endOrder(Order order);
+
+    /**
+     * 管理员手动处理退款失败的订单
+     * @param orderId
+     */
+    void orderRefundByAdmin(String orderId);
 }

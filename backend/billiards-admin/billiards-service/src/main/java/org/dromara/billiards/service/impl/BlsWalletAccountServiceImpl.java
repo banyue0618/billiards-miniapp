@@ -1,11 +1,15 @@
 package org.dromara.billiards.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.common.constant.BilliardsConstants;
+import org.dromara.billiards.common.constant.TransTypeEnum;
 import org.dromara.billiards.domain.bo.BlsWalletAccountBo;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
+import org.dromara.billiards.domain.entity.PayRecord;
 import org.dromara.billiards.domain.vo.BlsWalletAccountVo;
+import org.dromara.billiards.service.IBlsWalletTransactionService;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
@@ -34,6 +38,8 @@ import java.util.Collection;
 public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
 
     private final BlsWalletAccountMapper baseMapper;
+
+    private final IBlsWalletTransactionService walletTransactionService;
 
     /**
      * 查询用户钱包账户
@@ -153,6 +159,10 @@ public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
         } else {
             // 如果是退款
             account.setTotalRefund(account.getTotalRefund().add(amount.abs()));
+            // 如果冻结金额大于 0 ，释放本次退款的冻结金额额度
+            if(account.getFreezeAmount().compareTo(BigDecimal.ZERO) > 0){
+                account.setFreezeAmount(account.getFreezeAmount().add(amount));
+            }
         }
 
         // 更新数据库
@@ -209,5 +219,14 @@ public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
 
         // 返回扣减后的余额
         return freezeAmount;
+    }
+
+    @Override
+    public BlsWalletAccount updateWalletBalanceAndWalletTransaction(PayRecord payRecord) {
+        // 新增钱包流水记录 BlsWalletTransaction
+        walletTransactionService.addWalletTransaction(payRecord.getUserId(), payRecord.getAmount(), payRecord.getId(), payRecord.getTransactionId(), payRecord.getRemark(), TransTypeEnum.RECHARGE);
+
+        // 更新钱包 BlsWalletAccount
+        return updateWalletBalance(payRecord.getUserId(), payRecord.getAmount().negate());
     }
 }

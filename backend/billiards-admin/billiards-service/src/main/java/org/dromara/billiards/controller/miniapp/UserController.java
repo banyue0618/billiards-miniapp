@@ -59,7 +59,7 @@ public class UserController {
      * 绑定手机号
      */
     @GetMapping("/scanTableEnableCheck")
-    @Operation(summary = "余额检查", description = "检查当前用户余额是否充足,满足开台条件")
+    @Operation(summary = "余额检查", description = "检查当前用户是否满足开台条件")
     public R<Boolean> scanTableEnableCheck() {
         return ApiResult.success(userService.scanTableEnableCheck());
     }

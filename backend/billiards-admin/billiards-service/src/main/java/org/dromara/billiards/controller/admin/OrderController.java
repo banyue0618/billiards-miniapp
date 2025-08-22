@@ -57,6 +57,16 @@ public class OrderController {
     }
 
     /**
+     * 手动结束订单
+     */
+    @PostMapping("/{orderId}/refund")
+    @Operation(summary = "结束订单", description = "手动订单退款")
+    public Result<Boolean> orderRefund(@PathVariable("orderId") String orderId) {
+        orderService.orderRefundByAdmin(orderId);
+        return Result.success(true);
+    }
+
+    /**
      * 取消订单
      */
     @PostMapping("/{orderId}/cancel")

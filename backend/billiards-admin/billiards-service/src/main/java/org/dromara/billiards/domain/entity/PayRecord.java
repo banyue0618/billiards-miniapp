@@ -57,7 +57,7 @@ public class PayRecord extends BilliardsBaseEntity {
     private String channel;
 
     /**
-     * 支付状态 0-未支付 1-已支付 2-已退款
+     * 支付状态 详见枚举类：PaymentStatus
      */
     private Integer paymentStatus;
 
@@ -77,8 +77,8 @@ public class PayRecord extends BilliardsBaseEntity {
     private String remark;
 
     /**
-     * 删除标志（0代表存在 1代表删除）
+     * 上一次主动查询时间
      */
-    @TableLogic
-    private Integer isDelete;
+    private LocalDateTime lastQueryTime;
+
 }

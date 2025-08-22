@@ -8,7 +8,7 @@ import com.github.binarywang.wxpay.bean.request.WxPayOrderQueryV3Request;
 import com.github.binarywang.wxpay.bean.request.WxPayRefundV3Request;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderV3Request;
 import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryV3Result;
-import com.github.binarywang.wxpay.bean.result.WxPayRefundV3Result;
+import com.github.binarywang.wxpay.bean.result.WxPayRefundQueryV3Result;
 import com.github.binarywang.wxpay.bean.result.WxPayUnifiedOrderV3Result;
 import com.github.binarywang.wxpay.bean.result.enums.TradeTypeEnum;
 import com.github.binarywang.wxpay.exception.WxPayException;
@@ -16,6 +16,7 @@ import com.github.binarywang.wxpay.service.WxPayService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.common.core.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -42,13 +43,13 @@ public class PayService {
     private String refundNotifyUrl;
 
     /**
-     * 查询订单
+     * 查询支付结果 todo 服务商模式？ queryPartnerOrderV3
      * @param transactionId
      * @param outTradeNo
      * @return
      * @throws WxPayException
      */
-    public WxPayOrderQueryV3Result queryOrder(String transactionId, String outTradeNo) throws WxPayException {
+    public WxPayOrderQueryV3Result queryPayResult(String transactionId, String outTradeNo) throws WxPayException {
         WxPayOrderQueryV3Request wxPayOrderQueryV3Request = new WxPayOrderQueryV3Request();
         wxPayOrderQueryV3Request.setTransactionId(transactionId);
         wxPayOrderQueryV3Request.setOutTradeNo(outTradeNo);
@@ -57,6 +58,20 @@ public class PayService {
         }
         // 调用微信支付服务查询订单
         return this.wxService.queryOrderV3(wxPayOrderQueryV3Request);
+    }
+
+    /**
+     * 查询退款结果
+     * @param outRefundNo
+     * @return
+     * @throws WxPayException
+     */
+    public WxPayRefundQueryV3Result queryRefundResult(String outRefundNo) throws WxPayException {
+        if (StringUtils.isEmpty(outRefundNo)) {
+            throw new WxPayException("outRefundNo must be provided");
+        }
+        // 调用微信支付服务查询订单
+        return this.wxService.refundQueryV3(outRefundNo);
     }
 
     public void refund(String transactionId, String outTradeNo, BigDecimal refundAmount, String outRefundNo) throws WxPayException {

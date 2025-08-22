@@ -1,6 +1,8 @@
 package org.dromara.billiards.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.github.binarywang.wxpay.bean.result.WxPayRefundQueryV3Result;
+import com.github.binarywang.wxpay.constant.WxPayConstants;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.constant.OrderChannelEnum;
 import org.dromara.billiards.common.constant.OrderCompleteFlagEnum;
@@ -44,7 +46,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     private final PriceRuleService priceRuleService;
     private final PricingStrategyFactory pricingStrategyFactory;
-    private final UserService billiardsUserService;
     private final IBlsPayRecordService payRecordService;
     private final IBlsRefundRecordService refundRecordService;
     private final StoreService storeService;
@@ -415,6 +416,33 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         this.updateById(order);
         // 发起微信退款
         return order;
+    }
+
+    @Override
+    public void orderRefundByAdmin(String orderId) {
+        // 根据订单找到退款失败的记录
+        Order order = this.getById(orderId);
+        if(order ==null){
+            throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
+        }
+        if(order.getPaymentStatus() != 2){
+            throw BilliardsException.of(ResultCode.ORDER_NOT_REFUNDING);
+        }
+
+        try {
+            // 查询订单对应的退款记录
+            BlsRefundRecord refundRecord = refundRecordService.queryRecordByOrderId(orderId);
+
+            // 主动查询退款结果
+            WxPayRefundQueryV3Result refundResult = refundRecordService.queryRefundResult(refundRecord.getId());
+
+            // 处理查询结果
+            refundRecordService.handleRefundResult(refundResult.getStatus(), refundRecord, true);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private PricingResult calculateAmount(LocalDateTime startTime, LocalDateTime endTime, String priceRuleId, boolean isMember){

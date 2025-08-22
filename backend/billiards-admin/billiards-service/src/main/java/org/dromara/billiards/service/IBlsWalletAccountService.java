@@ -2,6 +2,7 @@ package org.dromara.billiards.service;
 
 import org.dromara.billiards.domain.bo.BlsWalletAccountBo;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
+import org.dromara.billiards.domain.entity.PayRecord;
 import org.dromara.billiards.domain.vo.BlsWalletAccountVo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
@@ -98,4 +99,11 @@ public interface IBlsWalletAccountService {
      * @return
      */
     BigDecimal deductBalance( Long userId, BigDecimal amount);
+
+    /**
+     * 更新用户钱包余额 & 新增钱包流水
+     * @param payRecord
+     * @return
+     */
+    BlsWalletAccount updateWalletBalanceAndWalletTransaction(PayRecord payRecord);
 }

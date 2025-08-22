@@ -97,7 +97,7 @@ public class Order extends BilliardsBaseEntity {
     private BigDecimal actualAmount;
 
     /**
-     * 支付状态 0-未支付 1-已支付 2-退款中
+     * 支付状态 0-未支付 1-已支付 2-退款中(同于订单的结算，这与充值记录的支付状态无关)
      */
     private Integer paymentStatus;
 

@@ -1,13 +1,19 @@
 package org.dromara.billiards.service.impl;
 
+import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryV3Result;
+import com.github.binarywang.wxpay.constant.WxPayConstants;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import org.dromara.billiards.common.constant.BilliardsConstants;
+import org.dromara.billiards.common.constant.PaymentStatus;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
+import org.dromara.billiards.domain.entity.PayRecord;
 import org.dromara.billiards.mapper.UserMapper;
 import org.dromara.billiards.domain.entity.User;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.dromara.billiards.service.IBlsPayRecordService;
 import org.dromara.billiards.service.IBlsWalletAccountService;
 import org.dromara.billiards.service.UserService;
 import org.dromara.billiards.domain.bo.UserUpdateDto;
@@ -32,6 +38,8 @@ import java.math.BigDecimal;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final IBlsWalletAccountService walletAccountService;
+
+    private final IBlsPayRecordService payRecordService;
 
     private final UserConvert userConvert = UserConvert.INSTANCE;
 
@@ -110,7 +118,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 检查用户余额是否足够,足够返回true,否则返回false
+     * 检查用户是否满足开台条件，满足返回true,否则返回false
      * @return 是否足够
      */
     @Override
@@ -119,6 +127,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         BlsWalletAccount walletAccount = walletAccountService.getWalletAccountByUserId(LoginHelper.getUserId());
 
         // 检查余额是否大于0
-        return walletAccount.getBalance().compareTo(BigDecimal.ZERO) > 0;
+        if(walletAccount.getBalance().compareTo(BigDecimal.ZERO) > 0){
+            return true;
+        }
+
+        // 余额未更新则检查是否有充值记录,查询最近一次的支付记录
+        PayRecord lastPayRecord = payRecordService.getLastPayRecord(LoginHelper.getUserId());
+        if (lastPayRecord != null) {
+            if(PaymentStatus.UNPAID.getCode() == lastPayRecord.getPaymentStatus()){
+                // 如果最近的支付记录状态为未支付，表示用户还未支付，不能开台
+                return false;
+            }
+            if(PaymentStatus.PAYING.getCode() == lastPayRecord.getPaymentStatus()){
+                // 如果最近的支付记录状态为支付中，调用微信支付接口查询支付结果
+                try {
+                    WxPayOrderQueryV3Result payStatus = payRecordService.queryPayStatus(lastPayRecord.getTransactionId(), lastPayRecord.getPayNo());
+                    if(WxPayConstants.ResultCode.SUCCESS.equals(payStatus.getTradeState())){
+                        // 如果查询到支付成功，则认为可以开台
+                        return true;
+                    }
+                    // 表示支付失败
+                } catch (WxPayException e) {
+                    log.error("查询支付状态失败", e);
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 }
