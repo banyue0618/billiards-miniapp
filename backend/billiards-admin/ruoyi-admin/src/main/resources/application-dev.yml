@@ -302,8 +302,8 @@ debug: false
 billiards:
   # 微信相关
   wechat:
-    appid: wx2a3e6c6844ebcd71
-    secret: 7b4845a773d6ade233b436d9ef254983
+    appid: 替换成你自己的微信的小程序id
+    secret: 替换成你自己的微信的小程序id密钥
   # 订单相关
   order:
     auto-finish-minutes: 1440  # 24小时自动结束未完成订单
@@ -323,7 +323,7 @@ security:
 
 wx:
   pay:
-    appId: wx2a3e6c6844ebcd71 #微信公众号或者小程序等的appid (V3商户模式需要)
+    appId: 替换成你自己的微信的小程序id #微信公众号或者小程序等的appid (V3商户模式需要)
     mchId: XXXXX #微信支付商户号 (V3商户模式需要)
     mchKey: XXXXX #微信支付商户密钥
     subAppId: XXXXX #服务商模式下的子商户公众账号ID
