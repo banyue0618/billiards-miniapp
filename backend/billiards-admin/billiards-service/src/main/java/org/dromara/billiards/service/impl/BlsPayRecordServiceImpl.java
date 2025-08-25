@@ -3,6 +3,7 @@ package org.dromara.billiards.service.impl;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyV3Result;
 import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryV3Result;
@@ -23,11 +24,13 @@ import org.dromara.billiards.domain.entity.User;
 import org.dromara.billiards.service.*;
 import org.dromara.common.pay.service.PayService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 充值支付记录 Service 实现
@@ -44,6 +47,7 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
     private PayService payService;
 
     @Resource
+    @Lazy
     private UserService userService;
 
     @Resource
@@ -171,6 +175,21 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
             .eq(PayRecord::getPaymentStatus, 1)
             .orderByDesc(PayRecord::getCreateTime)
             .last("limit 1"));
+    }
+
+    @Override
+    public List<PayRecord> queryListWithStatus(PaymentStatus paymentStatus) {
+        LambdaQueryWrapper<PayRecord> lqw = Wrappers.lambdaQuery();
+        lqw.eq(PayRecord::getPaymentStatus, paymentStatus.getCode());
+        return baseMapper.selectList(lqw);
+    }
+
+    @Override
+    public List<PayRecord> queryPayingTimeoutList(LocalDateTime threshold) {
+        LambdaQueryWrapper<PayRecord> lqw = Wrappers.lambdaQuery();
+        lqw.eq(PayRecord::getPaymentStatus, PaymentStatus.UNPAID.getCode())
+            .lt(PayRecord::getCreateTime, threshold);
+        return baseMapper.selectList(lqw);
     }
 
     /**

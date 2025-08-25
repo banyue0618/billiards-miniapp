@@ -4,8 +4,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryV3Result;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.dromara.billiards.common.constant.PaymentStatus;
 import org.dromara.billiards.domain.bo.PaymentRequest;
 import org.dromara.billiards.domain.entity.PayRecord;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 充值支付记录 Service 接口
@@ -50,4 +54,18 @@ public interface IBlsPayRecordService extends IService<PayRecord> {
      * @return 最近的一条已支付记录
      */
     PayRecord getLastPayRecord(Long userId);
+
+    /**
+     * 查询指定状态的记录
+     * @param paymentStatus
+     * @return
+     */
+    List<PayRecord> queryListWithStatus(PaymentStatus paymentStatus);
+
+    /**
+     * 查询支付超时的订单
+     * @param threshold
+     * @return
+     */
+    List<PayRecord> queryPayingTimeoutList(LocalDateTime threshold);
 }
