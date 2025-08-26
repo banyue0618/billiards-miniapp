@@ -1,0 +1,80 @@
+/* 法律协议样式 */
+.legal-container {
+  padding: 0 0 30rpx 0;
+  background-color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-header {
+  display: flex;
+  height: 80rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 10;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab-item.active {
+  color: #07c160;
+  font-weight: 500;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: #07c160;
+}
+
+.tab-content {
+  flex: 1;
+  padding: 30rpx;
+}
+
+.section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.section-content text {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.update-time {
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
+  margin-top: 40rpx;
+  padding-right: 30rpx;
+} 

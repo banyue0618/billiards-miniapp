@@ -1,0 +1,55 @@
+# 生产环境配置
+
+# 数据库配置
+spring:
+  datasource:
+    # 数据库连接字符串，生产环境使用环境变量注入
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    druid:
+      # 生产环境关闭SQL日志
+      filter:
+        slf4j:
+          enabled: false
+      # 启用监控统计
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: ${DRUID_ADMIN_USERNAME:admin}
+        login-password: ${DRUID_ADMIN_PASSWORD:admin}
+        allow: ""
+        deny: ""
+
+  # Redis配置
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: 0
+
+# 日志配置
+logging:
+  level:
+    com.banyue.billiards: info
+    org.springframework: warn
+  file:
+    name: /app/logs/billiards-service.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+
+
+
+# 微信小程序配置（生产环境）
+wx:
+  miniapp:
+    app-id: ${WX_APP_ID}
+    app-secret: ${WX_APP_SECRET}
+

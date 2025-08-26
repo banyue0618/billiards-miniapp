@@ -1,0 +1,55 @@
+<!-- 用户协议页面 -->
+<view class="protocol-container">
+  <view class="protocol-title">用户协议</view>
+  <view class="protocol-content">
+    <view class="section">
+      <view class="section-title">一、服务内容</view>
+      <view class="section-content">
+        <text>本小程序提供台球馆预订、会员管理等服务。用户可以通过本小程序浏览门店信息、预订台球桌、查看订单等。</text>
+      </view>
+    </view>
+    
+    <view class="section">
+      <view class="section-title">二、用户账号</view>
+      <view class="section-content">
+        <text>1. 用户需要通过微信授权登录使用本小程序的服务。</text>
+        <text>2. 用户应当妥善保管自己的账号信息，对账号下的所有行为负责。</text>
+        <text>3. 禁止将账号借给他人使用，或进行任何违法、违规活动。</text>
+      </view>
+    </view>
+    
+    <view class="section">
+      <view class="section-title">三、预订规则</view>
+      <view class="section-content">
+        <text>1. 用户可以通过小程序预订台球桌，预订成功后系统会生成订单。</text>
+        <text>2. 用户应当按照预订时间准时到店使用服务。</text>
+        <text>3. 如需取消预订，请提前在小程序内操作，以免影响您的信用记录。</text>
+      </view>
+    </view>
+    
+    <view class="section">
+      <view class="section-title">四、会员规则</view>
+      <view class="section-content">
+        <text>1. 用户可通过小程序开通会员，享受相应的优惠和权益。</text>
+        <text>2. 会员有效期自开通日起计算，到期后权益自动失效。</text>
+        <text>3. 会员权益仅限会员本人使用，不得转让或出售。</text>
+      </view>
+    </view>
+    
+    <view class="section">
+      <view class="section-title">五、用户行为规范</view>
+      <view class="section-content">
+        <text>用户在使用本小程序服务时，应当遵守中华人民共和国相关法律法规，不得从事任何违法违规活动。</text>
+      </view>
+    </view>
+    
+    <view class="section">
+      <view class="section-title">六、协议修改</view>
+      <view class="section-content">
+        <text>我们保留随时修改本协议的权利，修改后的协议将在小程序内公布。您继续使用本小程序服务，即表示同意受修改后的协议约束。</text>
+      </view>
+    </view>
+  </view>
+  
+  <view class="update-time">更新日期：2023年12月1日</view>
+</view> 

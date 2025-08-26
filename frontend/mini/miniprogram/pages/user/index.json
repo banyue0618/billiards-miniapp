@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "login-modal": "/components/login-modal/index"
+  },
+  "navigationBarTitleText": "我的",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f5f5"
+} 

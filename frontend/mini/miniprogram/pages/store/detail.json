@@ -1,0 +1,6 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "门店详情",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f5f5"
+} 

@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # 应用服务
+  billiards-admin:
+    build:
+      context: .
+      dockerfile: ruoyi-admin/Dockerfile
+    container_name: billiards-admin
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/billiards?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=password
+    volumes:
+      - ./logs:/app/logs
+      - ./upload:/app/upload
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - billiards-network
+
+  # MySQL服务
+  mysql:
+    image: mysql:8.0
+    container_name: billiards-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=billiards
+      - TZ=Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --lower_case_table_names=1
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./script/sql/:/docker-entrypoint-initdb.d/
+    networks:
+      - billiards-network
+
+  # Redis服务
+  redis:
+    image: redis:7.0
+    container_name: billiards-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass password
+    volumes:
+      - redis-data:/data
+    networks:
+      - billiards-network
+
+  # 前端应用（可选）
+  # billiards-ui:
+  #   build:
+  #     context: ../frontend/admin-ui
+  #     dockerfile: Dockerfile
+  #   container_name: billiards-ui
+  #   restart: always
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - billiards-admin
+  #   networks:
+  #     - billiards-network
+
+# 网络配置
+networks:
+  billiards-network:
+    driver: bridge
+
+# 数据卷配置
+volumes:
+  mysql-data:
+  redis-data: 

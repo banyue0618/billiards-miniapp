@@ -1,0 +1,575 @@
+/* 门店详情页样式 */
+.container {
+  padding-bottom: 120rpx; /* 为底部按钮预留空间 */
+}
+
+/* 图片轮播 - 参考store-card样式 */
+.image-placeholder-wrapper {
+  width: 93%;
+  height: 260rpx; /* 与store-card保持一致 */
+  background-color: #e9ecef;
+  border-radius: 12rpx; /* 更小的圆角 */
+  margin: -1rpx 24rpx 20rpx; /* 调整边距 */
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08); /* 柔和的阴影 */
+}
+
+.image-carousel {
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+}
+
+.carousel-placeholder image {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: 0.5;
+}
+
+/* 信息卡片通用样式 */
+.info-card {
+  background-color: #ffffff;
+  margin: 20rpx 24rpx;
+  padding: 24rpx; /* 减小内边距 */
+  border-radius: 16rpx; /* 减小圆角 */
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 主信息卡片样式 */
+.main-info-card {
+  padding: 24rpx 24rpx 16rpx;
+}
+
+/* 门店基本信息 */
+.store-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx; /* 增加底部间距 */
+}
+
+.name-distance-wrapper {
+  display: flex;
+  align-items: baseline; /* 对齐文本基线 */
+  flex-wrap: wrap; /* 允许在必要时换行 */
+  max-width: 70%; /* 限制宽度，避免挤压状态标签 */
+}
+
+.store-name {
+  font-size: 34rpx; /* 稍微减小字体大小 */
+  font-weight: 700;
+  color: var(--primary-text-color, #1d1d1f);
+  margin-right: 10rpx; /* 增加与距离的间距 */
+}
+
+.store-distance-inline {
+  font-size: 24rpx;
+  color: var(--secondary-text-color, #6e6e73);
+  font-weight: 400;
+}
+
+.store-status {
+  font-size: 24rpx;
+  padding: 6rpx 14rpx; /* 减小内边距 */
+  border-radius: 10rpx; /* 减小圆角 */
+  font-weight: 600;
+}
+
+.store-status.open {
+  background-color: var(--green-color, #34c759);
+  color: white;
+}
+
+.store-status.closed {
+  background-color: var(--gray-color, #8e8e93);
+  color: white;
+}
+
+.store-status.full {
+  background-color: var(--orange-color, #ff9500);
+  color: white;
+}
+
+/* 集成区域样式 */
+.integrated-section {
+  padding: 18rpx 0;
+  border-top: 1rpx solid #f0f0f5;
+}
+
+.integrated-section:first-child {
+  border-top: none;
+}
+
+/* 球桌状态 */
+.table-section {
+  padding-bottom: 20rpx; /* 增加底部间距 */
+}
+
+.table-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx; /* 减小底部间距 */
+}
+
+.section-title {
+  font-size: 30rpx; /* 减小字体大小 */
+  font-weight: 600;
+  color: var(--primary-text-color, #1d1d1f);
+}
+
+.table-count {
+  font-size: 26rpx; /* 减小字体大小 */
+  color: var(--secondary-text-color, #6e6e73);
+}
+
+.table-status {
+  margin-top: 16rpx; /* 减小顶部间距 */
+}
+
+.status-bar {
+  height: 12rpx; /* 减小高度 */
+  border-radius: 6rpx; /* 减小圆角 */
+  background-color: #e9ecef;
+  margin-bottom: 12rpx; /* 减小底部间距 */
+  overflow: hidden;
+}
+
+.status-fill {
+  height: 100%;
+  background-color: var(--green-color, #34c759);
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.status-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24rpx; /* 减小字体大小 */
+  color: var(--secondary-text-color, #6e6e73);
+}
+
+.table-status-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 0; /* 减小上下间距 */
+}
+
+.loading-indicator {
+  width: 28rpx; /* 减小图标大小 */
+  height: 28rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(0, 122, 255, 0.1);
+  border-top-color: var(--interactive-color, #007aff);
+  animation: spin 1s linear infinite;
+  margin-right: 12rpx; /* 减小右边距 */
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 操作按钮区 */
+.action-section {
+  padding-top: 18rpx;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin: 8rpx 0; /* 减小上下间距 */
+}
+
+.action-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+}
+
+.action-button::after {
+  border: none;
+}
+
+.action-icon {
+  width: 68rpx; /* 减小图标大小 */
+  height: 68rpx;
+  border-radius: 50%;
+  background-color: #f0f0f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6rpx; /* 减小底部间距 */
+}
+
+.action-icon.collected {
+  background-color: rgba(255, 59, 48, 0.1);
+}
+
+.action-icon image {
+  width: 36rpx; /* 减小图标大小 */
+  height: 36rpx;
+}
+
+.action-label {
+  font-size: 22rpx; /* 减小字体大小 */
+  color: var(--primary-text-color, #1d1d1f);
+}
+
+.share-button {
+  font-size: 22rpx;
+}
+
+/* 营业信息区 */
+.business-info-item {
+  display: flex;
+  margin-bottom: 20rpx; /* 减小底部间距 */
+  align-items: flex-start;
+}
+
+.business-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-icon {
+  width: 42rpx; /* 减小图标容器大小 */
+  height: 42rpx;
+  margin-right: 16rpx; /* 减小右边距 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-icon image {
+  width: 36rpx; /* 减小图标大小 */
+  height: 36rpx;
+}
+
+.info-content {
+  flex-grow: 1;
+}
+
+.info-label {
+  font-weight: 500;
+  font-size: 26rpx; /* 减小字体大小 */
+  color: var(--primary-text-color, #1d1d1f);
+  margin-bottom: 4rpx;
+}
+
+.info-value {
+  color: var(--secondary-text-color, #6e6e73);
+  font-size: 24rpx; /* 减小字体大小 */
+  line-height: 1.5;
+}
+
+/* 计费规则区 */
+.pricing-card {
+  background: linear-gradient(to bottom, #f8fbff, #ffffff);
+  border: 1rpx solid #e6f0ff;
+}
+
+.pricing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+  position: relative;
+}
+
+.pricing-icon {
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: var(--interactive-color, #007aff);
+  opacity: 0.7;
+}
+
+.pricing-toggle {
+  color: var(--interactive-color, #007aff);
+  font-size: 26rpx; /* 减小字体大小 */
+}
+
+.pricing-details {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 最低消费和封顶价格 */
+.pricing-info-section {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+  background-color: #f8f8fa;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.03);
+}
+
+.pricing-info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12rpx 24rpx;
+  width: 45%; /* 保证两列布局 */
+}
+
+.pricing-info-item .info-label {
+  font-size: 24rpx;
+  color: var(--secondary-text-color, #6e6e73);
+  margin-bottom: 8rpx;
+}
+
+.pricing-info-item .info-value {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--primary-text-color, #1d1d1f);
+}
+
+.pricing-info-item .highlight-price {
+  color: var(--interactive-color, #007aff);
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+/* 标准计费区域 */
+.pricing-section {
+  margin-bottom: 24rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f5;
+}
+
+.price-list-section {
+  background-color: #fcfcfc;
+  border-radius: 12rpx;
+  padding: 8rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.03);
+}
+
+.standard-price-section {
+  padding: 16rpx;
+  background-color: #fcfcfc;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.03);
+}
+
+.pricing-section:last-child {
+  border-bottom: none;
+}
+
+.pricing-section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--primary-text-color, #1d1d1f);
+  margin-bottom: 16rpx;
+}
+
+.pricing-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14rpx 0;
+  font-size: 26rpx;
+  align-items: center;
+}
+
+.pricing-type {
+  color: var(--secondary-text-color, #6e6e73);
+  display: flex;
+  align-items: center;
+}
+
+.type-label {
+  margin-right: 10rpx;
+}
+
+.member-badge {
+  background-color: var(--interactive-color, #007aff);
+  color: white;
+  font-size: 20rpx;
+  padding: 2rpx 8rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+
+.pricing-value {
+  font-weight: 500;
+  color: var(--primary-text-color, #1d1d1f);
+  font-size: 28rpx;
+}
+
+.pricing-value.member-price {
+  color: var(--interactive-color, #007aff);
+  font-weight: 600;
+}
+
+/* 阶梯计费表格 */
+.ladder-pricing-header {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  padding: 12rpx 0;
+  font-size: 24rpx;
+  color: var(--secondary-text-color, #6e6e73);
+  border-bottom: 1rpx solid #f0f0f5;
+  text-align: center;
+}
+
+.ladder-pricing-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  padding: 16rpx 0;
+  font-size: 24rpx;
+  border-bottom: 1rpx solid #f0f0f5;
+  text-align: center;
+}
+
+.ladder-pricing-row:last-child {
+  border-bottom: none;
+}
+
+.ladder-time-range {
+  text-align: left;
+  padding-left: 8rpx;
+  color: var(--secondary-text-color, #6e6e73);
+}
+
+.ladder-price {
+  font-weight: 500;
+  color: var(--primary-text-color, #1d1d1f);
+}
+
+.ladder-price.member-price {
+  color: var(--interactive-color, #007aff);
+}
+
+/* 会员提示 */
+.member-promo-section {
+  margin-top: 24rpx;
+  padding: 18rpx;
+  background: linear-gradient(to right, rgba(255, 149, 0, 0.1), rgba(255, 149, 0, 0.05));
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(255, 149, 0, 0.2);
+}
+
+.member-promo-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.member-promo-text {
+  font-size: 26rpx;
+  color: var(--orange-color, #ff9500);
+}
+
+.member-promo-action {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--orange-color, #ff9500);
+}
+
+/* 门店简介区 */
+.description-content {
+  color: var(--secondary-text-color, #6e6e73);
+  font-size: 26rpx; /* 减小字体大小 */
+  line-height: 1.6;
+}
+
+/* 主按钮 */
+.primary-button {
+  position: fixed;
+  bottom: calc(28rpx + env(safe-area-inset-bottom));
+  left: 40rpx;
+  right: 40rpx;
+  background-color: var(--interactive-color, #007aff);
+  color: white;
+  border: none;
+  border-radius: 16rpx; /* 减小圆角 */
+  padding: 24rpx 0; /* 减小上下间距 */
+  font-size: 30rpx; /* 减小字体大小 */
+  font-weight: 600;
+  box-shadow: 0 6rpx 18rpx rgba(0, 122, 255, 0.2); /* 减小阴影 */
+  z-index: 100;
+}
+
+.primary-button:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.safe-area-bottom {
+  height: env(safe-area-inset-bottom);
+}
+
+/* 球桌类型价格表 */
+.table-type-pricing {
+  width: 100%;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.table-type-header {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  background-color: #f8f8fa;
+  padding: 12rpx 8rpx;
+  font-size: 24rpx;
+  color: var(--secondary-text-color, #6e6e73);
+  font-weight: 500;
+  text-align: center;
+}
+
+.table-type-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  padding: 16rpx 8rpx;
+  font-size: 24rpx;
+  border-bottom: 1rpx solid #f0f0f5;
+  text-align: center;
+  align-items: center;
+}
+
+.table-type-row:last-child {
+  border-bottom: none;
+}
+
+.table-type {
+  text-align: left;
+  padding-left: 8rpx;
+  font-weight: 500;
+  color: var(--primary-text-color, #1d1d1f);
+}
+
+.table-price {
+  font-weight: 500;
+  color: var(--primary-text-color, #1d1d1f);
+}
+
+.table-price.member-price {
+  color: var(--interactive-color, #007aff);
+} 

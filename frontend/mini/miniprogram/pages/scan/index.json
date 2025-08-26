@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "login-modal": "/components/login-modal/index",
+    "ongoing-order-card": "../../components/ongoing-order-card/ongoing-order-card"
+  },
+  "navigationBarTitleText": "扫码开台"
+} 

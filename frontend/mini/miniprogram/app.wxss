@@ -1,0 +1,251 @@
+/**app.wxss**/
+@import 'styles/iconfont.wxss';
+
+page {
+  --primary-text-color: #1d1d1f;
+  --secondary-text-color: #6e6e73;
+  --tertiary-text-color: #86868b;
+  --background-color: #f5f5f7; /* Slightly different from your #f5f5f5 for consistency with HTML */
+  --card-background-color: #ffffff;
+  --border-color: #d2d2d7;
+  --interactive-color: #007aff; /* Apple Blue */
+  --green-color: #34c759; /* Apple Green */
+  --orange-color: #ff9500; /* Apple Orange */
+  --gray-color: #8e8e93; /* Apple Gray */
+  --red-color: #ff3b30; /* Apple Red */
+
+  height: 100%;
+  font-size: 28rpx; /* Base font size, can be overridden by components */
+  line-height: 1.4; /* Adjusted from 1.6 for closer feel to Apple's typography */
+  color: var(--primary-text-color);
+  background-color: var(--background-color);
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif; /* Added Hiragino for better CJK on Apple */
+  
+  /* 增强视觉效果 */
+  -webkit-tap-highlight-color: transparent;
+  letter-spacing: 0.2px;
+}
+
+/* 字体加粗类 */
+.text-bold {
+  font-weight: 700;
+}
+
+.container {
+  width: 100%;
+  padding: 30rpx;
+  box-sizing: border-box;
+}
+
+/* 清除浮动 */
+.clearfix:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+/* 通用flexbox */
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-around {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 主题色 */
+.primary-color {
+  color: var(--interactive-color);
+}
+
+.primary-bg {
+  background-color: var(--interactive-color);
+}
+
+/* 字体大小 */
+.font-sm {
+  font-size: 24rpx;
+}
+
+.font-md {
+  font-size: 28rpx;
+}
+
+.font-lg {
+  font-size: 32rpx;
+}
+
+.font-xl {
+  font-size: 36rpx;
+}
+
+.font-xxl {
+  font-size: 40rpx;
+}
+
+/* 通用边距 */
+.mt-10 {
+  margin-top: 10rpx;
+}
+
+.mb-10 {
+  margin-bottom: 10rpx;
+}
+
+.ml-10 {
+  margin-left: 10rpx;
+}
+
+.mr-10 {
+  margin-right: 10rpx;
+}
+
+.m-10 {
+  margin: 10rpx;
+}
+
+.p-10 {
+  padding: 10rpx;
+}
+
+.pt-10 {
+  padding-top: 10rpx;
+}
+
+.pb-10 {
+  padding-bottom: 10rpx;
+}
+
+.pl-10 {
+  padding-left: 10rpx;
+}
+
+.pr-10 {
+  padding-right: 10rpx;
+}
+
+/* 卡片样式 */
+.card {
+  background-color: #fff;
+  border-radius: 24rpx; /* 增加圆角 */
+  padding: 24rpx; /* 增加内边距 */
+  margin-bottom: 24rpx; /* 增加外边距 */
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08); /* 增强阴影 */
+  transition: all 0.2s; /* 添加过渡效果 */
+}
+
+.card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 按钮样式 */
+.btn-primary {
+  background-color: var(--interactive-color);
+  color: #fff;
+  border: none;
+  border-radius: 12rpx; /* 增加圆角 */
+  font-weight: 600; /* 增加字重 */
+  transition: all 0.2s; /* 添加过渡效果 */
+}
+
+.btn-primary:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.btn-default {
+  background-color: #f8f8f8;
+  color: #333;
+  border: 1rpx solid #ddd;
+  border-radius: 12rpx; /* 增加圆角 */
+  transition: all 0.2s; /* 添加过渡效果 */
+}
+
+.btn-default:active {
+  background-color: #f0f0f0;
+}
+
+.btn-danger {
+  background-color: var(--red-color);
+  color: #fff;
+  border: none;
+  border-radius: 12rpx; /* 增加圆角 */
+  font-weight: 600; /* 增加字重 */
+  transition: all 0.2s; /* 添加过渡效果 */
+}
+
+.btn-danger:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+/* 标签样式 */
+.tag {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  font-size: 22rpx;
+  border-radius: 8rpx; /* 增加圆角 */
+  font-weight: 600; /* 增加字重 */
+}
+
+.tag-primary {
+  background-color: rgba(32, 189, 104, 0.1);
+  color: #20bd68;
+}
+
+.tag-warning {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+}
+
+.tag-danger {
+  background-color: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx 0;
+}
+
+/* 空状态 */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.empty-container image {
+  width: 180rpx;
+  height: 180rpx;
+  margin-bottom: 20rpx;
+} 

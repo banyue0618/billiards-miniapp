@@ -1,0 +1,287 @@
+-- 会员用户表
+CREATE TABLE `bls_member_user` (
+    `id` varchar(32) NOT NULL COMMENT '会员ID',
+    `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+    `level_code` int NOT NULL DEFAULT 0 COMMENT '当前等级编码',
+    `total_amount` decimal(10,2) NOT NULL DEFAULT 0.00 COMMENT '累计消费金额',
+    `points` int NOT NULL DEFAULT 0 COMMENT '当前积分',
+    `monthly_used_minutes` int NOT NULL DEFAULT 0 COMMENT '本月已使用免费时长（分钟）',
+    `level_expire_time` datetime DEFAULT NULL COMMENT '等级有效期',
+    `last_consume_time` datetime DEFAULT NULL COMMENT '最近消费时间',
+    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+    `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
+    `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态：0-正常 1-禁用',
+    `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_user_id` (`user_id`),
+    KEY `idx_level_code` (`level_code`),
+    KEY `idx_total_amount` (`total_amount`),
+    KEY `idx_points` (`points`),
+    KEY `idx_level_expire` (`level_expire_time`),
+    KEY `idx_last_consume` (`last_consume_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员用户表';
+
+-- 会员等级配置表
+CREATE TABLE `bls_member_level_config` (
+    `id` varchar(32) NOT NULL COMMENT '配置ID',
+    `level_code` int NOT NULL COMMENT '等级编码',
+    `level_name` varchar(32) NOT NULL COMMENT '等级名称',
+    `required_amount` int NOT NULL DEFAULT 0 COMMENT '所需累计消费金额',
+    `discount` decimal(3,2) NOT NULL COMMENT '折扣率',
+    `monthly_free_minutes` int NOT NULL DEFAULT 0 COMMENT '每月赠送时长（分钟）',
+    `points_multiplier` decimal(3,2) NOT NULL DEFAULT 1.00 COMMENT '积分获取倍率',
+    `birthday_discount` decimal(3,2) DEFAULT NULL COMMENT '生日特权折扣率',
+    `friend_privilege_count` int NOT NULL DEFAULT 0 COMMENT '可带朋友享受会员价的人数',
+    `vip_service` tinyint(1) NOT NULL DEFAULT 0 COMMENT '专属客服服务 0-否 1-是',
+    `reservation_privilege` tinyint(1) NOT NULL DEFAULT 0 COMMENT '预约特权 0-否 1-是',
+    `level_icon` varchar(255) DEFAULT NULL COMMENT '等级图标',
+    `level_background` varchar(255) DEFAULT NULL COMMENT '等级背景图',
+    `description` varchar(500) DEFAULT NULL COMMENT '等级描述',
+    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+    `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
+    `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态 0-启用 1-禁用',
+    `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_level_code` (`level_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员等级配置表';
+
+-- 会员权益表
+CREATE TABLE `bls_member_benefit` (
+    `id` varchar(32) NOT NULL COMMENT '权益ID',
+    `name` varchar(64) NOT NULL COMMENT '权益名称',
+    `type` tinyint(1) NOT NULL COMMENT '权益类型：1-折扣 2-赠送 3-积分 4-特权',
+    `applicable_levels` varchar(64) NOT NULL COMMENT '适用等级编码，多个用逗号分隔',
+    `benefit_value` varchar(64) NOT NULL COMMENT '权益值（如折扣率、赠送时长、积分倍率等）',
+    `benefit_rules` text DEFAULT NULL COMMENT '权益规则（JSON格式，存储具体规则配置）',
+    `effective_time` datetime DEFAULT NULL COMMENT '生效时间',
+    `expire_time` datetime DEFAULT NULL COMMENT '失效时间',
+    `icon` varchar(255) DEFAULT NULL COMMENT '权益图标',
+    `description` varchar(500) DEFAULT NULL COMMENT '权益描述',
+    `instructions` varchar(1000) DEFAULT NULL COMMENT '使用说明',
+    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+    `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
+    `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态：0-启用 1-禁用',
+    `sort_order` int NOT NULL DEFAULT 0 COMMENT '排序号',
+    `is_limited` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否限时权益：0-永久 1-限时',
+    `is_holiday` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否节日特权：0-否 1-是',
+    `tags` varchar(255) DEFAULT NULL COMMENT '权益标签，多个用逗号分隔',
+    `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+    PRIMARY KEY (`id`),
+    KEY `idx_type` (`type`),
+    KEY `idx_status` (`status`),
+    KEY `idx_sort` (`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员权益表';
+
+-- 积分规则表
+CREATE TABLE `bls_points_rule` (
+    `id` varchar(32) NOT NULL COMMENT '规则ID',
+    `name` varchar(64) NOT NULL COMMENT '规则名称',
+    `type` tinyint(1) NOT NULL COMMENT '规则类型：1-获取 2-消耗',
+    `scene` tinyint(2) NOT NULL COMMENT '积分场景：获取场景：1-消费 2-签到 3-活动 4-评价 5-首次绑定 6-邀请好友；消耗场景：1-抵扣 2-兑换商品 3-兑换优惠券',
+    `value_type` tinyint(1) NOT NULL COMMENT '积分值类型：1-固定值 2-比例值',
+    `points_value` decimal(10,2) NOT NULL COMMENT '积分值',
+    `max_points` int NOT NULL DEFAULT 0 COMMENT '封顶积分值（0表示不封顶）',
+    `rule_config` text DEFAULT NULL COMMENT '规则配置（JSON格式，存储具体规则）',
+    `level_bonus` text DEFAULT NULL COMMENT '等级加成配置（JSON格式，存储各等级的加成比例）',
+    `time_bonus` text DEFAULT NULL COMMENT '时段加成配置（JSON格式，存储特殊时段的加成比例）',
+    `effective_time` datetime DEFAULT NULL COMMENT '生效时间',
+    `expire_time` datetime DEFAULT NULL COMMENT '失效时间',
+    `description` varchar(500) DEFAULT NULL COMMENT '规则描述',
+    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+    `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
+    `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态：0-启用 1-禁用',
+    `enable_activity_bonus` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否参与活动加成：0-否 1-是',
+    `validity_days` int NOT NULL DEFAULT 0 COMMENT '积分有效期（天）：0表示永久有效',
+    `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+    PRIMARY KEY (`id`),
+    KEY `idx_type_scene` (`type`, `scene`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='积分规则表';
+
+-- 会员积分记录表
+CREATE TABLE `bls_member_points_record` (
+    `id` varchar(32) NOT NULL COMMENT '记录ID',
+    `user_id` varchar(32) NOT NULL COMMENT '用户ID',
+    `points` int NOT NULL COMMENT '积分数量（正数表示获取，负数表示消耗）',
+    `type` tinyint(1) NOT NULL COMMENT '类型：1-获取 2-消耗',
+    `scene` tinyint(2) NOT NULL COMMENT '场景，与积分规则表场景对应',
+    `rule_id` varchar(32) NOT NULL COMMENT '对应的规则ID',
+    `business_id` varchar(32) DEFAULT NULL COMMENT '关联业务ID（如订单ID、活动ID等）',
+    `description` varchar(255) DEFAULT NULL COMMENT '积分描述',
+    `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
+    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+    `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
+    `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_type_scene` (`type`, `scene`),
+    KEY `idx_create_time` (`create_time`),
+    KEY `idx_expire_time` (`expire_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员积分记录表';
+
+CREATE TABLE `bls_member_points_validity` (
+    `id` varchar(32) NOT NULL COMMENT '记录ID',
+    `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+    `points` int NOT NULL COMMENT '积分数量',
+    `remaining_points` int NOT NULL COMMENT '剩余积分数量',
+    `expire_time` datetime NOT NULL COMMENT '过期时间',
+    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+    `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
+    `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_expire` (`user_id`, `expire_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='积分有效期表';
+
+
+-- 初始化会员等级配置数据
+INSERT INTO `member_level_config` (`id`, `level_code`, `level_name`, `required_amount`, `discount`, `monthly_free_minutes`, 
+    `points_multiplier`, `birthday_discount`, `friend_privilege_count`, `vip_service`, `reservation_privilege`, `description`) 
+VALUES
+('1', 0, '普通会员', 0, 0.95, 0, 1.00, NULL, 0, 0, 0, '入门级别会员，享受9.5折优惠'),
+('2', 1, '银牌会员', 1000, 0.90, 0, 1.20, 0.85, 0, 0, 1, '中级会员，享受9折优惠，生日特惠8.5折'),
+('3', 2, '金牌会员', 3000, 0.85, 120, 1.50, 0.80, 1, 1, 1, '高级会员，享受8.5折优惠，每月赠送2小时'),
+('4', 3, '钻石会员', 10000, 0.80, 300, 2.00, 0.75, 2, 1, 1, '至尊级别，享受8折优惠，每月赠送5小时，可带2位朋友享会员价');
+
+-- 初始化基础积分规则
+INSERT INTO `points_rule` (`id`, `name`, `type`, `scene`, `value_type`, `points_value`, `description`, `status`)
+VALUES
+('1', '消费积分', 1, 1, 2, 1.00, '每消费1元获得1积分', 0),
+('2', '每日签到', 1, 2, 1, 5.00, '每日签到获得5积分', 0),
+('3', '首次绑定', 1, 5, 1, 100.00, '首次绑定手机号获得100积分', 0),
+('4', '邀请好友', 1, 6, 1, 50.00, '成功邀请好友获得50积分', 0),
+('5', '积分抵扣', 2, 1, 2, 0.01, '100积分抵扣1元', 0);
+
+-- 菜单 SQL
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, `path`, component, query_param, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark) VALUES(3000, '会员管理', 0, 6, 'member', NULL, NULL, 1, 0, 'M', '0', '0', NULL, 'billiards', NULL, 1, '2025-04-27 16:37:19', NULL, NULL, '会员管理目录');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013977251841, '积分规则', '3000', '1', 'pointsRule', 'billiards/pointsRule/index', 1, 0, 'C', '0', '0', 'billiards:pointsRule:list', '#', 103, 1, sysdate(), null, null, '积分规则菜单');
+
+-- 按钮 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013977251842, '积分规则查询', 1934892013977251841, '1',  '#', '', 1, 0, 'F', '0', '0', 'billiards:pointsRule:query',        '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013977251843, '积分规则新增', 1934892013977251841, '2',  '#', '', 1, 0, 'F', '0', '0', 'billiards:pointsRule:add',          '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013977251844, '积分规则修改', 1934892013977251841, '3',  '#', '', 1, 0, 'F', '0', '0', 'billiards:pointsRule:edit',         '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013977251845, '积分规则删除', 1934892013977251841, '4',  '#', '', 1, 0, 'F', '0', '0', 'billiards:pointsRule:remove',       '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013977251846, '积分规则导出', 1934892013977251841, '5',  '#', '', 1, 0, 'F', '0', '0', 'billiards:pointsRule:export',       '#', 103, 1, sysdate(), null, null, '');
+
+-- 菜单 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013520072706, '会员用户', '3000', '1', 'memberUser', 'billiards/memberUser/index', 1, 0, 'C', '0', '0', 'billiards:memberUser:list', '#', 103, 1, sysdate(), null, null, '会员用户菜单');
+
+-- 按钮 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013520072707, '会员用户查询', 1934892013520072706, '1',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberUser:query',        '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013520072708, '会员用户新增', 1934892013520072706, '2',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberUser:add',          '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013520072709, '会员用户修改', 1934892013520072706, '3',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberUser:edit',         '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013520072710, '会员用户删除', 1934892013520072706, '4',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberUser:remove',       '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892013520072711, '会员用户导出', 1934892013520072706, '5',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberUser:export',       '#', 103, 1, sysdate(), null, null, '');
+
+-- 菜单 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012018511874, '积分有效期', '3000', '1', 'memberPointsValidity', 'billiards/memberPointsValidity/index', 1, 0, 'C', '0', '0', 'billiards:memberPointsValidity:list', '#', 103, 1, sysdate(), null, null, '积分有效期菜单');
+
+-- 按钮 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012018511875, '积分有效期查询', 1934892012018511874, '1',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsValidity:query',        '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012018511876, '积分有效期新增', 1934892012018511874, '2',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsValidity:add',          '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012018511877, '积分有效期修改', 1934892012018511874, '3',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsValidity:edit',         '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012018511878, '积分有效期删除', 1934892012018511874, '4',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsValidity:remove',       '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012018511879, '积分有效期导出', 1934892012018511874, '5',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsValidity:export',       '#', 103, 1, sysdate(), null, null, '');
+
+-- 菜单 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012995784706, '会员积分记录', '3000', '1', 'memberPointsRecord', 'billiards/memberPointsRecord/index', 1, 0, 'C', '0', '0', 'billiards:memberPointsRecord:list', '#', 103, 1, sysdate(), null, null, '会员积分记录菜单');
+
+-- 按钮 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012995784707, '会员积分记录查询', 1934892012995784706, '1',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsRecord:query',        '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012995784708, '会员积分记录新增', 1934892012995784706, '2',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsRecord:add',          '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012995784709, '会员积分记录修改', 1934892012995784706, '3',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsRecord:edit',         '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012995784710, '会员积分记录删除', 1934892012995784706, '4',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsRecord:remove',       '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012995784711, '会员积分记录导出', 1934892012995784706, '5',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberPointsRecord:export',       '#', 103, 1, sysdate(), null, null, '');
+
+-- 菜单 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012475691009, '会员等级配置', '3000', '1', 'memberLevelConfig', 'billiards/memberLevelConfig/index', 1, 0, 'C', '0', '0', 'billiards:memberLevelConfig:list', '#', 103, 1, sysdate(), null, null, '会员等级配置菜单');
+
+-- 按钮 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012475691010, '会员等级配置查询', 1934892012475691009, '1',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberLevelConfig:query',        '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012475691011, '会员等级配置新增', 1934892012475691009, '2',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberLevelConfig:add',          '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012475691012, '会员等级配置修改', 1934892012475691009, '3',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberLevelConfig:edit',         '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012475691013, '会员等级配置删除', 1934892012475691009, '4',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberLevelConfig:remove',       '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892012475691014, '会员等级配置导出', 1934892012475691009, '5',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberLevelConfig:export',       '#', 103, 1, sysdate(), null, null, '');
+
+-- 菜单 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892014627368961, '会员权益', '3000', '1', 'memberBenefit', 'billiards/memberBenefit/index', 1, 0, 'C', '0', '0', 'billiards:memberBenefit:list', '#', 103, 1, sysdate(), null, null, '会员权益菜单');
+
+-- 按钮 SQL
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892014627368962, '会员权益查询', 1934892014627368961, '1',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberBenefit:query',        '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892014627368963, '会员权益新增', 1934892014627368961, '2',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberBenefit:add',          '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892014627368964, '会员权益修改', 1934892014627368961, '3',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberBenefit:edit',         '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892014627368965, '会员权益删除', 1934892014627368961, '4',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberBenefit:remove',       '#', 103, 1, sysdate(), null, null, '');
+
+insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
+values(1934892014627368966, '会员权益导出', 1934892014627368961, '5',  '#', '', 1, 0, 'F', '0', '0', 'billiards:memberBenefit:export',       '#', 103, 1, sysdate(), null, null, '');
+
+

@@ -1,0 +1,50 @@
+/* 用户协议样式 */
+.protocol-container {
+  padding: 30rpx;
+  background-color: #fff;
+  min-height: 100vh;
+}
+
+.protocol-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 40rpx;
+  padding-top: 20rpx;
+}
+
+.protocol-content {
+  margin-bottom: 40rpx;
+}
+
+.section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.section-content text {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.update-time {
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
+  margin-top: 40rpx;
+  padding-bottom: 30rpx;
+} 

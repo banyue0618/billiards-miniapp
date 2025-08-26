@@ -1,0 +1,4 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+org.dromara.common.file.config.CommonFileEnvironmentPostProcessor
+
+

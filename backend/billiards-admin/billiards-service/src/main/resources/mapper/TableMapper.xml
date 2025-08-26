@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.billiards.mapper.TableMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.Table">
+        <id column="id" property="id"/>
+        <result column="store_id" property="storeId"/>
+        <result column="table_number" property="tableNumber"/>
+        <result column="table_type" property="tableType"/>
+        <result column="description" property="description"/>
+        <result column="image" property="image"/>
+        <result column="qrcode_url" property="qrcodeUrl"/>
+        <result column="price_rule_id" property="priceRuleId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 扩展结果映射，包含价格规则名称 -->
+    <resultMap id="TableWithPriceRuleMap" type="org.dromara.billiards.domain.entity.Table" extends="BaseResultMap">
+        <result column="price_rule_name" property="priceRuleName"/>
+    </resultMap>
+
+    <!-- 根据门店ID查询桌台列表 -->
+    <select id="selectByStoreId" resultMap="BaseResultMap">
+        SELECT * FROM bls_table WHERE store_id = #{storeId} ORDER BY table_number
+    </select>
+
+    <!-- 根据桌台编号和门店ID查询桌台 -->
+    <select id="selectByTableNumber" resultMap="BaseResultMap">
+        SELECT * FROM bls_table WHERE store_id = #{storeId} AND table_number = #{tableNumber} LIMIT 1
+    </select>
+
+    <!-- 分页查询门店桌台列表 -->
+    <select id="selectTablePage" resultMap="TableWithPriceRuleMap">
+        SELECT t.*, p.name as price_rule_name FROM bls_table t
+        LEFT JOIN bls_price_rule p ON t.price_rule_id = p.id
+        WHERE t.store_id = #{storeId}
+        ORDER BY t.table_number
+    </select>
+
+    <!-- 更新桌台状态 -->
+    <update id="updateStatus">
+        UPDATE bls_table SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <!-- 根据二维码URL查询桌台 -->
+    <select id="selectByQrcodeUrl" resultMap="BaseResultMap">
+        SELECT * FROM bls_table WHERE qrcode_url = #{qrcodeUrl} LIMIT 1
+    </select>
+
+    <!-- 批量更新桌台的计费规则 -->
+    <update id="batchUpdatePriceRule">
+        UPDATE bls_table
+        SET price_rule_id = #{priceRuleId}
+        WHERE id IN
+        <foreach collection="tableIds" item="tableId" open="(" separator="," close=")">
+            #{tableId}
+        </foreach>
+        AND (status IS NULL OR status != 1) <!-- 排除使用中的桌台 -->
+    </update>
+
+</mapper>

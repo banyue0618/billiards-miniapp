@@ -1,0 +1,111 @@
+# IDE specific folders
+.idea/
+.vscode/
+
+# Java build output and tooling
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+.settings/
+.classpath
+.project
+.factorypath
+# .mvn/ # Uncomment if using Maven Wrapper and don't want to commit it
+# build/ # Uncomment if using Gradle and this is your build output directory
+
+# Node.js dependencies and logs
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# dist/ # Uncomment or specify path if you have build output here (e.g., frontend/dist/)
+# build/ # Uncomment or specify path if you have build output here
+
+# Python cache, virtual environments, build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+.env/
+*.egg-info/
+*.egg
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+# build/ # Can conflict with Java/Nodejs build dirs. Be specific if needed.
+# dist/  # Can conflict with Nodejs dist dirs. Be specific if needed.
+.ipynb_checkpoints
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# Environment variables files
+.env*
+!.env.example
+!.env.template
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*~
+*.swp
+*.swo
+
+# 其他
+HELP.md
+.gradle
+build/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### JRebel ###
+rebel.xml
+
+### NetBeans ###
+nbproject/private/
+build/*
+nbbuild/
+nbdist/
+.nb-gradle/
+
+######################################################################
+# Others
+*.log
+*.xml.versionsBackup
+*.swp
+
+!*/build/*.java
+!*/build/*.html
+!*/build/*.xml
+
+.flattened-pom.xml
+
+# Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/

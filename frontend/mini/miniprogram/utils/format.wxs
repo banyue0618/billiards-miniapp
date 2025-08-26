@@ -1,0 +1,104 @@
+var formatPrice = function (price) {
+  if (typeof price !== 'number') {
+    return price;
+  }
+  return (price / 100).toFixed(2);
+}
+
+var formatTierPrice = function(price) {
+  if (typeof price !== 'number') {
+    return price;
+  }
+  return (price / 100).toFixed(2);
+}
+
+var formatTierMinutes = function(endMinutes) {
+  if (endMinutes) {
+    return endMinutes + '分钟';
+  } else {
+    return '之后';
+  }
+}
+
+var formatTableAvailability = function(availableTables) {
+  if (availableTables > 0) {
+    return '剩余' + availableTables + '张';
+  } else {
+    return '已满';
+  }
+}
+
+var formatDate = function(timestamp, fmt) {
+  if (!timestamp) return '';
+  var date = getDate(timestamp);
+  fmt = fmt || 'yyyy-MM-dd hh:mm:ss';
+
+  var o = [
+    ['M+', date.getMonth() + 1],
+    ['d+', date.getDate()],
+    ['h+', date.getHours()],
+    ['m+', date.getMinutes()],
+    ['s+', date.getSeconds()],
+    ['q+', Math.floor((date.getMonth() + 3) / 3)],
+    ['S', date.getMilliseconds()]
+  ];
+
+  var yearRegExp = getRegExp('(y+)');
+  if (yearRegExp.test(fmt)) {
+    var yearMatchArray = yearRegExp.exec(fmt);
+    if (yearMatchArray && typeof yearMatchArray[0] !== 'undefined') {
+      var replacementYear = (date.getFullYear() + '').substr(4 - yearMatchArray[0].length);
+      fmt = fmt.replace(yearRegExp, replacementYear);
+    }
+  }
+
+  for (var i = 0; i < o.length; i++) {
+    var k = o[i][0];
+    var v = o[i][1];
+    var pattern = '(' + k + ')';
+    var keyRegExp = getRegExp(pattern);
+    if (keyRegExp.test(fmt)) {
+      var loopMatchArray = keyRegExp.exec(fmt);
+      if (loopMatchArray && typeof loopMatchArray[0] !== 'undefined') {
+        var str = v + '';
+        var match = loopMatchArray[0];
+        var replacementText = (match.length === 1) ? str : ('00' + str).substr(str.length);
+        fmt = fmt.replace(keyRegExp, replacementText);
+      }
+    }
+  }
+  return fmt;
+}
+
+var formatDuration = function(minutes) {
+  var h = Math.floor(minutes / 60);
+  var m = minutes % 60;
+  var arr = [];
+  if (h > 0) arr.push(h + '小时');
+  if (m > 0 || h === 0) arr.push(m + '分');
+  return arr.join('');
+}
+
+var formatDurationBySeconds = function(seconds) {
+  if (typeof seconds !== 'number' || seconds < 0) {
+    return '0秒';
+  }
+  var h = Math.floor(seconds / 3600);
+  var m = Math.floor((seconds % 3600) / 60);
+  var s = Math.floor(seconds % 60);
+  var parts = [];
+  if (h > 0) parts.push(h + '小时');
+  if (m > 0) parts.push(m + '分钟');
+  if (s > 0 || parts.length === 0) parts.push(s + '秒');
+  return parts.join('');
+}
+
+module.exports = {
+  formatPrice: formatPrice,
+  formatTierPrice: formatTierPrice,
+  formatTierMinutes: formatTierMinutes,
+  formatTableAvailability: formatTableAvailability,
+  formatDate: formatDate,
+  formatDuration: formatDuration,
+  formatDurationBySeconds: formatDurationBySeconds,
+}; 
