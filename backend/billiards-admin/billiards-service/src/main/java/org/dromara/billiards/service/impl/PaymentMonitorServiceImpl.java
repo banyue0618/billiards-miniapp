@@ -92,9 +92,7 @@ public class PaymentMonitorServiceImpl implements PaymentMonitorService {
     @Override
     public void scanRefundFailures() {
         // 退款失败数据来源都是微信回调，返回失败。
-        BlsRefundRecordBo refundRecordBo = new BlsRefundRecordBo();
-        refundRecordBo.setRefundStatus(2); // 2=退款失败
-        List<BlsRefundRecordVo> failed = refundRecordService.queryList(refundRecordBo);
+        List<BlsRefundRecordVo> failed = refundRecordService.queryRefundFailiureList();
         if (failed == null || failed.isEmpty()) {
             return;
         }

@@ -278,6 +278,13 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         return true;
     }
 
+    @Override
+    public List<BlsRefundRecordVo> queryRefundFailiureList() {
+        LambdaQueryWrapper<BlsRefundRecord> lqw = Wrappers.lambdaQuery();
+        lqw.eq(BlsRefundRecord::getRefundStatus, 2); // 2=退款失败
+        return baseMapper.selectVoList(lqw);
+    }
+
     /**
      * 退款成功处理：更新退款记录、完成订单、记钱包流水与余额
      */

@@ -104,4 +104,12 @@ public interface IBlsRefundRecordService {
      * @return
      */
     boolean handleRefundResult(String refundStatus, BlsRefundRecord refundRecord, boolean ifThrowException);
+
+
+    /**
+     * 查询退款失败的记录
+     *
+     * @return 退款记录列表
+     */
+    List<BlsRefundRecordVo> queryRefundFailiureList();
 }
