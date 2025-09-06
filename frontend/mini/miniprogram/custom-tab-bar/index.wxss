@@ -1,0 +1,115 @@
+/* 引入全局字体图标 */
+@import "../styles/iconfont.wxss";
+
+/* custom-tab-bar/index.wxss */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 110rpx;
+  background: rgba(255, 255, 255, 0.95); /* iOS风格半透明 */
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -1rpx 0 rgba(0, 0, 0, 0.05); /* 更淡的iOS风格细线 */
+  backdrop-filter: blur(10px); /* iOS风格模糊效果 */
+}
+
+.tab-bar-border {
+  background-color: rgba(0, 0, 0, 0.05); /* 更淡的iOS风格边框 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1rpx;
+  transform: scaleY(0.5);
+}
+
+.tab-bar-item {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  padding: 0 8rpx;
+}
+
+.tab-bar-item.special {
+  position: relative;
+  margin: 0; /* 调整为正常宽度 */
+  flex: 1; /* 让中间按钮区域与其他相同 */
+}
+
+.icon-container {
+  width: 54rpx;
+  height: 54rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: all 0.15s ease-in-out; /* 添加过渡效果 */
+}
+
+.icon-container:active {
+  transform: scale(1.2); /* 点击时放大图标 */
+}
+
+.special-icon-container {
+  width: 70rpx; /* 适当增大特殊按钮图标尺寸 */
+  height: 70rpx;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.15s ease-in-out; /* iOS风格的快速过渡 */
+}
+
+/* 添加点击效果，放大图标 */
+.special-icon-container:active {
+  transform: scale(1.2);
+}
+
+/* iconfont 图标样式 */
+.iconfont {
+  font-size: 48rpx !important; /* 稍微增大图标尺寸 */
+  height: 54rpx;
+  width: 54rpx;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: #8e8e93; /* iOS风格灰色 */
+}
+
+.tab-bar-item.selected .iconfont {
+  color: #3478f6 !important; /* 更淡的iOS风格蓝色 */
+}
+
+.special-icon-container .iconfont {
+  font-size: 60rpx !important; /* 调整特殊按钮图标大小，使其更突出 */
+  color: #8e8e93 !important; /* 使用与其他图标相同的灰色 */
+  height: 70rpx;
+  width: 70rpx;
+}
+
+.tab-bar-item.special.selected .special-icon-container .iconfont {
+  color: #3478f6 !important; /* 选中时变为iOS风格蓝色 */
+}
+
+.text-container {
+  font-size: 24rpx;
+  margin-top: 8rpx;
+  color: #8e8e93; /* iOS风格灰色 */
+  font-weight: 400;
+}
+
+.tab-bar-item.selected .text-container {
+  color: #3478f6 !important; /* 更淡的iOS风格蓝色 */
+  font-weight: 500;
+}
+
+.special .text-container {
+  margin-top: 8rpx; /* 与其他文字对齐 */
+  font-weight: 500;
+}

@@ -1,0 +1,580 @@
+/**index.wxss**/
+.index-page-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--background-color);
+  padding: 24rpx 32rpx 32rpx; /* 减少顶部内边距，保持左右和底部不变 */
+  box-sizing: border-box;
+}
+
+/* 顶部悬挂式登录提示 */
+.top-floating-login-prompt {
+  position: fixed;
+  top: 10rpx; /* 不再直接贴顶 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%; /* 不再是全宽 */
+  z-index: 100;
+  background-color: rgba(7, 193, 96, 0.7); /* 更淡的微信绿色 */
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease-out;
+  border-radius: 16rpx;
+  overflow: visible; /* 允许尖角超出容器 */
+  backdrop-filter: blur(4rpx); /* 背景模糊效果，增加通透感 */
+}
+
+/* 上方的连接尖角 */
+.top-floating-login-prompt::before {
+  content: '';
+  position: absolute;
+  top: -16rpx; /* 尖角高度 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 16rpx solid transparent;
+  border-right: 16rpx solid transparent;
+  border-bottom: 16rpx solid rgba(7, 193, 96, 0.7); /* 与背景颜色匹配 */
+  filter: drop-shadow(0 -2rpx 2rpx rgba(0, 0, 0, 0.05));
+}
+
+/* 悬挂的绳子效果 */
+.top-floating-login-prompt::after {
+  content: '';
+  position: absolute;
+  top: -40rpx; /* 绳子高度 - 从尖角延伸到顶部 */
+  left: 50%;
+  width: 4rpx;
+  height: 24rpx; /* 绳子长度 */
+  background-color: rgba(7, 193, 96, 0.7); /* 与背景颜色匹配 */
+  transform: translateX(-50%);
+}
+
+.login-prompt-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 24rpx; /* 缩小内边距 */
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+}
+
+/* 删除之前的装饰性伪元素 */
+.login-prompt-content::before,
+.login-prompt-content::after {
+  display: none;
+}
+
+.login-tip-text {
+  color: #ffffff;
+  font-size: 26rpx; /* 稍微缩小字体 */
+  font-weight: 500;
+  text-shadow: 0 1rpx 1rpx rgba(0, 0, 0, 0.05);
+}
+
+.login-prompt-button {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #07C160;
+  font-size: 24rpx; /* 缩小字体 */
+  font-weight: 600;
+  padding: 8rpx 24rpx; /* 减小内边距 */
+  border-radius: 30rpx;
+  border: none;
+  line-height: 1.5;
+  margin: 0;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
+}
+
+.login-prompt-button:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translate(-50%, -100%);
+  }
+  to {
+    transform: translate(-50%, 0);
+  }
+}
+
+/* 位置授权提示 - Redesigned for better appeal */
+.location-tip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 28rpx;
+  background-color: rgba(0, 122, 255, 0.1); /* 更柔和的蓝色背景 */
+  margin-bottom: 30rpx; /* Approx 15px */
+  border-radius: 16rpx; /* Softer radius */
+  box-shadow: 0 2rpx 8rpx rgba(0, 122, 255, 0.1); /* 增加轻微阴影 */
+}
+
+.tip-text {
+  font-size: 28rpx;
+  color: var(--interactive-color);
+  font-weight: 500; /* 增加字重 */
+}
+
+.btn-auth {
+  font-size: 26rpx;
+  padding: 10rpx 28rpx; /* 增加内边距 */
+  border-radius: 30rpx;
+  background-color: var(--interactive-color);
+  color: #fff;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 600; /* 增加字重 */
+  box-shadow: 0 2rpx 6rpx rgba(0, 122, 255, 0.3); /* 增加按钮阴影 */
+  border: none; /* 移除边框 */
+}
+
+.btn-auth:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+/* 进行中卡片样式 - 简化设计，提高可读性 */
+.ongoing-card-wrapper {
+  background-color: var(--card-background-color);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin: 30rpx 0;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  border: none; /* 移除边框 */
+}
+
+/* 添加订单滑动器样式 */
+.ongoing-swiper {
+  width: 100%;
+  height: 300rpx;
+}
+
+.ongoing-swiper .wx-swiper-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 6rpx;
+  margin: 0 8rpx;
+}
+
+.ongoing-swiper .wx-swiper-dot-active {
+  width: 24rpx;
+}
+
+/* 卡片标题栏 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 12rpx;
+  /* border-bottom: 1rpx solid rgba(0, 0, 0, 0.05); 添加分隔线 */
+}
+
+.store-info-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--primary-text-color);
+}
+
+.status-badge-ongoing {
+  font-size: 24rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 10rpx;
+  background-color: var(--interactive-color);
+  color: white;
+  font-weight: 500;
+}
+
+/* 卡片内容区改为两列布局 */
+.card-details-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* 居中对齐 */
+  margin-bottom: 24rpx;
+  padding: 10rpx 0;
+}
+
+/* 左侧时间信息列 */
+.time-info-text {
+  font-size: 28rpx;
+  color: var(--secondary-text-color);
+  margin-bottom: 8rpx;
+  line-height: 1.4;
+}
+
+/* 计时动画简化 */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; color: var(--interactive-color); }
+  100% { opacity: 1; }
+}
+
+.time-updating {
+  animation: pulse 1.5s infinite;
+  font-weight: 600;
+  color: var(--primary-text-color);
+  display: block; /* 确保单独成行 */
+  margin-top: 6rpx;
+}
+
+/* 右侧费用信息列 */
+.cost-info-block {
+  text-align: right;
+  padding: 6rpx 0;
+}
+
+.cost-info-text {
+  font-size: 28rpx;
+  color: var(--secondary-text-color);
+}
+
+/* 金额样式简化 */
+.amount-text {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: var(--primary-text-color);
+  display: block; /* 确保单独成行 */
+  margin-top: 4rpx;
+}
+
+/* 按钮操作区 */
+.card-actions-right {
+  text-align: right;
+  margin-top: 6rpx;
+  padding-top: 10rpx;
+  /* border-top: 1rpx solid rgba(0, 0, 0, 0.05); 添加分隔线 */
+}
+
+.end-session-button {
+  background-color: var(--red-color);
+  color: white;
+  border: none;
+  padding: 14rpx 32rpx;
+  border-radius: 25rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  line-height: 1.3;
+  box-shadow: 0 2rpx 6rpx rgba(255, 172, 48, 0.15);
+}
+
+.end-session-button:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+/* 搜索栏优化 */
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 20rpx; /* 增加圆角 */
+  padding: 20rpx 21rpx; /* 增加内边距 */
+  margin: -5rpx 0 16rpx 0; /* 设置负的上边距，保留底部间距 */
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08); /* 增强阴影 */
+  transition: all 0.2s ease;
+}
+
+.search-bar-container:active {
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  transform: scale(0.99);
+}
+
+.search-icon-wrapper {
+  margin-right: 16rpx; /* 增加间距 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input-field {
+  flex: 1;
+  font-size: 32rpx; /* 增加字号 */
+  height: 48rpx; /* 增加高度 */
+  line-height: 48rpx;
+}
+
+.clear-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx;
+}
+
+/* 列表标题优化 */
+.list-title-text {
+  font-size: 44rpx; /* 显著增加字号 */
+  font-weight: 700; /* 增加字重 */
+  margin: 20rpx 0 15rpx; /* 增加间距 */
+  color: #1d1d1f;
+  letter-spacing: 0.5px;
+}
+
+/* 加载更多 - Keeping existing for now, can be restyled later */
+.load-more {
+  text-align: center;
+  margin: 20rpx 0;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+}
+
+.loading-text, .load-more-btn, .no-more {
+  font-size: 26rpx;
+  color: var(--tertiary-text-color); /* Use new variable */
+}
+
+.load-more-btn {
+  padding: 10rpx 0;
+}
+
+/* 空状态优化 */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.empty-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+}
+
+.sub-empty-text {
+  font-size: 14px;
+  color: #6e6e73;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.btn-auth-inline {
+  background-color: #007aff;
+  color: white;
+  font-size: 14px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-top: 12px;
+  border: none;
+  line-height: 1.4;
+}
+
+/* 加载状态优化 */
+.loading-icon-large {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 16px;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #6e6e73;
+}
+
+/* 优化的空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+}
+
+.empty-state-image {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1d1d1f;
+  margin-bottom: 12px;
+}
+
+.empty-state-subtitle {
+  font-size: 15px;
+  color: #6e6e73;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.auth-button {
+  margin-top: 24px;
+  background-color: #007aff;
+  color: white;
+  font-size: 15px;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 500;
+  border: none;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+}
+
+.auth-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 4px rgba(0, 122, 255, 0.15);
+}
+
+/* 优化的加载状态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.loading-animation {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 122, 255, 0.1);
+  border-top-color: #007aff;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-state-text {
+  font-size: 15px;
+  color: #6e6e73;
+}
+
+/* 优化的加载更多 */
+.load-more-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 122, 255, 0.1);
+  border-top-color: #007aff;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #6e6e73;
+}
+
+/* 到底了指示器 */
+.no-more-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.no-more-line {
+  flex: 1;
+  height: 1px;
+  background-color: #e5e5ea;
+  max-width: 80px;
+}
+
+.no-more-text {
+  font-size: 13px;
+  color: #8e8e93;
+  margin: 0 12px;
+}
+
+/* 优化的登录按钮 */
+.fallback-login-prompt {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.login-button {
+  background-color: #007aff;
+  color: white;
+  font-size: 16px;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-weight: 500;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+  line-height: 1.4;
+}
+
+/* 添加新的轻量级标题样式 */
+.light-list-title {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+  font-size: 28rpx;
+  color: #6e6e73;
+  margin-bottom: 12rpx;
+}
+
+.light-list-title text {
+  font-weight: 400;
+}
+
+.light-subtitle {
+  font-size: 24rpx;
+  opacity: 0.8;
+  margin-left: 4rpx;
+}
+
+/* 信息条样式 */
+.info-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0;
+  margin-bottom: 12rpx;
+}
+
+.info-strip-content {
+  display: flex;
+  align-items: center;
+}
+
+.location-pin-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 8rpx;
+}
+
+.store-count {
+  font-size: 24rpx;
+  color: #6e6e73;
+}

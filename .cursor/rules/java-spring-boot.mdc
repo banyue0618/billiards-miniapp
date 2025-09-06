@@ -1,0 +1,136 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Java Spring Boot 代码规范与实践规则
+
+**目标**: 提高代码的可读性、可维护性，促进各层职责清晰，并确保API的一致性。
+
+### 1. Controller 层 (`controller`)
+
+*   **职责**:
+    *   接收 HTTP 请求。
+    *   校验请求参数的合法性（基础校验，如 `@NotBlank`, `@NotNull`, `@Validated` 配合分组校验 `AddGroup`, `EditGroup`）。复杂业务校验应在 Service 层。
+    *   调用 Service 层处理业务逻辑。
+    *   将 Service 层返回的业务对象（通常是实体或实体的 `IPage`）转换为视图对象 (VO) 或视图对象的 `IPage`。
+    *   统一响应格式，例如使用 `R<T>` ，包含成功/失败状态码、消息和数据。
+    *   保持 Controller 方法简洁，通常每个方法只有几行代码（参数校验、服务调用、VO 转换、返回响应）。
+*   **命名**:
+    *   类名以 `Controller` 结尾 (e.g., `StoreController`, `UserController`)。
+    *   管理端接口使用 `@RestController("adminXXXController")` 或类似方式区分。小程序端接口使用 `@RestController("miniappXXXController")`。
+    *   请求路径 (`@RequestMapping`):
+        *   管理端统一前缀，如 `/api/admin/...`。
+        *   小程序端统一前缀，如 `/api/miniapp/...`。
+        *   RESTful 风格的路径命名 (e.g., `GET /users`, `GET /users/{id}`, `POST /users`, `PUT /users/{id}`, `DELETE /users/{id}` )。
+*   **参数**:
+    *   `GET` 请求的查询参数使用 `@RequestParam`。路径参数使用 `@PathVariable`。
+    *   `POST`, `PUT` 请求的请求体使用 `@RequestBody`，并与对应的 DTO 绑定。
+    *   使用 `@Validated` 注解配合分组校验 (`AddGroup`, `EditGroup`) 对 DTO 进行校验。
+*   **返回**:
+    *   统一返回 VO (View Object) 或 VO 的分页对象 (`IPage<SomeVO>`)。
+    *   禁止直接返回实体 (Entity)。
+    *   操作成功返回 `ApiResult.success(data)` 或 `ApiResult.success(true)`。
+    *   操作失败（由 Service 层抛出异常，全局异常处理器捕获）或参数校验失败（由框架自动处理）时，Controller 不直接处理错误返回，而是依赖全局异常处理机制。
+*   **依赖**:
+    *   注入对应的 `Service` 接口。
+    *   注入对应的 `Convert` 接口实例 (e.g., `UserConvert.INSTANCE`)。
+
+### 2. Service 层 (`service` 和 `service.impl`)
+
+*   **职责**:
+    *   处理核心业务逻辑。
+    *   进行复杂的业务校验和数据一致性校验。
+    *   调用 Mapper/DAO 层与数据库交互。
+    *   处理事务 (`@Transactional`)。
+    *   执行 DTO 到 Entity 的转换（如果 Controller 传入 DTO，Service 需要操作 Entity）。
+    *   设置实体的默认值、状态等。
+    *   如果操作失败或数据未找到，应抛出自定义的业务异常 (e.g., `BilliardsException.of(ResultCode.XXX)`)。
+*   **接口 (`service/MyService.java`)**:
+    *   定义清晰的业务方法。
+    *   方法参数应能清晰表达业务意图，可以是基本类型、ID，或特定场景的 DTO。
+    *   方法返回值通常是实体 (Entity) 或实体的集合/分页对象 (`List<Entity>`, `IPage<Entity>`)，或者 `boolean` 表示操作成功与否。
+*   **实现 (`service/impl/MyServiceImpl.java`)**:
+    *   实现对应的 Service 接口。
+    *   注入 Mapper 接口。
+    *   注入其他需要的 Service 接口。
+    *   注入对应的 `Convert` 接口实例（如果需要将 DTO 转换为 Entity）。
+    *   在方法开头进行必要的参数校验（例如 `null` 检查，空字符串检查）。
+    *   对于查询操作，如果未找到数据且业务上认为这是异常情况，应抛出异常 (e.g., `BilliardsException.of(ResultCode.NOT_FOUND)`)。
+    *   对于写操作（创建、更新、删除），如果操作失败（e.g., `save()` 返回 `false`），应抛出异常。
+*   **命名**:
+    *   接口名以 `Service` 结尾 (e.g., `StoreService`)。
+    *   实现类名以 `ServiceImpl` 结尾 (e.g., `StoreServiceImpl`)。
+
+### 3. 数据传输对象 (DTO) 和视图对象 (VO)
+
+*   **DTO (`model.dto.request` 或 `model.dto`)**:
+    *   用于封装 Controller 接收的请求数据。
+    *   字段应与请求参数对应。
+    *   可以使用 Bean Validation 注解进行数据校验 (`@NotBlank`, `@NotNull`, `@Min`, `@Max`, `@Size`, `@Pattern`, etc.)。
+    *   使用分组校验 (`AddGroup`, `EditGroup`) 区分不同操作场景的校验规则。
+    *   命名规范：`XxxDto.java` 或 `XxxRequest.java`, `XxxQuery.java`。
+        *   `XxxDto` + `AddGroup` 用于创建。
+        *   `XxxDto` + `EditGroup` 用于更新。
+        *   `XxxQueryRequest` (通常继承通用分页类 `PageQuery`) 用于列表/分页查询。
+*   **VO (`model.vo`)**:
+    *   用于封装 Controller 返回给客户端的响应数据。
+    *   只包含客户端需要的字段，可能对实体字段进行裁剪、格式化或添加额外计算字段。
+    *   敏感信息不应包含在 VO 中，或应进行脱敏处理。
+    *   日期时间字段使用 `@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")` 进行格式化。
+    *   命名规范：`XxxVO.java`。
+*   **原则**:
+    *   **DTO 用于输入，VO 用于输出。**
+    *   **禁止在 Controller 方法中直接使用 Entity 作为请求体或响应体。**
+    *   保持 DTO 和 VO 的纯粹性，它们只应包含数据和校验注解，不应包含业务逻辑。
+
+### 4. 转换层 (`convert`)
+
+*   **职责**:
+    *   负责 Entity, DTO, VO 之间的相互转换。
+    *   使用 MapStruct (`@Mapper(componentModel = "spring")`) 实现。
+*   **接口 (`MyConvert.java`)**:
+    *   定义转换方法，如 `toVo(Entity entity)`, `toEntity(Dto dto)`, `toVoList(List<Entity> list)`, `updateEntityFromDto(Dto dto, @MappingTarget Entity entity)`。
+    *   提供 `INSTANCE = Mappers.getMapper(MyConvert.class)` 以便获取实例。
+    *   对于更新操作，使用 `@MappingTarget` 注解，并可以使用 `@Mapping(target = "xxx", ignore = true)` 忽略不需要更新的字段（如 `id`, `createTime`）。
+    *   为 `IPage` 提供默认的转换方法，如:
+        ```java
+        default IPage<MyVo> toVoPage(IPage<MyEntity> entityPage) {
+            if (entityPage == null) {
+                return null;
+            }
+            IPage<MyVo> voPage = new Page<>(entityPage.getCurrent(), entityPage.getSize(), entityPage.getTotal());
+            voPage.setRecords(toVoList(entityPage.getRecords()));
+            return voPage;
+        }
+        ```
+       或者直接使用 MybatisPlus 的 `page.convert(this::toVo)`。
+
+### 5. 实体层 (`model.entity`)
+
+*   与数据库表结构对应。
+*   使用 Lombok (`@Data`, `@EqualsAndHashCode(callSuper = true)`)。
+*   使用 MybatisPlus 注解 (`@TableName`, `@TableId`, `@TableField`)。
+*   继承通用的 `BaseEntity` (如果项目中定义了，包含 `createTime`, `updateTime` 等公共字段)。
+
+### 6. 异常处理
+
+*   **自定义业务异常**: 定义一个基础业务异常类，如 `BilliardsException`，继承自 `RuntimeException`。
+*   **错误码**: 使用统一的错误码枚举 (e.g., `ResultCode`)，包含错误码和错误信息。
+*   **Service 层抛出**: Service 层在遇到业务错误或数据校验失败时，抛出 `BilliardsException.of(ResultCode.XXX_ERROR, "可选的详细信息")`。
+*   **全局异常处理器**: 实现一个全局异常处理器 (`@RestControllerAdvice`) 来捕获 `BilliardsException` 和其他常见异常（如参数校验异常 `MethodArgumentNotValidException`, `BindException`），并返回统一的 JSON 响应格式。
+
+### 7. Lombok 和 MapStruct
+
+*   广泛使用 Lombok 减少样板代码 (`@Data`, `@RequiredArgsConstructor` 等)。
+*   使用 MapStruct 进行对象转换，避免手动编写大量 `get/set` 代码。
+
+### 8. 其他
+
+*   **日志**: 在关键业务点（如 Controller 入口、Service 方法调用、异常捕获处）记录适当的日志 (`log.info()`, `log.error()`)。
+*   **事务管理**: Service 层的写操作方法应添加 `@Transactional(rollbackFor = Exception.class)` 注解。
+*   **代码风格**: 遵循统一的 Java 代码风格指南（如 Google Java Style Guide 或项目内部约定）。
+*   **注释**: 对复杂的业务逻辑、非显而易见的代码路径、公共方法和类的用途进行必要的注释。
+
+
+

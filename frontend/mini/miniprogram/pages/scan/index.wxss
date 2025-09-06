@@ -1,0 +1,452 @@
+/* 扫码页面样式 - Apple 风格 */
+page {
+  --primary-text-color: #1d1d1f;
+  --secondary-text-color: #6e6e73;
+  --tertiary-text-color: #86868b;
+  --background-color: #f5f5f7;
+  --card-background-color: #ffffff;
+  --border-color: #d2d2d7;
+  --interactive-color: #007aff;
+  --green-color: #34c759;
+  --red-color: #ff3b30;
+  
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.scan-container {
+  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 700rpx;
+  box-sizing: border-box;
+}
+
+/* 让首页卡片样式容器生效（与首页一致） */
+.index-page-container {
+  width: 100%;
+  padding: 24rpx 32rpx 0;
+  box-sizing: border-box;
+  margin-top: 0; /* 取消额外顶部间距 */
+}
+
+/* 扫码指引卡片 */
+.scan-guide {
+  background-color: var(--card-background-color);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin: 0 0 30rpx; /* 与进行中卡片保持相同的底部间距 */
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  width: 100%;
+}
+
+.guide-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--primary-text-color);
+  margin-bottom: 32rpx;
+  text-align: center;
+}
+
+.guide-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.guide-tip {
+  display: flex;
+  align-items: flex-start;
+}
+
+.guide-tip-number {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background-color: var(--interactive-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 500;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.guide-tip-text {
+  font-size: 30rpx;
+  color: var(--secondary-text-color);
+  line-height: 1.5;
+}
+
+/* 扫码按钮 */
+.scan-action {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20rpx;
+}
+
+.scan-button {
+  width: 100%;
+  height: 90rpx;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  background-color: var(--interactive-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.25);
+  border: none;
+  padding: 0;
+}
+
+.scan-button:active {
+  opacity: 0.9;
+}
+
+.btn-disabled {
+  background-color: rgb(204, 204, 204);
+  color: #fff;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-container {
+  width: 85%;
+  background-color: var(--card-background-color);
+  border-radius: 28rpx;
+  overflow: hidden;
+  box-shadow: 0 20rpx 50rpx rgba(0, 0, 0, 0.15);
+  transform: translateY(40rpx);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-overlay.active .modal-container {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.modal-header {
+  padding: 32rpx 40rpx;
+  border-bottom: 1rpx solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--primary-text-color);
+}
+
+.modal-close {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background-color: #f1f1f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: var(--secondary-text-color);
+  line-height: 1;
+}
+
+.modal-body {
+  padding: 40rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 30rpx;
+  padding: 20rpx 0;
+}
+
+.info-label {
+  color: var(--secondary-text-color);
+}
+
+.info-value {
+  color: var(--primary-text-color);
+  font-weight: 500;
+}
+
+.info-value.price {
+  color: var(--green-color);
+  font-weight: 600;
+}
+
+.info-value.discount {
+  color: var(--red-color);
+  font-weight: 600;
+}
+
+/* 价格详情 */
+.price-detail {
+  background-color: #f8f8f8;
+  padding: 30rpx;
+  border-radius: 16rpx;
+  margin: 20rpx 0 30rpx;
+}
+
+.price-title {
+  font-size: 28rpx;
+  color: var(--primary-text-color);
+  margin-bottom: 20rpx;
+  font-weight: 500;
+}
+
+.price-item {
+  font-size: 26rpx;
+  color: var(--secondary-text-color);
+  margin-bottom: 16rpx;
+  line-height: 1.5;
+}
+
+.price-notes {
+  font-size: 26rpx;
+  margin: 20rpx 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.member-discount {
+  margin-top: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 30rpx;
+}
+
+.modal-footer {
+  padding: 30rpx 40rpx 40rpx;
+  display: flex;
+  gap: 24rpx;
+}
+
+.btn-cancel {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  background-color: #f1f1f1;
+  color: var(--primary-text-color);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.btn-confirm {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  background-color: var(--interactive-color);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.btn-cancel:active,
+.btn-confirm:active {
+  opacity: 0.9;
+}
+
+/* 分割线 */
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 40rpx 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 35%;
+  height: 1rpx;
+  background: #ddd;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.divider-text {
+  display: inline-block;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #999;
+  background: #f8f8f8;
+  position: relative;
+  z-index: 1;
+}
+
+/* 手动输入 */
+.manual-input {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.input-title {
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.table-input {
+  flex: 1;
+  height: 80rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+.btn-confirm {
+  width: 160rpx;
+  height: 80rpx;
+  font-size: 28rpx;
+  border-radius: 8rpx;
+  line-height: 80rpx;
+  padding: 0;
+}
+
+/* 最近使用 */
+.recent-tables {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.recent-title {
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.table-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.table-item {
+  display: flex;
+  flex-direction: column;
+  padding: 20rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  border-left: 8rpx solid #1aad19;
+}
+
+.table-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+
+.table-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 登录授权弹窗样式 */
+.login-modal .modal-content {
+  width: 70%;
+}
+
+.login-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30rpx;
+}
+
+.login-icon image {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+.login-title {
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.login-desc {
+  text-align: center;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 30rpx;
+  line-height: 1.5;
+}
+
+.login-modal .modal-footer {
+  justify-content: center;
+}
+
+.login-modal .btn-default,
+.login-modal .btn-primary {
+  flex: 1;
+  font-size: 28rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  border-radius: 8rpx;
+} 

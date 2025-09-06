@@ -1,0 +1,41 @@
+<wxs module="formatter" src="../../utils/format.wxs"></wxs>
+<!-- 门店卡片组件 -->
+<view class="store-card-component" bind:tap="onCardTap">
+  <!-- 图片区域 -->
+  <view class="image-placeholder-wrapper">
+    <image class="store-image" src="{{store.coverImage ? store.coverImage : '/images/placeholder-store.png'}}" mode="aspectFill" lazy-load></image>
+  </view>
+  
+  <!-- 内容区域 -->
+  <view class="content-section">
+    <view class="name-status-row">
+      <text class="store-name-text">{{store.name}}</text>
+      <text class="status-badge {{statusClass}}">{{statusText}}</text>
+    </view>
+
+    <view class="table-info-text">
+      <text>{{store.tables.total}}张球桌</text>
+      <text wx:if="{{store.status !== 'closed'}}"> · <text class="available-tables {{store.tables.available > 0 ? '' : 'tables-full'}}">{{formatter.formatTableAvailability(store.tables.available)}}</text></text>
+    </view>
+
+    <view class="location-info-row">
+      <text class="iconfont icon-location menu-icon"></text>
+      <text class="location-text">{{store.address.district || ''}} {{store.address.street || ''}} {{store.address.detail || ''}} <text wx:if="{{distanceText}}">· {{distanceText}}</text></text>
+    </view>
+
+    <view class="hours-info-row">
+      <text class="iconfont icon-clock menu-icon"></text>
+      <text class="hours-text">{{store.businessHours}}</text>
+    </view>
+
+    <view class="price-info-text">
+      最低 <text class="price-value">¥{{priceText}}</text>/小时
+    </view>
+
+    <view class="announcement-section" wx:if="{{store.announcement.content}}">
+      <text class="announcement-text">{{store.announcement.content}}</text>
+      <!-- <text class="announcement-time" wx:if="{{store.announcement.updated_at}}"> ({{formatter.timeAgo(store.announcement.updated_at)}})</text> -->
+    </view>
+  </view>
+  <!-- Removed old action buttons like scan, navigate, phone from card surface -->
+</view> 

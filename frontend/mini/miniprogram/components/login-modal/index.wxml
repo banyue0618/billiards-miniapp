@@ -1,0 +1,20 @@
+<!-- 登录弹窗组件 -->
+<view class="login-modal" wx:if="{{show}}">
+  <view class="modal-mask" bindtap="handleClose"></view>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">登录台球预订</text>
+      <view class="modal-close" bindtap="handleClose">×</view>
+    </view>
+    <view class="modal-body">
+      <view class="auth-desc">完成登录后即可预订台球、查看订单等</view>
+      <button class="auth-btn phone-btn" open-type="getPhoneNumber" bindgetphonenumber="handlePhoneLogin">
+        <text class="btn-icon iconfont icon-wechat"></text>微信一键登录
+      </button>
+      <button wx:if="{{enableGuestLogin}}" class="auth-btn guest-btn" bindtap="handleGuestLogin">
+        <text class="btn-icon iconfont icon-wechat"></text>游客登录
+      </button>
+      <view class="privacy-tips">登录即表示同意<text class="link" bindtap="navigateToPrivacy">《用户协议》和《隐私政策》</text></view>
+    </view>
+  </view>
+</view> 

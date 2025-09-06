@@ -1,0 +1,88 @@
+<wxs module="formatter" src="../../utils/format.wxs"></wxs>
+<!-- 订单列表页面 -->
+<view class="order-container">
+  <!-- 状态切换栏, class an style modified to match UI -->
+  <view class="segmented-control">
+    <view 
+      class="segment-button {{currentTab === 'all' ? 'active' : ''}}" 
+      data-tab="all" 
+      bindtap="switchTab"
+    >全部</view>
+    <view 
+      class="segment-button {{currentTab === 'ongoing' ? 'active' : ''}}" 
+      data-tab="ongoing" 
+      bindtap="switchTab"
+    >进行中</view>
+    <view 
+      class="segment-button {{currentTab === 'finished' ? 'active' : ''}}" 
+      data-tab="finished" 
+      bindtap="switchTab"
+    >已完成</view>
+  </view>
+  
+  <!-- 订单列表 -->
+  <view class="order-list" wx:if="{{orders.length > 0}}">
+    <!-- Card structure completely reworked to match orders.html UI -->
+    <view class="order-card" wx:for="{{orders}}" wx:key="id" bindtap="viewOrderDetail" data-id="{{item.id}}">
+      <!-- Card Header -->
+      <view class="header">
+        <view class="store-name">{{item.storeName}} - {{item.tableNumber}}</view>
+        <view class="status {{item.status === 0 ? 'in-progress' : 'completed'}}">
+          {{item.status === 0 ? '进行中' : '已完成'}}
+        </view>
+      </view>
+      
+      <!-- Card Details -->
+      <view class="details">
+        <view class="detail-row">
+          <text class="detail-label">订单号:</text>
+          <text class="detail-value">{{item.orderNo}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">开始时间:</text>
+          <text class="detail-value">{{item.startTime}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.endTime}}">
+          <text class="detail-label">结束时间:</text>
+          <text class="detail-value">{{item.endTime}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.duration}}">
+          <text class="detail-label">使用时长:</text>
+          <text class="detail-value">{{formatter.formatDuration(item.duration)}}</text>
+        </view>
+      </view>
+      
+      <!-- Card Total Amount -->
+      <view class="total" wx:if="{{item.actualAmount}}">
+        <block wx:if="{{item.status === 0}}">费用计时中... </block>
+        <block wx:else>实付: </block>
+        <text wx:if="{{item.status !== 0}}">¥{{formatter.formatPrice(item.actualAmount)}}</text>
+      </view>
+
+      <!-- Conditional action button for ongoing orders -->
+      <view class="actions" wx:if="{{item.status === 0}}">
+          <button 
+            class="action-btn btn-primary" 
+            catchtap="navigateToTimer" 
+            data-id="{{item.id}}"
+          >查看计时</button>
+      </view>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}">
+      <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+      <view wx:else bindtap="loadMore" class="load-more-btn">加载更多</view>
+    </view>
+    
+    <view class="no-more" wx:else>已经到底了~</view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <!-- Using a text-based icon as in the UI mockup -->
+    <view class="icon">📄</view>
+    <view class="message">您还没有订单记录哦</view>
+    <view class="sub-message">快去开一台，开始您的桌球之旅吧！</view>
+  </view>
+</view> 

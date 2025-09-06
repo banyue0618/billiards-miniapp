@@ -1,0 +1,77 @@
+# Spring配置
+spring:
+  application:
+    name: billiards-service
+
+# 日志配置
+logging:
+  level:
+    root: info
+    # com.banyue.billiards: debug # 您之前的配置，如果不再需要可以注释或删除
+    cn.dev33.satoken: DEBUG
+    org.springframework.web: DEBUG
+    org.dromara.billiards.config: DEBUG # 监控我们自定义配置的加载
+  file:
+    path: logs
+
+# 自定义配置
+billiards:
+  # 微信相关
+  wechat:
+    appid: wx2a3e6c6844ebcd71
+    secret: 7b4845a773d6ade233b436d9ef254983
+  # 支付相关
+  payment:
+    timeout-minutes: 30
+    mock-enabled: true # 是否开启模拟支付，true为开启，false为关闭
+    notify-url: /api/miniapp/payment/payNotify # 支付回调地址
+    refund-url: /api/miniapp/payment/refundNotify # 退款回调地址
+    # 这里的 excludes 列表现在可以被注释掉或清空，因为主要排除逻辑已移至全局 security.excludes
+    # excludes:
+    #   - /*.html
+    #   - /api/miniapp/stores/nearby
+    #   - /api/miniapp/user/auth/login
+  schedule:
+    enabled: true
+    pay-timeout-interval-minutes: 10
+    pay-reconcile-interval-minutes: 3
+    refund-failed-scan-interval-minutes: 30
+  notify:
+    refund-fail:
+      enabled: true
+      channels: [ SSE, EMAIL ]
+      dedup-ttl-minutes: 1440
+      retry-max-times: 3
+      retry-backoff-seconds: 30
+      email:
+        enabled: true
+        to-emails:
+          - admin@example.com
+          - ops@example.com
+        subject-template: "[退款失败告警] 订单:${orderNo}"
+        content-template: "退款单:${refundId}, 金额:${amount}, 状态:${refundStatus}, 原因:${reason}, 查看: ${dashboardUrl}"
+      sse:
+        enabled: true
+        message-template: "退款失败: 订单:${orderNo}, 金额:${amount}"
+
+sse:
+  enabled: true
+
+
+wx:
+  pay:
+    appId: wx2a3e6c6844ebcd71 #微信公众号或者小程序等的appid (V3商户模式需要)
+    mchId: XXXXX #微信支付商户号 (V3商户模式需要)
+    mchKey: XXXXX #微信支付商户密钥
+    subAppId: XXXXX #服务商模式下的子商户公众账号ID
+    subMchId: XXXXX #服务商模式下的子商户号
+    keyPath: XXXXX # p12证书的位置，可以指定绝对路径，也可以指定类路径（以classpath:开头）
+    apiV3Key: XXXXX # apiV3 秘钥值 (V3商户模式需要)
+    certSerialNo: XXXXX # apiV3 证书序列号值 (V3商户模式需要)
+    privateCertPath: XXXXX # apiclient_cert.pem证书文件的绝对路径或者以classpath:开头的类路径. (V3商户模式需要)
+    privateKeyPath: XXXXX # apiclient_key.pem证书文件的绝对路径或者以classpath:开头的类路径. (V3商户模式需要)
+    publicKeyPath: XXXXX # 微信支付公钥，pub_key.pem证书文件的绝对路径或者以classpath:开头的类路径. (V3商户模式需要)
+    publicKeyId: XXXXX # 微信支付公钥ID (V3商户模式需要)
+
+
+

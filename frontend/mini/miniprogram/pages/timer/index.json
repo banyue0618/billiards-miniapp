@@ -1,0 +1,8 @@
+{
+  "usingComponents": {},
+  "navigationBarTextStyle": "white",
+  "navigationBarTitleText": "计时",
+  "navigationBarBackgroundColor": "#20bd68",
+  "backgroundColorTop": "#20bd68",
+  "backgroundColorBottom": "#f5f5f5"
+} 

@@ -1,0 +1,144 @@
+<wxs module="formatter" src="../../utils/format.wxs"></wxs>
+<!-- 扫码开台页面 -->
+
+<!-- 使用ongoing-order-card组件 - 统一与首页的卡片样式展示 -->
+<view class="index-page-container">
+  <ongoing-order-card></ongoing-order-card>
+</view>
+
+<view class="scan-container">
+  <!-- 扫码说明卡片 -->
+  <view class="scan-guide">
+    <view class="guide-title">扫描桌台二维码开台</view>
+    <view class="guide-tips">
+      <view class="guide-tip">
+        <view class="guide-tip-number">1</view>
+        <view class="guide-tip-text">对准桌台二维码进行扫描</view>
+      </view>
+      <view class="guide-tip">
+        <view class="guide-tip-number">2</view>
+        <view class="guide-tip-text">确认桌台和价格信息</view>
+      </view>
+      <view class="guide-tip">
+        <view class="guide-tip-number">3</view>
+        <view class="guide-tip-text">点击开台即可使用</view>
+      </view>
+      <view class="guide-tip">
+        <view class="guide-tip-number">4</view>
+        <view class="guide-tip-text">以分钟计费，最低消费时长为1分钟</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 扫码按钮 -->
+  <view class="scan-action">
+    <button class="scan-button {{isOngoing ? 'btn-disabled' : ''}}" bindtap="startScan"  disabled="{{isOngoing}}">点击扫码</button>
+  </view>
+  
+  <!-- 或者分割线 -->
+  <!-- <view class="divider">
+    <text class="divider-text">或者</text>
+  </view> -->
+  
+  <!-- 手动输入 -->
+  <!-- <view class="manual-input">
+    <view class="input-title">手动输入桌台编号</view>
+    <view class="input-row">
+      <input 
+        class="table-input" 
+        type="text" 
+        maxlength="20" 
+        placeholder="请输入桌台编号" 
+        value="{{tableNumber}}"
+        bindinput="handleTableNumberInput"
+      />
+      <button 
+        class="btn-primary btn-confirm" 
+        disabled="{{!tableNumber}}" 
+        bindtap="handleManualConfirm"
+      >
+        确认
+      </button>
+    </view>
+  </view> -->
+  
+  <!-- 最近使用的桌台 -->
+  <!-- <view class="recent-tables" wx:if="{{recentTables.length > 0}}">
+    <view class="recent-title">最近使用</view>
+    <view class="table-list">
+      <view 
+        class="table-item" 
+        wx:for="{{recentTables}}" 
+        wx:key="id"
+        bindtap="handleSelectRecentTable"
+        data-id="{{item.id}}"
+      >
+        <view class="table-name">{{item.storeName}} · {{item.tableNumber}}</view>
+        <view class="table-time">{{item.useTime}}</view>
+      </view>
+    </view>
+  </view>  -->
+</view>
+
+<!-- 扫码结果弹窗 -->
+<view class="modal-overlay {{showModal ? 'active' : ''}}" bindtap="closeModal">
+  <view class="modal-container" catchtap="preventBubble">
+    <view class="modal-header">
+      <text class="modal-title">确认开台</text>
+      <view class="modal-close" bindtap="closeModal">×</view>
+    </view>
+    
+    <view class="modal-body">
+      <view class="info-row">
+        <text class="info-label">桌台</text>
+        <text class="info-value">{{scanResult.tableNumber}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">类型</text>
+        <text class="info-value">{{scanResult.type === 'standard' ? '标准' : '中式'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">计费</text>
+        <text class="info-value price">{{pricingText}}</text>
+      </view>
+      
+      <view class="price-detail" wx:if="{{scanResult.pricerRule.ruleType === 2}}">
+        <view class="price-title">阶梯计费详情：</view>
+        <view 
+          class="price-item" 
+          wx:for="{{scanResult.pricerRule.ladderRules}}" 
+          wx:key="start_minutes"
+        >
+          <text>{{item.start_minutes}}分钟 - </text>
+          <text wx:if="{{item.end_minutes}}">{{item.end_minutes}}分钟</text>
+          <text wx:else>之后</text>
+          <text>{{formatter.formatTierPrice(item.price)}}元/分钟</text>
+        </view>
+      </view>
+      
+      <view class="price-notes" wx:if="{{scanResult.pricerRule.min_consumption || scanResult.pricerRule.max_price}}">
+        <view wx:if="{{scanResult.pricerRule.min_consumption}}">
+          <text class="info-label">最低消费：</text>
+          <text class="info-value">{{scanResult.pricerRule.min_consumption}}分钟</text>
+        </view>
+        <view wx:if="{{scanResult.pricerRule.max_price}}">
+          <text class="info-label">封顶价格：</text>
+          <text class="info-value">{{formatter.formatPrice(scanResult.pricerRule.max_price)}}元</text>
+        </view>
+      </view>
+      
+      <view class="member-discount" wx:if="{{scanResult.pricerRule.memberDiscount && userInfo.is_member}}">
+        <text class="info-label">会员折扣：</text>
+        <text class="info-value discount">{{scanResult.pricerRule.memberDiscount * 10}}折</text>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="btn-cancel" bindtap="closeModal">取消</button>
+      <button class="btn-confirm" bindtap="handleStartTable">立即开台</button>
+    </view>
+  </view>
+</view>
+
+<!-- 使用登录弹窗组件 -->
+<login-modal show="{{showLoginModal}}" bind:close="closeLoginModal" bind:login-success="onLoginSuccess"></login-modal> 

@@ -1,0 +1,41 @@
+<!--pages/prepay/prepay.wxml-->
+<view class="container prepay-container">
+  <view class="page-header">
+    <text class="page-title">账户充值</text>
+  </view>
+
+  <view class="info-card amount-selection-card">
+    <view class="section-title-wrapper">
+      <text class="section-title">选择充值金额</text>
+    </view>
+    <view class="amount-options">
+      <view class="amount-option {{selectedAmount === 50 ? 'selected' : ''}}" bindtap="selectAmount" data-amount="{{50}}">
+        <text class="amount-value">¥50</text>
+      </view>
+      <view class="amount-option {{selectedAmount === 100 ? 'selected' : ''}}" bindtap="selectAmount" data-amount="{{100}}">
+        <text class="amount-value">¥100</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="info-card tips-card">
+     <view class="section-title-wrapper">
+        <text class="section-title">温馨提示</text>
+     </view>
+    <view class="tip-item">
+      <!-- 使用iconfont或图片图标更佳，此处用文本代替 -->
+      <text class="tip-icon">i</text> 
+      <text class="tip-text">充值金额用于开台使用，开台结束后将根据实际消费情况自动退还差额至您的账户余额。</text>
+    </view>
+     <view class="tip-item">
+      <text class="tip-icon">i</text>
+      <text class="tip-text">请确保账户有足够余额以便顺利开台和持续使用。</text>
+    </view>
+  </view>
+
+  <button class="primary-button confirm-button" bindtap="recharge" disabled="{{!selectedAmount}}">
+    确认充值 {{selectedAmount ? '¥' + selectedAmount : ''}}
+  </button>
+
+  <view class="safe-area-bottom"></view>
+</view>

@@ -1,0 +1,186 @@
+/*
+  File completely rewritten to match orders.html UI design.
+*/
+
+/* Color Palette from UI Mockup */
+page {
+  --primary-text-color: #1d1d1f;
+  --secondary-text-color: #6e6e73;
+  --tertiary-text-color: #86868b;
+  --background-color: #f0f0f5; 
+  --card-background-color: #ffffff;
+  --border-color: #d2d2d7;
+  --interactive-color: #007aff;
+  --red-color: #FF3B30;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  line-height: 1.4;
+}
+
+.order-container {
+  padding-bottom: 40rpx;
+}
+
+/* Segmented Control (was status-tabs) */
+.segmented-control {
+  display: flex;
+  width: calc(100% - 64rpx);
+  margin: 20rpx 32rpx;
+  border-radius: 8px; /* WX doesn't support rpx here well */
+  overflow: hidden;
+  border: 1px solid var(--interactive-color);
+}
+
+.segment-button {
+  flex-grow: 1;
+  padding: 16rpx 20rpx;
+  background-color: var(--card-background-color);
+  color: var(--interactive-color);
+  border: none;
+  font-size: 26rpx;
+  font-weight: 500;
+  text-align: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.segment-button:not(:last-child) {
+  border-right: 1px solid var(--interactive-color);
+}
+
+.segment-button.active {
+  background-color: var(--interactive-color);
+  color: white;
+}
+
+/* Order List */
+.order-list {
+  padding: 0 32rpx;
+}
+
+/* Order Card Styling */
+.order-card {
+  background-color: var(--card-background-color);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.04);
+}
+
+.order-card .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+  font-size: 30rpx;
+}
+
+.order-card .store-name {
+  font-weight: 600;
+  font-size: 34rpx;
+  color: var(--primary-text-color);
+}
+
+.order-card .status {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.order-card .status.completed {
+  color: var(--secondary-text-color);
+}
+
+.order-card .status.in-progress {
+  color: var(--interactive-color);
+}
+
+.order-card .status.cancelled {
+  color: var(--red-color);
+}
+
+.order-card .details {
+  padding-bottom: 12rpx;
+  margin-bottom: 24rpx;
+  border-bottom: 1rpx solid var(--background-color);
+}
+
+.order-card .detail-row {
+  margin: 12rpx 0;
+  font-size: 26rpx;
+  color: var(--secondary-text-color);
+  display: flex;
+}
+.order-card .detail-label {
+  color: var(--secondary-text-color);
+  margin-right: 12rpx;
+}
+
+.order-card .detail-value {
+    color: var(--primary-text-color);
+    font-weight: 500;
+}
+
+
+.order-card .total {
+  font-size: 32rpx;
+  font-weight: 500;
+  text-align: right;
+  color: var(--primary-text-color);
+}
+
+.order-card .actions {
+  margin-top: 28rpx;
+  padding-top: 28rpx;
+  border-top: 1rpx solid var(--background-color);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-btn.btn-primary {
+  background-color: var(--interactive-color);
+  color: white;
+  font-size: 28rpx;
+  padding: 16rpx 40rpx;
+  border-radius: 40rpx;
+  margin: 0;
+  line-height: 1.5;
+}
+/* This removes the default button border in wechat */
+.action-btn::after {
+  border: none;
+}
+
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  margin-top: 160rpx;
+  padding: 0 40rpx;
+}
+.empty-state .icon {
+  font-size: 96rpx;
+  color: var(--tertiary-text-color);
+  margin-bottom: 32rpx;
+}
+.empty-state .message {
+  font-size: 34rpx;
+  color: var(--secondary-text-color);
+  margin-bottom: 16rpx;
+}
+.empty-state .sub-message {
+  font-size: 28rpx;
+  color: var(--tertiary-text-color);
+}
+
+/* Load More */
+.load-more, .no-more {
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 26rpx;
+  color: var(--tertiary-text-color);
+}
+
+.loading-text {
+  color: var(--tertiary-text-color);
+} 
