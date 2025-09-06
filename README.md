@@ -32,6 +32,7 @@
 - **数据库操作**：MyBatis Plus 3.5.x
 - **数据库**：MySQL 8.0
 - **缓存**：Redis
+- **多租户**：MyBatis-Plus TenantLineInnerInterceptor + 会话级租户/商户上下文
 - **API文档**：SpringDoc OpenAPI
 - **工具库**：Hutool、EasyExcel、Lombok
 
@@ -96,7 +97,9 @@
    ```sql
    CREATE DATABASE billiards DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
    ```
-3. 导入 `docs/sql/billiards.sql` 文件
+3. 导入数据库脚本（根据模式选择）：
+   - 多租户（SaaS）：`docs/sql/billiards-saas.sql`
+   - 单体（无租户）：`docs/sql/billiards.sql`
 4. 配置数据库连接信息（application-dev.yml）
 5. 构建与运行：
    ```bash
@@ -115,6 +118,21 @@
    npm run dev
    ```
 3. 访问管理系统：http://localhost:8081
+
+## 多租户与小程序调用约定
+
+- **架构模型**：SaaS，多租户（tenant）→ 多商户（merchant）1:N。业务表统一含 `tenant_id`，资金/会员/积分/订单等再含 `merchant_id`；平台级账户表不绑定商户，聚合小程序登录不强绑定租户，落业务前需选择门店。
+- **数据隔离与写入**：MyBatis-Plus `TenantLineInnerInterceptor` 全局生效；通过 MetaObjectHandler 自动填充 `tenant_id`（取自 `TenantHelper`）与 `merchant_id`（取自 `MerchantHolder`）。
+- **小程序请求上下文**：
+  - 所有资金/订单相关请求必须携带请求头 `X-Store-Id`。
+  - 前端流程：扫码/选台 → 解析 `storeId` → 设置全局与本地缓存 → HTTP 拦截器自动添加 `X-Store-Id` → 余额校验/充值 → 创建订单。
+- **后端解析与路由**：
+  - `MiniAppTenantInterceptor` 基于 `X-Store-Id` 解析 `{tenantId, merchantId}`，并分别通过 `TenantHelper.setDynamic(...)` 与 `MerchantHolder.set(...)` 进行会话级持久化。
+  - 小程序接口统一挂载在前缀 `/api/miniapp/**`。
+- **后台端登录**：登录成功后 `TenantHelper.setDynamic(tenantId, true)`；`currentMerchantId` 存入会话；写入自动填充，查询可按商户范围过滤。
+- **数据权限**：支持在查询侧使用 `@DataPermission` 按 `merchant_id` 进行过滤（可用于除租户隔离之外的商户级隔离）。
+- **支付路由**：服务商模式；支付配置按「门店 > 商户 > 租户」三层覆盖。发起支付使用 `(tenantId, merchantId, storeId, appId)` 选择通道，`appId` 仅用于通道选择，不用于推断租户。
+- **前端注意**：管理端 admin-ui 无需 `X-Store-Id`；小程序端由拦截器自动添加该请求头。
 
 ## 微信小程序
 
