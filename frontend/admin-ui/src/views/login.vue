@@ -1,6 +1,5 @@
 <template>
   <div class="login">
-
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">{{ title }}</h3>
       <el-form-item v-if="tenantEnabled" prop="tenantId">
@@ -24,14 +23,12 @@
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input v-model="loginForm.password" type="password" size="large" auto-complete="off" placeholder="密码"
-          @keyup.enter="handleLogin">
+        <el-input v-model="loginForm.password" type="password" size="large" auto-complete="off" placeholder="密码" @keyup.enter="handleLogin">
           <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
       <el-form-item v-if="captchaEnabled" prop="code">
-        <el-input v-model="loginForm.code" size="large" auto-complete="off" placeholder="验证码" style="width: 63%"
-          @keyup.enter="handleLogin">
+        <el-input v-model="loginForm.code" size="large" auto-complete="off" placeholder="验证码" style="width: 63%" @keyup.enter="handleLogin">
           <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
         </el-input>
         <div class="login-code">
@@ -44,11 +41,11 @@
           <span v-if="!loading">登 录</span>
           <span v-else>登 录 中...</span>
         </el-button>
-        <div style="display: flex; justify-content: flex-end; margin-top: 10px; gap: 20px;">
+        <div style="display: flex; justify-content: flex-end; margin-top: 10px; gap: 20px">
           <router-link class="link-type" :to="'/forget'" style="margin-right: 20px">忘记密码</router-link>
           <router-link v-if="register" class="link-type" :to="'/register'">立即注册</router-link>
           <router-link class="link-type" :to="'/tenantApply'">申请成为租户</router-link>
-<!--          <router-link class="link-type" :to="'/merchantApply'">申请成为商户</router-link>-->
+          <!--          <router-link class="link-type" :to="'/merchantApply'">申请成为商户</router-link>-->
         </div>
       </el-form-item>
     </el-form>
@@ -65,7 +62,7 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const loginForm = ref<LoginData>({
-  tenantId: '000000',
+  tenantId: '',
   username: '',
   password: '',
   rememberMe: false,
@@ -184,21 +181,21 @@ const getLoginData = () => {
  * 初始化租户元信息（是否启用、多域名唯一预填）
  */
 const initTenantList = async () => {
-  if (!tenantEnabled.value) {
-    return;
-  }
-  const { data } = await getTenantList();
-  tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
-  if (!tenantEnabled.value) {
-    return;
-  }
-  // 仅当后端基于域名已筛到唯一租户时，直接预填并展示该项
-  if (Array.isArray(data.voList) && data.voList.length === 1) {
-    tenantList.value = data.voList;
-    loginForm.value.tenantId = data.voList[0].tenantId;
-    // 也缓存到本地，后续搜索可复用
-    allTenantsCache.value = data.voList;
-  }
+  // if (!tenantEnabled.value) {
+  //   return;
+  // }
+  // const { data } = await getTenantList();
+  // tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
+  // if (!tenantEnabled.value) {
+  //   return;
+  // }
+  // // 仅当后端基于域名已筛到唯一租户时，直接预填并展示该项
+  // if (Array.isArray(data.voList) && data.voList.length === 1) {
+  //   tenantList.value = data.voList;
+  //   loginForm.value.tenantId = data.voList[0].tenantId;
+  //   // 也缓存到本地，后续搜索可复用
+  //   allTenantsCache.value = data.voList;
+  // }
 };
 
 /**
