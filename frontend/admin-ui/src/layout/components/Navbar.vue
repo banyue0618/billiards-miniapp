@@ -199,7 +199,7 @@ const logout = async () => {
     type: 'warning'
   });
   await userStore.logout();
-  location.href = import.meta.env.VITE_APP_CONTEXT_PATH + 'index';
+  location.href = import.meta.env.VITE_APP_CONTEXT_PATH;
 };
 
 const emits = defineEmits(['setLayout']);
