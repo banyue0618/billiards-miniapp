@@ -289,7 +289,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import html2canvas from 'html2canvas';
 import JSZip from 'jszip';
@@ -435,6 +436,9 @@ const progressText = ref('准备下载...');
 // 临时存储当前处理的桌台
 const tempQrcodeTable = ref<any>(null);
 const tempQrcodeTemplateRef = ref(null);
+
+// 路由参数（用于从门店页面携带过来的 storeId）
+const route = useRoute();
 
 function progressFormat(percentage: number) {
   return percentage === 100 ? '完成' : `${percentage}%`;
@@ -1018,9 +1022,29 @@ function parseLadderRules(ladderRulesStr: string) {
 }
 
 onMounted(() => {
+  const sidParam = route.query.storeId as string | string[] | undefined;
+  const sid = Array.isArray(sidParam) ? sidParam[0] : sidParam;
+  if (sid) {
+    // 预先设置门店ID，便于首次进入时直接筛选
+    (queryParams as any).storeId = sid as any;
+  }
   getStoreList();
   getPriceRuleList();
+  // 若带有 storeId，直接加载桌台列表
+  getList();
 });
+
+// 监听路由中 storeId 的变化（例如从其他页面再次跳转）
+watch(
+  () => route.query.storeId,
+  (newVal) => {
+    const sid = Array.isArray(newVal) ? newVal[0] : (newVal as string | undefined);
+    if (sid) {
+      (queryParams as any).storeId = sid as any;
+      storeChanged();
+    }
+  }
+);
 </script>
 
 <style scoped>
