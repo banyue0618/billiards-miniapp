@@ -178,13 +178,6 @@ docker-compose up -d
 ![我的订单](imgs/img_14.png)
 ![我的订单2](imgs/img_15.png)
 
-
-
-
-
-
-
-
 ## 贡献指南
 1. Fork 本仓库
 2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
