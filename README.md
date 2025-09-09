@@ -10,7 +10,7 @@
         - 业务表统一含 tenant_id；桌台/会员/积分/订单/资金等再含 merchant_id（按商户隔离）。
         - 用户表 bls_user 为平台级账户（不绑定商户；聚合小程序登录不强绑定租户）。
         - 订单链路冗余 merchant_id，便于统计与对账。
-   ## 更新设计可查看doc目录下的文档
+   ## 详细设计可查看doc目录下的文档
 # 线上后台管理地址
 https://www.banyue.xin/billiards/
  - 账号：admin
