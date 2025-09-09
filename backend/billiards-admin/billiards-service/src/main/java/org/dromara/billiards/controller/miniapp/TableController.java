@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.dromara.billiards.common.result.ApiResult;
 import org.dromara.billiards.convert.TableConvert;
 import org.dromara.billiards.domain.bo.TableQueryRequest;
-import org.dromara.billiards.domain.entity.Table;
+import org.dromara.billiards.domain.entity.BlsTable;
 import org.dromara.billiards.domain.vo.TableVO;
 import org.dromara.billiards.service.TableService;
 import org.dromara.billiards.service.QrCodeTokenService;
@@ -38,8 +38,8 @@ public class TableController {
     @GetMapping("/list")
     @Operation(summary = "桌台列表", description = "获取门店下的桌台列表")
     public R<List<TableVO>> getTableList(@Parameter(description = "门店ID", required = true) @RequestParam String storeId) {
-        List<org.dromara.billiards.domain.entity.Table> tableList = tableService.getTablesByStore(storeId);
-        return ApiResult.success(tableConvert.toVoList(tableList));
+        List<BlsTable> blsTableList = tableService.getTablesByStore(storeId);
+        return ApiResult.success(tableConvert.toVoList(blsTableList));
     }
 
     /**
@@ -73,7 +73,7 @@ public class TableController {
     @Operation(summary = "桌台列表", description = "根据门店获取桌台列表，支持分页和条件查询")
     public R<IPage<TableVO>> tables(@PathVariable String storeId, TableQueryRequest queryRequest ) {
         queryRequest.setStoreId(storeId);
-        IPage<Table> page = tableService.getTablePage(queryRequest);
+        IPage<BlsTable> page = tableService.getTablePage(queryRequest);
         return ApiResult.success(tableConvert.toVoPage(page));
     }
 }

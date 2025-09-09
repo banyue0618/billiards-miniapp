@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_order")
-public class Order extends BilliardsBaseEntity {
+public class BlsOrder extends BilliardsBaseEntity {
 
     /**
      * 订单ID

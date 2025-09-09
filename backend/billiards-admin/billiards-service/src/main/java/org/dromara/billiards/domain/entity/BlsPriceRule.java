@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_price_rule")
-public class PriceRule extends BilliardsBaseEntity {
+public class BlsPriceRule extends BilliardsBaseEntity {
 
     /**
      * 规则ID

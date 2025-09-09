@@ -78,8 +78,8 @@
         <el-table-column label="操作" align="center" width="200">
           <template #default="scope">
             <el-button type="text" icon="View" @click="handleDetail(scope.row)">详情</el-button>
-            <el-button v-if="scope.row.status === 0" type="text" icon="CircleClose" @click="handleEndOrder(scope.row)">结束使用</el-button>
-            <el-button v-if="scope.row.status === 0" type="text" icon="Delete" @click="handleCancelOrder(scope.row)">取消订单</el-button>
+            <el-button v-if="scope.row.status === 0" type="text" icon="CircleClose" @click="handleEndOrder(scope.row)">强制结束</el-button>
+<!--            <el-button v-if="scope.row.status === 0" type="text" icon="Delete" @click="handleCancelOrder(scope.row)">取消订单</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -148,11 +148,11 @@
         <el-divider content-position="center">操作</el-divider>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-button type="danger" plain icon="CircleClose" @click="handleEndOrder(orderDetail)">强制结束使用</el-button>
+            <el-button type="danger" plain icon="CircleClose" @click="handleEndOrder(orderDetail)">强制结束</el-button>
           </el-col>
-          <el-col :span="12">
-            <el-button type="warning" plain icon="Edit" @click="handleUpdateAmount(orderDetail)">修改订单金额</el-button>
-          </el-col>
+<!--          <el-col :span="12">-->
+<!--            <el-button type="warning" plain icon="Edit" @click="handleUpdateAmount(orderDetail)">修改订单金额</el-button>-->
+<!--          </el-col>-->
         </el-row>
       </div>
     </el-dialog>
@@ -213,7 +213,7 @@
           <span>{{ updateAmountForm.orderNo }}</span>
         </el-form-item>
         <el-form-item label="当前金额">
-          <span class="price-text">¥{{ parseFloat(updateAmountForm.currentAmount || 0).toFixed(2) }}</span>
+          <span class="price-text">¥{{ parseFloat(updateAmountForm.actualAmount || 0).toFixed(2) }}</span>
         </el-form-item>
         <el-form-item label="新金额" prop="amount">
           <el-input-number v-model="updateAmountForm.amount" :precision="2" :step="1" :min="0" controls-position="right" style="width: 200px" />
@@ -235,12 +235,12 @@
     <el-dialog v-model="activeOrderOpen" title="进行中订单看板" width="900px" append-to-body>
       <el-form :inline="true">
         <el-form-item label="选择门店">
-          <el-select v-model="activeOrderStoreId" placeholder="全部门店" clearable @change="getActiveOrders">
+          <el-select v-model="activeOrderStoreId" placeholder="全部门店" clearable @change="listOngoingOrders">
             <el-option v-for="store in storeOptions" :key="store.id" :label="store.name" :value="store.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="Refresh" @click="getActiveOrders">刷新</el-button>
+          <el-button type="primary" icon="Refresh" @click="listOngoingOrders">刷新</el-button>
         </el-form-item>
       </el-form>
 
@@ -272,9 +272,9 @@
         <el-table-column label="已用时长" align="center" prop="duration">
           <template #default="scope"> {{ scope.row.duration }} 分钟 </template>
         </el-table-column>
-        <el-table-column label="当前费用" align="center" prop="currentAmount">
+        <el-table-column label="当前费用" align="center" prop="actualAmount">
           <template #default="scope">
-            <span class="price-text">¥{{ parseFloat(scope.row.currentAmount).toFixed(2) }}</span>
+            <span class="price-text">¥{{ parseFloat(scope.row.actualAmount).toFixed(2) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" width="150">
@@ -295,9 +295,9 @@ import {
   listOrder,
   getOrder,
   endOrder,
-  updateOrderAmount,
+  changeOrderAmount,
   cancelOrder,
-  getActiveOrders as getActiveOrdersApi,
+  listOngoingOrders as listOngoingOrdersApi,
   exportOrders as exportOrdersApi
 } from '@/api/billiards/order';
 import { listStore } from '@/api/billiards/store';
@@ -373,7 +373,7 @@ const cancelOrderForm = reactive({
 const updateAmountForm = reactive({
   orderId: '',
   orderNo: '',
-  currentAmount: 0,
+  actualAmount: 0,
   amount: 0,
   reason: ''
 });
@@ -481,7 +481,7 @@ function handleCancelOrder(row: any) {
 function handleUpdateAmount(row: any) {
   updateAmountForm.orderId = row.id;
   updateAmountForm.orderNo = row.orderNo;
-  updateAmountForm.currentAmount = row.actualAmount;
+  updateAmountForm.actualAmount = row.actualAmount;
   updateAmountForm.amount = row.actualAmount;
   updateAmountForm.reason = '';
   updateAmountOpen.value = true;
@@ -498,7 +498,7 @@ function confirmEndOrder() {
         // 刷新数据
         getList();
         if (activeOrderOpen.value) {
-          getActiveOrders();
+          listOngoingOrders();
         }
       });
     }
@@ -515,7 +515,7 @@ function confirmCancelOrder() {
         // 刷新数据
         getList();
         if (activeOrderOpen.value) {
-          getActiveOrders();
+          listOngoingOrders();
         }
       });
     }
@@ -526,7 +526,7 @@ function confirmCancelOrder() {
 function confirmUpdateAmount() {
   updateAmountFormRef.value.validate((valid: boolean) => {
     if (valid) {
-      updateOrderAmount(updateAmountForm.orderId, updateAmountForm.amount, updateAmountForm.reason).then(() => {
+      changeOrderAmount(updateAmountForm.orderId, updateAmountForm.amount, updateAmountForm.reason).then(() => {
         ElMessage.success('订单金额已修改');
         updateAmountOpen.value = false;
         // 刷新数据
@@ -565,12 +565,12 @@ function handleExport() {
 function handleActiveOrderView() {
   activeOrderOpen.value = true;
   activeOrderStoreId.value = '';
-  getActiveOrders();
+  listOngoingOrders();
 }
 
 /** 获取进行中订单 */
-function getActiveOrders() {
-  getActiveOrdersApi(activeOrderStoreId.value).then((response) => {
+function listOngoingOrders() {
+  listOngoingOrdersApi(activeOrderStoreId.value).then((response) => {
     activeOrders.value = response.data;
   });
 }
@@ -578,14 +578,14 @@ function getActiveOrders() {
 /** 计算进行中订单总金额 */
 function calculateTotalAmount() {
   if (activeOrders.value.length === 0) return '0.00';
-  const total = activeOrders.value.reduce((sum, order) => sum + parseFloat(order.currentAmount || 0), 0);
+  const total = activeOrders.value.reduce((sum, order) => sum + parseFloat(String(order.actualAmount || 0)), 0);
   return total.toFixed(2);
 }
 
 /** 计算平均使用时长 */
 function calculateAverageDuration() {
   if (activeOrders.value.length === 0) return '0';
-  const totalDuration = activeOrders.value.reduce((sum, order) => sum + parseInt(order.duration || 0), 0);
+  const totalDuration = activeOrders.value.reduce((sum, order) => sum + parseInt(String(order.duration || 0)), 0);
   return Math.floor(totalDuration / activeOrders.value.length);
 }
 

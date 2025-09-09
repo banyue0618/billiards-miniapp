@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.constant.TenantConstants;
 import org.dromara.common.core.domain.model.LoginUser;
+import org.dromara.common.core.domain.model.XcxLoginUser;
 import org.dromara.common.core.enums.UserType;
 
 import java.util.Set;
@@ -208,6 +209,23 @@ public class LoginHelper {
     public static boolean isLogin() {
         try {
             return getLoginUser() != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 检查当前用户是否已登录
+     *
+     * @return 结果
+     */
+    public static boolean isMember() {
+        try {
+            XcxLoginUser loginUser = getLoginUser();
+            if (loginUser == null) {
+                return false;
+            }
+            return Boolean.TRUE.equals(loginUser.getIsMember());
         } catch (Exception e) {
             return false;
         }

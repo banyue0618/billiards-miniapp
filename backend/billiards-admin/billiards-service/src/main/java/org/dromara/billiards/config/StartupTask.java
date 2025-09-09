@@ -40,9 +40,14 @@ public class StartupTask implements CommandLineRunner {
     @Value("${billiards.schedule.refund-failed-scan-interval-minutes:30}")
     private long refundFailedScanIntervalMinutes;
 
+    @Value("${billiards.schedule.enabled:true}")
+    private boolean enabled;
+
     @Override
     public void run(String... args) throws Exception {
-
+        if(!enabled){
+            return;
+        }
         // 检测系统中进行的订单，每五分钟检测一次
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {

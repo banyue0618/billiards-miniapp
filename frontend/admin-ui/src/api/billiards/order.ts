@@ -27,10 +27,10 @@ export function endOrder(orderId: string, reason: string) {
 }
 
 // 修改订单金额
-export function updateOrderAmount(orderId: string, amount: number, reason: string) {
+export function changeOrderAmount(orderId: string, amount: number, reason: string) {
   return request({
-    url: `/api/admin/orders/${orderId}/amount`,
-    method: 'patch',
+    url: `/api/admin/orders/${orderId}/changeOrderAmount`,
+    method: 'post',
     data: { amount, reason }
   });
 }
@@ -45,11 +45,11 @@ export function cancelOrder(orderId: string, reason: string) {
 }
 
 // 获取进行中订单列表
-export function getActiveOrders(storeId?: string) {
+export function listOngoingOrders(storeId?: string) {
   return request({
-    url: '/api/admin/orders/active',
+    url: `/api/admin/orders/listOngoingOrders`,
     method: 'get',
-    params: { storeId }
+    params: { storeId: storeId }
   });
 }
 

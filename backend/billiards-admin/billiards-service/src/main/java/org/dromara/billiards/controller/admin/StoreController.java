@@ -6,7 +6,7 @@ import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.domain.bo.StatusRequest;
 import org.dromara.billiards.domain.bo.StoreQueryRequest;
 import org.dromara.billiards.domain.bo.StoreDto;
-import org.dromara.billiards.domain.entity.Store;
+import org.dromara.billiards.domain.entity.BlsStore;
 import org.dromara.billiards.domain.vo.StoreVO;
 import org.dromara.billiards.convert.StoreConvert;
 import org.dromara.common.core.validate.AddGroup;
@@ -41,7 +41,7 @@ public class StoreController {
     @GetMapping("/list")
     @Operation(summary = "门店列表", description = "分页查询门店列表")
     public R<IPage<StoreVO>> list(@Validated StoreQueryRequest request) {
-        IPage<Store> storePage = storeService.pageStores(request);
+        IPage<BlsStore> storePage = storeService.pageStores(request);
 
         // 转换为VO并填充桌台数量
         IPage<StoreVO> voPage = storeConvert.toVoPage(storePage);
@@ -58,8 +58,8 @@ public class StoreController {
     @GetMapping("/{id}")
     @Operation(summary = "门店详情", description = "获取门店详细信息")
     public R<StoreVO> detail(@PathVariable String id) {
-        Store store = storeService.getStoreInfo(id);
-        StoreVO storeVO = storeConvert.toVo(store);
+        BlsStore blsStore = storeService.getStoreInfo(id);
+        StoreVO storeVO = storeConvert.toVo(blsStore);
 
         // 填充桌台数量
         storeVO.setTableCount(storeService.getTableCount(id));
@@ -84,8 +84,8 @@ public class StoreController {
     @Operation(summary = "修改门店", description = "修改门店信息")
     @ProcessFilePersistence
     public R<StoreVO> update(@PathVariable String id, @Validated(EditGroup.class) @RequestBody StoreDto storeDto) {
-        Store updatedStore = storeService.updateStore(id, storeDto);
-        return ApiResult.success(storeConvert.toVo(updatedStore));
+        BlsStore updatedBlsStore = storeService.updateStore(id, storeDto);
+        return ApiResult.success(storeConvert.toVo(updatedBlsStore));
     }
 
     /**

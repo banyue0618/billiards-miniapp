@@ -1,16 +1,12 @@
 package org.dromara.billiards.service.impl;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
 import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyV3Result;
 import com.github.binarywang.wxpay.bean.result.WxPayRefundQueryV3Result;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.constant.TransTypeEnum;
@@ -18,8 +14,9 @@ import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.domain.bo.BlsRefundRecordBo;
 import org.dromara.billiards.domain.entity.BlsRefundRecord;
-import org.dromara.billiards.domain.entity.Order;
-import org.dromara.billiards.domain.entity.PayRecord;
+import org.dromara.billiards.domain.entity.BlsOrder;
+import org.dromara.billiards.domain.entity.BlsPayRecord;
+import org.dromara.billiards.domain.entity.BlsTableUsage;
 import org.dromara.billiards.domain.vo.BlsRefundRecordVo;
 import org.dromara.billiards.service.*;
 import org.dromara.billiards.notify.event.RefundFailureEvent;
@@ -39,7 +36,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.dromara.billiards.mapper.BlsRefundRecordMapper;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -188,14 +184,14 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
     }
 
     @Override
-    public void refund(String orderId, PayRecord lastPayRecord, BigDecimal refundAmount) {
+    public void refund(String orderId, BlsPayRecord lastBlsPayRecord, BigDecimal refundAmount) {
         BlsRefundRecord refundRecord = new BlsRefundRecord();
-        refundRecord.setPayRecordId(lastPayRecord.getId());
+        refundRecord.setPayRecordId(lastBlsPayRecord.getId());
         refundRecord.setOrderId(orderId);
         refundRecord.setUserId(LoginHelper.getUserId());
         refundRecord.setAmount(refundAmount);
         refundRecord.setRefundStatus(0); // 0 for refunding
-        refundRecord.setTransactionId(lastPayRecord.getTransactionId());
+        refundRecord.setTransactionId(lastBlsPayRecord.getTransactionId());
         baseMapper.insert(refundRecord);
         if (mockPaymentEnabled) {
             log.info("模拟退款模式已启用，自动完成微信退款回调步骤！");
@@ -205,7 +201,7 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         }
         // 发起退款动作
         try {
-            payService.refund(lastPayRecord.getTransactionId(), lastPayRecord.getId(), refundAmount, refundRecord.getId());
+            payService.refund(lastBlsPayRecord.getTransactionId(), lastBlsPayRecord.getId(), refundAmount, refundRecord.getId());
         } catch (WxPayException e) {
             throw new RuntimeException(e);
         }
@@ -279,6 +275,13 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         return true;
     }
 
+    @Override
+    public List<BlsRefundRecordVo> queryRefundFailiureList() {
+        LambdaQueryWrapper<BlsRefundRecord> lqw = Wrappers.lambdaQuery();
+        lqw.eq(BlsRefundRecord::getRefundStatus, 2); // 2=退款失败
+        return baseMapper.selectVoList(lqw);
+    }
+
     /**
      * 退款成功处理：更新退款记录、完成订单、记钱包流水与余额
      */
@@ -317,26 +320,26 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
      */
     private void notifyMchIfRefundFail(BlsRefundRecord refundRecord, String refundStatus, boolean ifThrowException) {
 
-        Order order = orderService.getById(refundRecord.getOrderId());
+        BlsOrder blsOrder = orderService.getById(refundRecord.getOrderId());
 
         // 退款异常，提示管理员前往微信商户平台处理
         if(WxPayConstants.RefundStatus.ABNORMAL.equals(refundStatus)){
-            log.error("订单退款异常，请前往微信商户平台处理，订单号：{}", order.getOrderNo());
+            log.error("订单退款异常，请前往微信商户平台处理，订单号：{}", blsOrder.getOrderNo());
             if(ifThrowException) {
                 throw BilliardsException.of(ResultCode.REFUND_ABNORMAL);
             }
             // 发布退款失败事件（异常）
-            eventPublisher.publishEvent(new RefundFailureEvent(this, refundRecord, order, refundStatus));
+            eventPublisher.publishEvent(new RefundFailureEvent(this, refundRecord, blsOrder, refundStatus));
         }
 
         // 退款关闭，但是确实需要退款得话，提示商家操作
         if(WxPayConstants.RefundStatus.CLOSED.equals(refundStatus)){
-            log.warn("订单退款已关闭，请商家手动处理，订单号：{}", order.getOrderNo());
+            log.warn("订单退款已关闭，请商家手动处理，订单号：{}", blsOrder.getOrderNo());
             if(ifThrowException) {
                 throw BilliardsException.of("订单退款已关闭，请商家手动处理还款，可能是商户账号上余额不足，请前往查看，然后再次操作退款");
             }
             // 发布退款失败事件（关闭）
-            eventPublisher.publishEvent(new RefundFailureEvent(this, refundRecord, order, refundStatus));
+            eventPublisher.publishEvent(new RefundFailureEvent(this, refundRecord, blsOrder, refundStatus));
 
         }
 
@@ -344,7 +347,7 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         if(refundRecord.getRefundStatus() == 0){
             refundFail(refundRecord);
             // 发布退款失败事件（失败）
-            eventPublisher.publishEvent(new RefundFailureEvent(this, refundRecord, order, refundStatus));
+            eventPublisher.publishEvent(new RefundFailureEvent(this, refundRecord, blsOrder, refundStatus));
         }
     }
 }

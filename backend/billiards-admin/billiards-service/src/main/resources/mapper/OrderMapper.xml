@@ -3,7 +3,7 @@
 <mapper namespace="org.dromara.billiards.mapper.OrderMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.Order">
+    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.BlsOrder">
         <id column="id" property="id"/>
         <result column="order_no" property="orderNo"/>
         <result column="user_id" property="userId"/>

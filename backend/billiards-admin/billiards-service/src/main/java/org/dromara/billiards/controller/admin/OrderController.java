@@ -2,7 +2,8 @@ package org.dromara.billiards.controller.admin;
 
 import org.dromara.billiards.common.result.Result;
 import org.dromara.billiards.domain.bo.OrderQueryRequest;
-import org.dromara.billiards.domain.entity.Order;
+import org.dromara.billiards.domain.bo.OrderUpdateDto;
+import org.dromara.billiards.domain.entity.BlsOrder;
 import org.dromara.billiards.domain.vo.OrderVO;
 import org.dromara.billiards.convert.OrderConvert;
 import org.dromara.billiards.service.OrderService;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 管理后台订单控制器
@@ -32,7 +35,7 @@ public class OrderController {
     @GetMapping("/list")
     @Operation(summary = "订单列表", description = "分页查询订单列表")
     public Result<IPage<OrderVO>> list(OrderQueryRequest request) {
-        IPage<Order> orderPage = orderService.pageAdminOrders(request);
+        IPage<BlsOrder> orderPage = orderService.pageAdminOrders(request);
         return Result.success(orderConvert.toVoPage(orderPage));
     }
 
@@ -51,8 +54,8 @@ public class OrderController {
      */
     @PostMapping("/{orderId}/end")
     @Operation(summary = "结束订单", description = "手动结束订单")
-    public Result<Boolean> endOrder(@PathVariable("orderId") String orderId) {
-        orderService.endAdminOrder(orderId);
+    public Result<Boolean> endOrder(@PathVariable("orderId") String orderId, @RequestBody OrderUpdateDto updateDto) {
+        orderService.endAdminOrder(orderId, updateDto);
         return Result.success(true);
     }
 
@@ -77,13 +80,13 @@ public class OrderController {
     }
 
     /**
-     * 获取门店当日订单数据统计
+     * 获取门店进行中订单数据统计
      */
-    @GetMapping("/statistics/store")
-    @Operation(summary = "门店订单统计", description = "获取门店当日订单数据统计")
-    public Result<Object> getStoreStatistics(@RequestParam String storeId) {
-        // TODO: 实现门店订单统计功能
-        return Result.success("需要实现门店订单统计功能");
+    @GetMapping("/listOngoingOrders")
+    @Operation(summary = "门店订单统计", description = "获取门店进行中订单数据统计")
+    public Result<List<OrderVO>> listOngoingOrders(@RequestParam(value = "storeId", required = false) String storeId) {
+        List<OrderVO> orderVOList = orderService.listOngoingOrders(storeId);
+        return Result.success(orderVOList);
     }
 
     /**
@@ -94,5 +97,15 @@ public class OrderController {
     public Result<Object> getSystemStatistics() {
         // TODO: 实现系统订单统计功能
         return Result.success("需要实现系统订单统计功能");
+    }
+
+    /**
+     * 获取订单金额修改（实际消费金额）
+     */
+    @PostMapping("/{orderId}/changeOrderAmount")
+    @Operation(summary = "订单金额修改", description = "订单金额修改")
+    public Result<Void> changeOrderAmount(@PathVariable ("orderId") String orderId, @RequestBody OrderUpdateDto updateDto) {
+        orderService.changeOrderAmount(orderId, updateDto);
+        return Result.success();
     }
 }

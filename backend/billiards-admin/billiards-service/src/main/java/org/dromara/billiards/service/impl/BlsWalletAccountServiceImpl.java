@@ -1,13 +1,13 @@
 package org.dromara.billiards.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.constant.TransTypeEnum;
 import org.dromara.billiards.domain.bo.BlsWalletAccountBo;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
-import org.dromara.billiards.domain.entity.PayRecord;
+import org.dromara.billiards.domain.entity.BlsPayRecord;
+import org.dromara.billiards.domain.entity.BlsWalletTransaction;
 import org.dromara.billiards.domain.vo.BlsWalletAccountVo;
 import org.dromara.billiards.service.IBlsWalletTransactionService;
 import org.dromara.common.core.utils.MapstructUtils;
@@ -175,11 +175,11 @@ public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
     }
 
     @Override
-    public BlsWalletAccount initWalletAccount(Long userId, BigDecimal initialBalance) {
+    public BlsWalletAccount initWalletAccount(Long userId) {
         // 初始化一条钱包记录
         BlsWalletAccount account = new BlsWalletAccount();
         account.setUserId(userId);
-        account.setBalance(initialBalance != null ? initialBalance : BigDecimal.ZERO);
+        account.setBalance(BigDecimal.ZERO);
         account.setTotalRecharge(BigDecimal.ZERO);
         account.setTotalRefund(BigDecimal.ZERO);
         account.setRemark("初始化钱包账户");
@@ -196,7 +196,12 @@ public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
         }
         LambdaQueryWrapper<BlsWalletAccount> lqw = Wrappers.lambdaQuery();
         lqw.eq(BlsWalletAccount::getUserId, userId);
-        return baseMapper.selectOne(lqw);
+        BlsWalletAccount walletAccount = baseMapper.selectOne(lqw);
+        if (walletAccount == null) {
+            // 如果没有钱包账户，初始化一个
+            walletAccount = initWalletAccount(userId);
+        }
+        return walletAccount;
     }
 
     @Override
@@ -222,11 +227,11 @@ public class BlsWalletAccountServiceImpl implements IBlsWalletAccountService {
     }
 
     @Override
-    public BlsWalletAccount updateWalletBalanceAndWalletTransaction(PayRecord payRecord) {
+    public BlsWalletAccount updateWalletBalanceAndWalletTransaction(BlsPayRecord blsPayRecord) {
         // 新增钱包流水记录 BlsWalletTransaction
-        walletTransactionService.addWalletTransaction(payRecord.getUserId(), payRecord.getAmount(), payRecord.getId(), payRecord.getTransactionId(), payRecord.getRemark(), TransTypeEnum.RECHARGE);
+        walletTransactionService.addWalletTransaction(blsPayRecord.getUserId(), blsPayRecord.getAmount(), blsPayRecord.getId(), blsPayRecord.getTransactionId(), blsPayRecord.getRemark(), TransTypeEnum.RECHARGE);
 
         // 更新钱包 BlsWalletAccount
-        return updateWalletBalance(payRecord.getUserId(), payRecord.getAmount().negate());
+        return updateWalletBalance(blsPayRecord.getUserId(), blsPayRecord.getAmount().negate());
     }
 }

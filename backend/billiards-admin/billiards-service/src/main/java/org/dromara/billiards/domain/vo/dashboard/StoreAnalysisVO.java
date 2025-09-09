@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class StoreAnalysisVO {
 
     @Schema(description = "门店ID")
-    private Long storeId;
+    private String storeId;
 
     @Schema(description = "门店名称")
     private String storeName;

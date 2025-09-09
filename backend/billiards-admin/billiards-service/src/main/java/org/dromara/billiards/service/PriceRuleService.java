@@ -1,6 +1,6 @@
 package org.dromara.billiards.service;
 
-import org.dromara.billiards.domain.entity.PriceRule;
+import org.dromara.billiards.domain.entity.BlsPriceRule;
 import org.dromara.billiards.domain.bo.PriceRuleDto;
 import org.dromara.billiards.domain.vo.PriceRulePreviewVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -12,21 +12,21 @@ import java.util.List;
 /**
  * 计费规则服务接口
  */
-public interface PriceRuleService extends IService<PriceRule> {
+public interface PriceRuleService extends IService<BlsPriceRule> {
 
     /**
      * 获取计费规则详情
      * @param id 规则ID
      * @return 计费规则信息
      */
-    PriceRule getPriceRuleInfo(String id);
+    BlsPriceRule getPriceRuleInfo(String id);
 
     /**
      * 创建计费规则
      * @param priceRuleDto 计费规则对象
      * @return 是否成功
      */
-    PriceRule createPriceRule(PriceRuleDto priceRuleDto);
+    BlsPriceRule createPriceRule(PriceRuleDto priceRuleDto);
 
     /**
      * 更新计费规则
@@ -34,7 +34,7 @@ public interface PriceRuleService extends IService<PriceRule> {
      * @param priceRuleDto 计费规则对象
      * @return 是否成功
      */
-    PriceRule updatePriceRule(String id, PriceRuleDto priceRuleDto);
+    BlsPriceRule updatePriceRule(String id, PriceRuleDto priceRuleDto);
 
     /**
      * 删除计费规则
@@ -55,14 +55,14 @@ public interface PriceRuleService extends IService<PriceRule> {
      * 获取商家所有计费规则
      * @return 计费规则列表
      */
-    List<PriceRule> listPriceRules();
+    List<BlsPriceRule> listPriceRules();
 
     /**
      * 获取商家计费规则
      * @param merchantId 商户id
      * @return 计费规则列表
      */
-    List<PriceRule> listPriceRulesByMerchantId(String merchantId, int ruleType);
+    List<BlsPriceRule> listPriceRulesByMerchantId(String merchantId, int ruleType);
 
     /**
      * 计算费用

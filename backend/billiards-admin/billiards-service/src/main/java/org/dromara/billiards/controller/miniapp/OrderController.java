@@ -4,7 +4,7 @@ import org.dromara.billiards.common.result.ApiResult;
 import org.dromara.billiards.convert.OrderConvert;
 import org.dromara.billiards.domain.bo.CreateOrderRequest;
 import org.dromara.billiards.domain.bo.OrderQueryRequest;
-import org.dromara.billiards.domain.entity.Order;
+import org.dromara.billiards.domain.entity.BlsOrder;
 import org.dromara.billiards.domain.vo.OrderVO;
 import org.dromara.billiards.service.OrderService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -38,8 +38,8 @@ public class OrderController {
     @PostMapping("/create")
     @Operation(summary = "创建订单", description = "开始使用桌台，创建新订单")
     public R<OrderVO> createOrder(@Validated @RequestBody CreateOrderRequest request) {
-        Order order = orderService.createOrder(request.getTableId(), request.getChannel());
-        return ApiResult.success(orderConvert.toVo(order));
+        BlsOrder blsOrder = orderService.createOrder(request.getTableId(), request.getChannel());
+        return ApiResult.success(orderConvert.toVo(blsOrder));
     }
 
     /**
@@ -67,8 +67,8 @@ public class OrderController {
     @PostMapping("/{orderId}/end")
     @Operation(summary = "结束订单", description = "结束使用，生成最终费用")
     public R<OrderVO> endOrder(@PathVariable String orderId) {
-        Order endedOrder = orderService.endUserOrder(orderId);
-        return ApiResult.success(orderConvert.toVo(endedOrder));
+        BlsOrder endedBlsOrder = orderService.endUserOrder(orderId);
+        return ApiResult.success(orderConvert.toVo(endedBlsOrder));
     }
 
     /**
@@ -77,8 +77,8 @@ public class OrderController {
     @GetMapping("/calculate")
     @Operation(summary = "计算实时金额", description = "计算订单当前实时金额")
     public R<OrderVO> calculateAmount(@Parameter(description = "订单ID", required = true) @RequestParam String orderId) {
-        Order order = orderService.calculateCurrentAmount(orderId);
-        return ApiResult.success(orderConvert.toVo(order));
+        BlsOrder blsOrder = orderService.calculateCurrentAmount(orderId);
+        return ApiResult.success(orderConvert.toVo(blsOrder));
     }
 
     /**

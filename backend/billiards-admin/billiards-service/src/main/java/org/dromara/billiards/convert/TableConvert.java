@@ -1,6 +1,6 @@
 package org.dromara.billiards.convert;
 
-import org.dromara.billiards.domain.entity.Table;
+import org.dromara.billiards.domain.entity.BlsTable;
 import org.dromara.billiards.domain.bo.TableDto;
 import org.dromara.billiards.domain.vo.TableVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -16,15 +16,15 @@ public interface TableConvert {
 
     TableConvert INSTANCE = Mappers.getMapper(TableConvert.class);
 
-    TableVO toVo(Table table);
+    TableVO toVo(BlsTable blsTable);
 
-    List<TableVO> toVoList(List<Table> tableList);
+    List<TableVO> toVoList(List<BlsTable> blsTableList);
 
-    Table toEntity(TableDto requestDto);
+    BlsTable toEntity(TableDto requestDto);
 
-    void updateEntityFromDto(TableDto requestDto, @MappingTarget Table table);
+    void updateEntityFromDto(TableDto requestDto, @MappingTarget BlsTable blsTable);
 
-    default IPage<TableVO> toVoPage(IPage<Table> entityPage) {
+    default IPage<TableVO> toVoPage(IPage<BlsTable> entityPage) {
         if (entityPage == null) {
             return null;
         }

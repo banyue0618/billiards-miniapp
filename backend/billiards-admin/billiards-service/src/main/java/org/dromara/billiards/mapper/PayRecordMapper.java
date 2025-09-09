@@ -2,7 +2,7 @@ package org.dromara.billiards.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import org.dromara.billiards.domain.entity.PayRecord;
+import org.dromara.billiards.domain.entity.BlsPayRecord;
 
 /**
  * 充值支付记录 Mapper 接口
@@ -11,5 +11,5 @@ import org.dromara.billiards.domain.entity.PayRecord;
  * @date 2024-07-02
  */
 @Mapper
-public interface PayRecordMapper extends BaseMapper<PayRecord> {
+public interface PayRecordMapper extends BaseMapper<BlsPayRecord> {
 }

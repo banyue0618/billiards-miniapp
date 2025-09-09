@@ -118,7 +118,6 @@ public class BlsWalletTransactionServiceImpl implements IBlsWalletTransactionSer
      * 保存前的数据校验
      */
     private void validEntityBeforeSave(BlsWalletTransaction entity){
-        //TODO 做一些数据校验,如唯一约束
     }
 
     /**

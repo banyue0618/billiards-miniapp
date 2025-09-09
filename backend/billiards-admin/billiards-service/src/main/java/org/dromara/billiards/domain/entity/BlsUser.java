@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_user")
-public class User extends BilliardsBaseEntity {
+public class BlsUser extends BilliardsBaseEntity {
 
     /**
      * 用户ID

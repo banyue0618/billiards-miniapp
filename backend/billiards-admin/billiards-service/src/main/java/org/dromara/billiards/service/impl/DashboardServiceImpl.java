@@ -1,5 +1,6 @@
 package org.dromara.billiards.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.mapper.DashboardMapper;
@@ -37,6 +38,10 @@ public class DashboardServiceImpl implements DashboardService {
             LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
 
+            if(CollectionUtil.isEmpty(request.getStoreIds())){
+
+            }
+
             // 获取今日和昨日的营收数据
             vo.setTodayRevenue(dashboardMapper.calculateDailyRevenue(today, request.getStoreIds()));
             vo.setYesterdayRevenue(dashboardMapper.calculateDailyRevenue(yesterday, request.getStoreIds()));
@@ -45,13 +50,22 @@ public class DashboardServiceImpl implements DashboardService {
             vo.setTodayOrderCount(dashboardMapper.countDailyOrders(today, request.getStoreIds()));
             vo.setYesterdayOrderCount(dashboardMapper.countDailyOrders(yesterday, request.getStoreIds()));
 
+            // 获取总桌台和使用中桌台数量
+            vo.setTotalTables(dashboardMapper.countTotalTables(request.getStoreIds()));
+            vo.setActiveTables(dashboardMapper.countActiveTables(request.getStoreIds()));
+
+            // 获取今日和昨日的平均使用时长
+            vo.setAvgUsageTime(dashboardMapper.calculateAverageUsageTime(today, request.getStoreIds()));
+            vo.setYesterdayAvgUsageTime(dashboardMapper.calculateAverageUsageTime(yesterday, request.getStoreIds()));
+
+
             // 获取今日和昨日的桌台使用率
-            vo.setTodayTableUsageRate(dashboardMapper.calculateDailyTableUsageRate(today, request.getStoreIds()));
-            vo.setYesterdayTableUsageRate(dashboardMapper.calculateDailyTableUsageRate(yesterday, request.getStoreIds()));
+//            vo.setTodayTableUsageRate(dashboardMapper.calculateDailyTableUsageRate(today, request.getStoreIds()));
+//            vo.setYesterdayTableUsageRate(dashboardMapper.calculateDailyTableUsageRate(yesterday, request.getStoreIds()));
 
             // 获取今日和昨日的新增会员数
-            vo.setTodayNewMembers(dashboardMapper.countDailyNewMembers(today, request.getStoreIds()));
-            vo.setYesterdayNewMembers(dashboardMapper.countDailyNewMembers(yesterday, request.getStoreIds()));
+//            vo.setTodayNewMembers(dashboardMapper.countDailyNewMembers(today, request.getStoreIds()));
+//            vo.setYesterdayNewMembers(dashboardMapper.countDailyNewMembers(yesterday, request.getStoreIds()));
 
             log.info("仪表盘概览数据获取成功");
         } catch (Exception e) {
@@ -259,13 +273,46 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
+    public RevenueTrendVO getRevenueTrend(DashboardQueryRequest request) {
+        log.info("开始获取营收趋势数据, 查询参数: {}", request);
+        RevenueTrendVO vo = new RevenueTrendVO();
+        try {
+            List<String> xAxis = new ArrayList<>();
+            List<BigDecimal> revenueSeries = new ArrayList<>();
+            List<Integer> orderSeries = new ArrayList<>();
+
+            LocalDate start = request.getStartDate() == null ? LocalDate.now() : request.getStartDate();
+            LocalDate end = request.getEndDate() == null ? start : request.getEndDate();
+            String type = request.getChartType();
+
+            LocalDate cur = start;
+            while (!cur.isAfter(end)) {
+                xAxis.add(formatDate(cur, type));
+                revenueSeries.add(dashboardMapper.calculateDailyRevenue(cur, request.getStoreIds()));
+                orderSeries.add(dashboardMapper.countDailyOrders(cur, request.getStoreIds()));
+                cur = updateDate(cur, type);
+            }
+
+            vo.setXAxis(xAxis);
+            vo.setRevenueSeries(revenueSeries);
+            vo.setOrderSeries(orderSeries);
+
+            log.info("营收趋势数据获取成功");
+        } catch (Exception e) {
+            log.error("获取营收趋势数据失败", e);
+            throw new RuntimeException("获取营收趋势数据失败", e);
+        }
+        return vo;
+    }
+
+    @Override
     public StoreAnalysisVO getStoreAnalysis() {
         log.info("开始获取门店分析数据");
         StoreAnalysisVO vo = new StoreAnalysisVO();
         try {
             // TODO: 实现门店分析逻辑
             // 这里暂时返回模拟数据
-            vo.setStoreId(1L);
+            vo.setStoreId("1");
             vo.setStoreName("示例门店");
             vo.setCurrentRevenue(BigDecimal.valueOf(10000));
             vo.setRevenueRank(1);

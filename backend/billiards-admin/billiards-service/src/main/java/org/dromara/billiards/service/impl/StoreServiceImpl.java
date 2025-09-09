@@ -1,12 +1,11 @@
 package org.dromara.billiards.service.impl;
 
 import org.dromara.billiards.common.constant.BilliardsConstants;
-import org.dromara.billiards.common.constant.TableTypeEnum;
+import org.dromara.billiards.domain.entity.BlsPriceRule;
+import org.dromara.billiards.domain.entity.BlsStore;
+import org.dromara.billiards.domain.entity.BlsTable;
 import org.dromara.billiards.mapper.StoreMapper;
 import org.dromara.billiards.mapper.TableMapper;
-import org.dromara.billiards.domain.entity.PriceRule;
-import org.dromara.billiards.domain.entity.Store;
-import org.dromara.billiards.domain.entity.Table;
 import org.dromara.billiards.domain.vo.NearbyStoreVO;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -32,8 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.dromara.billiards.domain.bo.StatusRequest;
 import org.dromara.system.domain.vo.SysDictDataVo;
 import org.dromara.system.service.ISysDictTypeService;
-import org.dromara.billiards.mapper.PriceRuleMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.dromara.billiards.common.result.ResultCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -46,7 +45,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
-public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements StoreService {
+public class StoreServiceImpl extends ServiceImpl<StoreMapper, BlsStore> implements StoreService {
 
     @Autowired
     private TableMapper tableMapper;
@@ -70,53 +69,53 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Store createStore(StoreDto storeDto) {
-        Store storeToSave = storeConvert.toEntity(storeDto);
-        this.save(storeToSave);
-        return storeToSave;
+    public BlsStore createStore(StoreDto storeDto) {
+        BlsStore blsStoreToSave = storeConvert.toEntity(storeDto);
+        this.save(blsStoreToSave);
+        return blsStoreToSave;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Store updateStore(String id, StoreDto storeDto) {
+    public BlsStore updateStore(String id, StoreDto storeDto) {
 
-        Store existingStore = this.getById(id);
-        if (existingStore == null) {
+        BlsStore existingBlsStore = this.getById(id);
+        if (existingBlsStore == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "门店不存在，无法更新");
         }
 
-        storeConvert.updateStoreFromDto(storeDto, existingStore);
-        boolean success = this.updateById(existingStore);
+        storeConvert.updateStoreFromDto(storeDto, existingBlsStore);
+        boolean success = this.updateById(existingBlsStore);
         if (!success) {
             throw BilliardsException.of(ResultCode.ERROR, "更新门店信息失败");
         }
-        return existingStore;
+        return existingBlsStore;
     }
 
     @Override
-    public Store getStoreInfo(String id) {
-        Store store = this.getById(id);
-        if (store == null) {
+    public BlsStore getStoreInfo(String id) {
+        BlsStore blsStore = this.getById(id);
+        if (blsStore == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "门店不存在");
         }
-        return store;
+        return blsStore;
     }
 
     @Override
     public NearbyStoreVO getStoreInfo(String id, BigDecimal latitude, BigDecimal longitude) {
-        Store store = getStoreInfo(id);
+        BlsStore blsStore = getStoreInfo(id);
         // 计算距离
         double distanceMeters = DistanceCalculateOfVincentyUtil.getDistance(
             latitude.doubleValue(), longitude.doubleValue(),
-            store.getLatitude().doubleValue(), store.getLongitude().doubleValue()
+            blsStore.getLatitude().doubleValue(), blsStore.getLongitude().doubleValue()
         );
         // 转换为公里进行比较
         double distanceKm = distanceMeters / 1000.0;
         // 使用提取的通用方法构建VO
-        NearbyStoreVO nearbyStoreVO = buildNearbyStoreVO(store, distanceKm, null, null, null);
+        NearbyStoreVO nearbyStoreVO = buildNearbyStoreVO(blsStore, distanceKm, null, null, null);
         // 标准计费
-        List<PriceRule> priceRuleList = priceRuleService.listPriceRulesByMerchantId(store.getMerchantId(), 1);
-        List<NearbyStoreVO.PriceVO> priceList = priceRuleList.stream().map(priceRule -> {
+        List<BlsPriceRule> blsPriceRuleList = priceRuleService.listPriceRulesByMerchantId(blsStore.getMerchantId(), 1);
+        List<NearbyStoreVO.PriceVO> priceList = blsPriceRuleList.stream().map(priceRule -> {
             NearbyStoreVO.PriceVO priceVO = new NearbyStoreVO.PriceVO();
             priceVO.setType(priceRule.getName());
             priceVO.setPrice(priceRule.getPriceUnit().multiply(BilliardsConstants.MINUTES_PER_HOUR));
@@ -135,16 +134,16 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
             throw BilliardsException.of(ResultCode.PARAM_ERROR, "ID和状态不能为空");
         }
 
-        Store storeToUpdate = this.getById(request.getId());
-        if (storeToUpdate == null) {
+        BlsStore blsStoreToUpdate = this.getById(request.getId());
+        if (blsStoreToUpdate == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "门店不存在，无法更新状态");
         }
 
-        storeToUpdate.setStatus(request.getStatus());
+        blsStoreToUpdate.setStatus(request.getStatus());
         // Announcement can be null/empty, allow clearing it if client sends null/empty string
-        storeToUpdate.setAnnouncement(request.getAnnouncement());
+        blsStoreToUpdate.setAnnouncement(request.getAnnouncement());
 
-        boolean success = this.updateById(storeToUpdate);
+        boolean success = this.updateById(blsStoreToUpdate);
         if (!success) {
             throw BilliardsException.of(ResultCode.ERROR, "更新门店状态和公告失败");
         }
@@ -157,8 +156,8 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
             return 0L;
         }
 
-        LambdaQueryWrapper<Table> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Table::getStoreId, storeId);
+        LambdaQueryWrapper<BlsTable> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlsTable::getStoreId, storeId);
 
         return tableMapper.selectCount(queryWrapper);
     }
@@ -172,8 +171,9 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
 
         // 先删除门店下的所有桌台
         Arrays.stream(ids).forEach(id -> {
-            LambdaQueryWrapper<Table> tableQueryWrapper = new LambdaQueryWrapper<>();
-            tableQueryWrapper.eq(Table::getStoreId, id);
+            // 商户越权校验（仅当会话绑定了商户时收敛）
+            LambdaQueryWrapper<BlsTable> tableQueryWrapper = new LambdaQueryWrapper<>();
+            tableQueryWrapper.eq(BlsTable::getStoreId, id);
             tableMapper.delete(tableQueryWrapper);
         });
 
@@ -204,13 +204,13 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
         BigDecimal minLon = BigDecimal.valueOf(bbox[2]);
         BigDecimal maxLon = BigDecimal.valueOf(bbox[3]);
 
-        LambdaQueryWrapper<Store> storeQuery = new LambdaQueryWrapper<>();
-        storeQuery.isNotNull(Store::getLatitude)
-            .isNotNull(Store::getLongitude)
-            .between(Store::getLatitude, minLat, maxLat)
-            .between(Store::getLongitude, minLon, maxLon);
-        List<Store> candidateStores = this.list(storeQuery);
-        if (candidateStores.isEmpty()) {
+        LambdaQueryWrapper<BlsStore> storeQuery = new LambdaQueryWrapper<>();
+        storeQuery.isNotNull(BlsStore::getLatitude)
+            .isNotNull(BlsStore::getLongitude)
+            .between(BlsStore::getLatitude, minLat, maxLat)
+            .between(BlsStore::getLongitude, minLon, maxLon);
+        List<BlsStore> candidateBlsStores = this.list(storeQuery);
+        if (candidateBlsStores.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -218,11 +218,11 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
         Map<String, List<SysDictDataVo>> dictDataMap = dictTypeService.selectDictDataByType(DICT_TYPE_STORE_BUSINESS_STATUS, DICT_TYPE_TABLE_STATUS);
 
         // 预聚合桌台统计，避免 N+1 查询
-        List<String> storeIds = candidateStores.stream().map(Store::getId).filter(Objects::nonNull).toList();
+        List<String> storeIds = candidateBlsStores.stream().map(BlsStore::getId).filter(Objects::nonNull).toList();
         Map<String, Integer> storeIdToTotalTables = new HashMap<>();
         Map<String, Integer> storeIdToAvailableTables = new HashMap<>();
         if (!storeIds.isEmpty()) {
-            QueryWrapper<Table> tableAggQw = new QueryWrapper<>();
+            QueryWrapper<BlsTable> tableAggQw = new QueryWrapper<>();
             tableAggQw.select("store_id as storeId",
                 "COUNT(*) as total",
                 "SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as available")
@@ -242,21 +242,21 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
 
         // 以商户维度预取标准计费最低单价
         Map<String, BigDecimal> merchantMinPriceUnitPerMinute = new HashMap<>();
-        Set<String> merchantIds = candidateStores.stream()
-            .map(Store::getMerchantId)
+        Set<String> merchantIds = candidateBlsStores.stream()
+            .map(BlsStore::getMerchantId)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
         for (String merchantId : merchantIds) {
-            List<PriceRule> priceRules = priceRuleService.listPriceRulesByMerchantId(merchantId, 1);
-            if (priceRules == null || priceRules.isEmpty()) continue;
+            List<BlsPriceRule> blsPriceRules = priceRuleService.listPriceRulesByMerchantId(merchantId, 1);
+            if (blsPriceRules == null || blsPriceRules.isEmpty()) continue;
 //            BigDecimal minUnit = priceRules.stream()
 //                .map(PriceRule::getPriceUnit)
 //                .filter(Objects::nonNull)
 //                .min(Comparator.naturalOrder())
 //                .orElse(null);
-            BigDecimal minUnit = priceRules.stream()
+            BigDecimal minUnit = blsPriceRules.stream()
                 .filter(r -> r.getPriceUnit() != null)
-                .min(Comparator.comparing(PriceRule::getPriceUnit))
+                .min(Comparator.comparing(BlsPriceRule::getPriceUnit))
                 .map(r -> {
                     BigDecimal discount = r.getMemberDiscount() != null ? r.getMemberDiscount() : BigDecimal.ONE;
                     return r.getPriceUnit().multiply(discount);
@@ -268,7 +268,7 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
         }
 
         // 计算距离、过滤、装配 VO
-        List<NearbyStoreVO> result = candidateStores.stream()
+        List<NearbyStoreVO> result = candidateBlsStores.stream()
             .map(store -> {
                 double meters = DistanceCalculateOfVincentyUtil.getDistanceHaversineMeters(
                     lat, lon,
@@ -297,32 +297,32 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
 
     /**
      * 构建NearbyStoreVO对象
-     * @param store 门店实体
+     * @param blsStore 门店实体
      * @param distanceKm 距离(公里)
      * @param dictDataMap 字典数据(可为null，会自动获取)
      * @return NearbyStoreVO对象
      */
-    private NearbyStoreVO buildNearbyStoreVO(Store store, double distanceKm, Map<String, List<SysDictDataVo>> dictDataMap, Integer totalTables, Integer availableTables) {
+    private NearbyStoreVO buildNearbyStoreVO(BlsStore blsStore, double distanceKm, Map<String, List<SysDictDataVo>> dictDataMap, Integer totalTables, Integer availableTables) {
         NearbyStoreVO vo = new NearbyStoreVO();
 
         // 基本信息
-        vo.setId(store.getId());
-        vo.setName(store.getName());
+        vo.setId(blsStore.getId());
+        vo.setName(blsStore.getName());
         String coverImageUrl = null;
-        if (StringUtils.isNotBlank(store.getCoverImage())) {
-            coverImageUrl = resourceServiceFactory.getService().getResourceUrl(store.getCoverImage(), ResourceType.STORE_COVER);
+        if (StringUtils.isNotBlank(blsStore.getCoverImage())) {
+            coverImageUrl = resourceServiceFactory.getService().getResourceUrl(blsStore.getCoverImage(), ResourceType.STORE_COVER);
         }
         vo.setCoverImage(coverImageUrl);
         vo.setImages(coverImageUrl != null ? Collections.singletonList(coverImageUrl) : Collections.emptyList());
 
         // 状态信息
-        vo.setStatus(String.valueOf(store.getStatus()));
+        vo.setStatus(String.valueOf(blsStore.getStatus()));
         // 根据是否提供字典数据选择不同的获取方式
         if (dictDataMap != null) {
             // 从提供的字典数据中获取
             String storeStatusLabel = Optional.ofNullable(dictDataMap.get(DICT_TYPE_STORE_BUSINESS_STATUS))
                 .map(dictDataVoList -> dictDataVoList.stream()
-                    .filter(d -> d.getDictValue().equals(String.valueOf(store.getStatus())))
+                    .filter(d -> d.getDictValue().equals(String.valueOf(blsStore.getStatus())))
                     .map(SysDictDataVo::getDictLabel)
                     .findFirst()
                     .orElse("未知状态"))
@@ -334,16 +334,16 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
             vo.setStatusText(dictLabel);
         }
 
-        vo.setBusinessHours(store.getBusinessHours());
+        vo.setBusinessHours(blsStore.getBusinessHours());
 
         // 地址信息
         NearbyStoreVO.AddressVO addressVO = new NearbyStoreVO.AddressVO();
-        addressVO.setProvince(store.getProvince());
-        addressVO.setCity(store.getCity());
-        addressVO.setDistrict(store.getDistrict());
-        addressVO.setStreet(store.getAddress()); // Store.address是街道
-        addressVO.setLatitude(store.getLatitude() != null ? store.getLatitude().doubleValue() : null);
-        addressVO.setLongitude(store.getLongitude() != null ? store.getLongitude().doubleValue() : null);
+        addressVO.setProvince(blsStore.getProvince());
+        addressVO.setCity(blsStore.getCity());
+        addressVO.setDistrict(blsStore.getDistrict());
+        addressVO.setStreet(blsStore.getAddress()); // Store.address是街道
+        addressVO.setLatitude(blsStore.getLatitude() != null ? blsStore.getLatitude().doubleValue() : null);
+        addressVO.setLongitude(blsStore.getLongitude() != null ? blsStore.getLongitude().doubleValue() : null);
         vo.setAddress(addressVO);
 
         // 桌台信息：优先使用预聚合数据，缺失时回退到查询
@@ -352,21 +352,21 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
             tablesInfoVO.setTotal(totalTables);
             tablesInfoVO.setAvailable(availableTables);
         } else {
-            List<Table> tables = tableMapper.selectList(new LambdaQueryWrapper<Table>().eq(Table::getStoreId, store.getId()));
-            Long availableCnt = tables.stream().filter(table -> table.getStatus() != null && table.getStatus() == 0).count();
-            tablesInfoVO.setTotal(tables.size());
+            List<BlsTable> blsTables = tableMapper.selectList(new LambdaQueryWrapper<BlsTable>().eq(BlsTable::getStoreId, blsStore.getId()));
+            Long availableCnt = blsTables.stream().filter(table -> table.getStatus() != null && table.getStatus() == 0).count();
+            tablesInfoVO.setTotal(blsTables.size());
             tablesInfoVO.setAvailable(availableCnt.intValue());
         }
         vo.setTables(tablesInfoVO);
 
 
-        vo.setContactPhone(store.getContactPhone());
+        vo.setContactPhone(blsStore.getContactPhone());
 
         // 公告信息
         NearbyStoreVO.AnnouncementVO announcementVO = new NearbyStoreVO.AnnouncementVO();
-        announcementVO.setContent(store.getAnnouncement());
-        if (store.getUpdateTime() != null) {
-            announcementVO.setUpdateTime(store.getUpdateTime().format(DateTimeFormatter.ofPattern(FormatsType.YYYY_MM_DD_HH_MM_SS.getTimeFormat())));
+        announcementVO.setContent(blsStore.getAnnouncement());
+        if (blsStore.getUpdateTime() != null) {
+            announcementVO.setUpdateTime(blsStore.getUpdateTime().format(DateTimeFormatter.ofPattern(FormatsType.YYYY_MM_DD_HH_MM_SS.getTimeFormat())));
         }
         vo.setAnnouncement(announcementVO);
 
@@ -391,13 +391,14 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
     // 逐步迁移至公共工具，无需保留内部实现
 
     @Override
-    public IPage<Store> pageStores(StoreQueryRequest request) {
-        Page<Store> pageParam = new Page<>(request.getPage(), request.getSize());
-        LambdaQueryWrapper<Store> queryWrapper = new LambdaQueryWrapper<>();
+    public IPage<BlsStore> pageStores(StoreQueryRequest request) {
+        Page<BlsStore> pageParam = new Page<>(request.getPage(), request.getSize());
+        LambdaQueryWrapper<BlsStore> queryWrapper = new LambdaQueryWrapper<>();
 
-        queryWrapper.like(StringUtils.isNotBlank(request.getName()), Store::getName, request.getName());
-        queryWrapper.eq(request.getStatus() != null, Store::getStatus, request.getStatus());
-        queryWrapper.orderByDesc(Store::getCreateTime);
+        queryWrapper.like(StringUtils.isNotBlank(request.getName()), BlsStore::getName, request.getName());
+        queryWrapper.eq(request.getStatus() != null, BlsStore::getStatus, request.getStatus());
+        // 可选商户范围过滤
+        queryWrapper.orderByDesc(BlsStore::getCreateTime);
 
         return this.page(pageParam, queryWrapper);
     }
@@ -405,8 +406,13 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteStore(String id) {
-        LambdaQueryWrapper<Table> tableQueryWrapper = new LambdaQueryWrapper<>();
-        tableQueryWrapper.eq(Table::getStoreId, id);
+        LambdaQueryWrapper<BlsTable> tableQueryWrapper = new LambdaQueryWrapper<>();
+        tableQueryWrapper.eq(BlsTable::getStoreId, id);
+        // 商户越权校验（仅当会话绑定了商户时收敛）
+        BlsStore store = this.getById(id);
+        if (store == null) {
+            throw BilliardsException.of(ResultCode.NOT_FOUND, "门店不存在");
+        }
         tableMapper.delete(tableQueryWrapper);
         boolean success = this.removeById(id);
         if (!success) {
@@ -416,30 +422,31 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, Store> implements
     }
 
     @Override
-    public List<Store> listAvailableStores() {
-        LambdaQueryWrapper<Store> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Store::getStatus, 0); // 仅返回正常营业的门店
-        queryWrapper.orderByDesc(Store::getCreateTime);
+    public List<BlsStore> listAvailableStores() {
+        LambdaQueryWrapper<BlsStore> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlsStore::getStatus, 0); // 仅返回正常营业的门店
+        queryWrapper.orderByDesc(BlsStore::getCreateTime);
         return this.list(queryWrapper);
     }
 
     @Override
-    public IPage<Store> pageAvailableStores(StoreQueryRequest request) {
-        Page<Store> pageParam = new Page<>(request.getPage(), request.getSize());
-        LambdaQueryWrapper<Store> queryWrapper = new LambdaQueryWrapper<>();
+    public IPage<BlsStore> pageAvailableStores(StoreQueryRequest request) {
+        Page<BlsStore> pageParam = new Page<>(request.getPage(), request.getSize());
+        LambdaQueryWrapper<BlsStore> queryWrapper = new LambdaQueryWrapper<>();
 
-        queryWrapper.eq(Store::getStatus, 0); // 仅返回正常营业的门店
+        queryWrapper.eq(BlsStore::getStatus, 0); // 仅返回正常营业的门店
 
         // 添加关键词搜索 (如果 StoreQueryRequest 有 keyword 字段)
         if (StringUtils.isNotBlank(request.getKeyword())) {
-            queryWrapper.and(qw -> qw.like(Store::getName, request.getKeyword())
+            queryWrapper.and(qw -> qw.like(BlsStore::getName, request.getKeyword())
                                  .or()
-                                 .like(Store::getAddress, request.getKeyword()));
+                                 .like(BlsStore::getAddress, request.getKeyword()));
         }
         // TODO: 如果 StoreQueryRequest 还有其他小程序端特定的查询字段，在这里添加
 
-        queryWrapper.orderByDesc(Store::getCreateTime);
+        queryWrapper.orderByDesc(BlsStore::getCreateTime);
 
         return this.page(pageParam, queryWrapper);
     }
 }
+

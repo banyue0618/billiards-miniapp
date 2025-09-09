@@ -2,8 +2,8 @@ package org.dromara.billiards.service.pricing.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.dromara.billiards.domain.entity.Order;
-import org.dromara.billiards.domain.entity.PriceRule;
+import org.dromara.billiards.domain.entity.BlsOrder;
+import org.dromara.billiards.domain.entity.BlsPriceRule;
 import org.dromara.billiards.service.pricing.PricingResult;
 import org.dromara.billiards.service.pricing.PricingStrategy;
 import org.dromara.common.json.utils.JsonUtils;
@@ -21,43 +21,43 @@ import java.util.Map;
 @Slf4j
 public class LadderPricingStrategy implements PricingStrategy {
     @Override
-    public PricingResult calculatePrice(Order order, PriceRule priceRule, int minutes, boolean isMember) {
+    public PricingResult calculatePrice(BlsOrder blsOrder, BlsPriceRule blsPriceRule, int minutes, boolean isMember) {
         PricingResult result = new PricingResult();
 
         try {
             // 计算阶梯价格
-            BigDecimal amount = calculateLadderAmount(priceRule, minutes, isMember);
+            BigDecimal amount = calculateLadderAmount(blsPriceRule, minutes, isMember);
 
             // 设置结果
             result.setOriginalAmount(amount);
             result.setDiscountAmount(BigDecimal.ZERO); // 这里可以扩展增加其他折扣逻辑
-            result.setActualAmount(calculateActualAmount(priceRule.getMaxPrice(), amount));
+            result.setActualAmount(calculateActualAmount(blsPriceRule.getMaxPrice(), amount));
 
         } catch (Exception e) {
             log.error("计算阶梯价格出错", e);
             // 出错时使用基础单价计算
-            BigDecimal amount = priceRule.getPriceUnit().multiply(new BigDecimal(minutes))
+            BigDecimal amount = blsPriceRule.getPriceUnit().multiply(new BigDecimal(minutes))
                 .setScale(2, RoundingMode.HALF_UP);
             result.setOriginalAmount(amount);
             result.setActualAmount(amount);
         }
 
-        result.setPriceUnit(priceRule.getPriceUnit());
-        result.setMemberPrice(priceRule.getMemberPrice());
-        result.setLadderRules(priceRule.getLadderRules());
-        result.setMemberDiscount(priceRule.getMemberDiscount());
+        result.setPriceUnit(blsPriceRule.getPriceUnit());
+        result.setMemberPrice(blsPriceRule.getMemberPrice());
+        result.setLadderRules(blsPriceRule.getLadderRules());
+        result.setMemberDiscount(blsPriceRule.getMemberDiscount());
 
         return result;
     }
 
     /**
      * 计算阶梯价格
-     * @param priceRule 价格规则
+     * @param blsPriceRule 价格规则
      * @param minutes 使用分钟数
      * @param isMember 是否是会员
      * @return 计算后的金额
      */
-    private BigDecimal calculateLadderAmount(PriceRule priceRule, int minutes, boolean isMember) {
+    private BigDecimal calculateLadderAmount(BlsPriceRule blsPriceRule, int minutes, boolean isMember) {
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         // 从规则中解析阶梯价格设置
@@ -66,10 +66,10 @@ public class LadderPricingStrategy implements PricingStrategy {
         //  {"startMinute":60,"endMinute":120,"price":0.4,"memberPrice":0.3},
         //  {"startMinute":120,"endMinute":-1,"price":0.3,"memberPrice":0.2}]
 
-        String ladderRulesJson = priceRule.getLadderRules();
+        String ladderRulesJson = blsPriceRule.getLadderRules();
         if (StringUtils.isBlank(ladderRulesJson)) {
             // 如果没有设置阶梯规则，则使用基础单价
-            return priceRule.getPriceUnit().multiply(new BigDecimal(minutes));
+            return blsPriceRule.getPriceUnit().multiply(new BigDecimal(minutes));
         }
 
         // 解析阶梯规则

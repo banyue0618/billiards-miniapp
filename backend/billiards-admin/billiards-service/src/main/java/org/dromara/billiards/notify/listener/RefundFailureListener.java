@@ -39,8 +39,8 @@ public class RefundFailureListener {
 
         RefundFailureNotice notice = RefundFailureNotice.builder()
             .refundRecordId(event.getRefundRecord().getId())
-            .orderId(event.getOrder().getId())
-            .orderNo(event.getOrder().getOrderNo())
+            .orderId(event.getBlsOrder().getId())
+            .orderNo(event.getBlsOrder().getOrderNo())
             .amount(event.getRefundRecord().getAmount())
             .refundStatus(event.getRefundStatus())
             .reason(event.getRefundRecord().getRemark())

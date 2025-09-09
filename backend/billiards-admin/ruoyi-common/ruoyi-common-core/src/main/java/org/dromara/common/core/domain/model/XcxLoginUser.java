@@ -24,4 +24,9 @@ public class XcxLoginUser extends LoginUser {
      */
     private String openid;
 
+    /**
+     * 是否会员
+     */
+    private Boolean isMember;
+
 }

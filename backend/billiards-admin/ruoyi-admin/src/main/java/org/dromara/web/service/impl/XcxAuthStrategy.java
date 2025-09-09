@@ -14,7 +14,7 @@ import me.zhyd.oauth.request.AuthWechatMiniProgramRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
-import org.dromara.billiards.domain.entity.User;
+import org.dromara.billiards.domain.entity.BlsUser;
 import org.dromara.billiards.service.IBlsWalletAccountService;
 import org.dromara.billiards.service.UserService;
 import org.dromara.common.core.domain.model.XcxLoginBody;
@@ -77,33 +77,31 @@ public class XcxAuthStrategy implements IAuthStrategy {
             throw new ServiceException(resp.getMsg());
         }
         // 框架登录不限制从什么表查询 只要最终构建出 LoginUser 即可
-        User user = billiardsUserService.getByOpenid(openid);
+        BlsUser blsUser = billiardsUserService.getByOpenid(openid);
         boolean isNewUser = false;
-        if(user == null){
+        if(blsUser == null){
             // 构建用户保存的用户信息
-            user = new User();
-            user.setOpenid(openid);
-            user.setNickname(loginBody.getNickname());
-            user.setUserName(loginBody.getNickname());
-            user.setAvatarUrl(loginBody.getAvatarUrl());
-            user.setGender(loginBody.getGender());
-            user.setIsMember(0);
-            user.setMemberLevel(0);
-            user.setPoints(0);
-            user.setStatus(0);
-            user.setLastLoginTime(LocalDateTime.now());
-            if (!billiardsUserService.save(user)) {
+            blsUser = new BlsUser();
+            blsUser.setOpenid(openid);
+            blsUser.setNickname(loginBody.getNickname());
+            blsUser.setUserName(loginBody.getNickname());
+            blsUser.setAvatarUrl(loginBody.getAvatarUrl());
+            blsUser.setGender(loginBody.getGender());
+            blsUser.setIsMember(0);
+            blsUser.setMemberLevel(0);
+            blsUser.setPoints(0);
+            blsUser.setStatus(0);
+            blsUser.setLastLoginTime(LocalDateTime.now());
+            if (!billiardsUserService.save(blsUser)) {
                 throw BilliardsException.of(ResultCode.ERROR, "创建用户失败");
             }
-            // 初始化一条钱包信息
-            walletAccountService.initWalletAccount(user.getId(), BigDecimal.ZERO);
             isNewUser = true;
         }
         // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了
         XcxLoginUser loginUser = new XcxLoginUser();
-        loginUser.setUserId(user.getId());
-        loginUser.setUsername(user.getUserName());
-        loginUser.setNickname(user.getNickname());
+        loginUser.setUserId(blsUser.getId());
+        loginUser.setUsername(blsUser.getUserName());
+        loginUser.setNickname(blsUser.getNickname());
         loginUser.setUserType(UserType.XCX_USER.getUserType());
         loginUser.setClientKey(client.getClientKey());
         loginUser.setDeviceType(client.getDeviceType());
@@ -124,13 +122,13 @@ public class XcxAuthStrategy implements IAuthStrategy {
         loginVo.setExpireIn(StpUtil.getTokenTimeout());
         loginVo.setClientId(client.getClientId());
         loginVo.setOpenid(openid);
-        loginVo.setNickname(user.getNickname());
-        loginVo.setAvatarUrl(user.getAvatarUrl());
+        loginVo.setNickname(blsUser.getNickname());
+        loginVo.setAvatarUrl(blsUser.getAvatarUrl());
         loginVo.setToken(StpUtil.getTokenValue());
         loginVo.setIsNewUser(isNewUser);
-        loginVo.setIsMember(user.getIsMember() != null && user.getIsMember() == 1);
-        loginVo.setMemberLevel(user.getMemberLevel());
-        loginVo.setIsPhoneBound(StringUtils.isNotBlank(user.getPhone()));
+        loginVo.setIsMember(blsUser.getIsMember() != null && blsUser.getIsMember() == 1);
+        loginVo.setMemberLevel(blsUser.getMemberLevel());
+        loginVo.setIsPhoneBound(StringUtils.isNotBlank(blsUser.getPhone()));
         return loginVo;
     }
 }

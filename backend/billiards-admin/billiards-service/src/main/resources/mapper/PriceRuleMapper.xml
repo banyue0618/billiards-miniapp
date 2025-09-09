@@ -3,7 +3,7 @@
 <mapper namespace="org.dromara.billiards.mapper.PriceRuleMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.PriceRule">
+    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.BlsPriceRule">
         <id column="id" property="id"/>
         <result column="merchant_id" property="merchantId"/>
         <result column="name" property="name"/>

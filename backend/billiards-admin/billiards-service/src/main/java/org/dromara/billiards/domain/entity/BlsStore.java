@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_store")
-public class Store extends BilliardsBaseEntity {
+public class BlsStore extends BilliardsBaseEntity {
 
     /**
      * 门店ID

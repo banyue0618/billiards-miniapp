@@ -1,7 +1,7 @@
 package org.dromara.billiards.service.pricing;
 
-import org.dromara.billiards.domain.entity.Order;
-import org.dromara.billiards.domain.entity.PriceRule;
+import org.dromara.billiards.domain.entity.BlsOrder;
+import org.dromara.billiards.domain.entity.BlsPriceRule;
 
 import java.math.BigDecimal;
 
@@ -11,13 +11,13 @@ import java.math.BigDecimal;
 public interface PricingStrategy {
     /**
      * 计算费用
-     * @param order 订单 预留参数，以后考虑删除此参数
-     * @param priceRule 计费规则
+     * @param blsOrder 订单 预留参数，以后考虑删除此参数
+     * @param blsPriceRule 计费规则
      * @param duration 使用分钟数
      * @param isMember 是否是会员
      * @return 计算结果，包含原始金额、折扣金额和实际金额
      */
-    PricingResult calculatePrice(Order order, PriceRule priceRule, int duration, boolean isMember);
+    PricingResult calculatePrice(BlsOrder blsOrder, BlsPriceRule blsPriceRule, int duration, boolean isMember);
 
 
     /**

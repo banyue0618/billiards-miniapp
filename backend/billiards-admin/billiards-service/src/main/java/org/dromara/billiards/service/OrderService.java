@@ -1,6 +1,7 @@
 package org.dromara.billiards.service;
 
-import org.dromara.billiards.domain.entity.Order;
+import org.dromara.billiards.domain.bo.OrderUpdateDto;
+import org.dromara.billiards.domain.entity.BlsOrder;
 // import org.dromara.billiards.model.vo.OrderVO; // 旧的VO，如果不再使用则移除
 import com.baomidou.mybatisplus.core.metadata.IPage;
 // import com.baomidou.mybatisplus.extension.plugins.pagination.Page; // 通常不需要在接口中指定Page实现
@@ -13,20 +14,22 @@ import java.util.List;
 /**
  * 订单服务接口
  */
-public interface OrderService extends IService<Order> {
+public interface OrderService extends IService<BlsOrder> {
 
     /**
      * 分页查询后台订单列表
      * @param request 查询参数
      * @return 订单分页实体列表
      */
-    IPage<Order> pageAdminOrders(OrderQueryRequest request);
+    IPage<BlsOrder> pageAdminOrders(OrderQueryRequest request);
     /**
      * (后台)手动结束订单,防止意外情况发生.
-     * @param orderId 订单ID
+     *
+     * @param orderId   订单ID
+     * @param updateDto
      * @return 是否成功，如果操作失败或订单未找到则抛出异常
      */
-    boolean endAdminOrder(String orderId);
+    boolean endAdminOrder(String orderId, OrderUpdateDto updateDto);
 
     /**
      * (后台)取消订单, 此业务暂时不开放 todo
@@ -40,7 +43,7 @@ public interface OrderService extends IService<Order> {
      * @param tableId 桌台ID
      * @return 订单对象
      */
-    Order createOrder(String tableId, String channel);
+    BlsOrder createOrder(String tableId, String channel);
 
     /**
      * 获取用户当前进行中的订单
@@ -54,7 +57,7 @@ public interface OrderService extends IService<Order> {
      * @param orderId 订单ID
      * @return 当前金额
      */
-    Order calculateCurrentAmount(String orderId);
+    BlsOrder calculateCurrentAmount(String orderId);
 
     /**
      * 判断桌台是否被占用
@@ -77,14 +80,14 @@ public interface OrderService extends IService<Order> {
      * @param orderId 订单ID
      * @return 更新后的订单实体
      */
-    Order endUserOrder(String orderId);
+    BlsOrder endUserOrder(String orderId);
 
     /**
      * (小程序) 分页查询用户订单历史
      * @param queryRequest 查询参数 (包含userId和分页信息)
      * @return 订单分页实体列表
      */
-    IPage<Order> listUserOrders(OrderQueryRequest queryRequest);
+    IPage<BlsOrder> listUserOrders(OrderQueryRequest queryRequest);
 
      /**
      * (小程序) 获取用户当前进行中的订单，并计算实时金额
@@ -96,20 +99,20 @@ public interface OrderService extends IService<Order> {
      * 获取当前用户下正在退款的订单
      * @return
      */
-    Order getRefundingOrder();
+    BlsOrder getRefundingOrder();
 
     /**
      * 完成订单
      * @param orderId 订单ID
      * @return 完成后的订单实体
      */
-    Order completeOrder(String orderId);
+    BlsOrder completeOrder(String orderId);
 
     /**
      * 获取所有进行中的订单
      * @return
      */
-    List<Order> listOngoingOrders();
+    List<BlsOrder> listOngoingOrders();
 
 
     /**
@@ -127,14 +130,27 @@ public interface OrderService extends IService<Order> {
 
     /**
      * 结束订单
-     * @param order
+     * @param blsOrder
      * @return
      */
-    Order endOrder(Order order);
+    BlsOrder endOrder(BlsOrder blsOrder);
 
     /**
      * 管理员手动处理退款失败的订单
      * @param orderId
      */
     void orderRefundByAdmin(String orderId);
+
+    /**
+     * 获取所有进行中的订单
+     * @return
+     */
+    List<OrderVO> listOngoingOrders(String storeId);
+
+    /**
+     * 修改订单金额
+     * @param orderId 订单ID
+     * @param updateDto 更新内容
+     */
+    void changeOrderAmount(String orderId, OrderUpdateDto updateDto);
 }

@@ -4,8 +4,7 @@
   <!-- 头部信息卡片 -->
   <view class="card timer-header">
     <view class="store-info">
-      <text class="store-name">{{order.storeName}}</text>
-      <text class="table-number">{{order.tableNumber}}</text>
+      <text class="store-name">{{order.storeName}} · {{order.tableNumber}}号台</text>
     </view>
     <view class="start-time">
       <text class="time-label">开始时间：</text>

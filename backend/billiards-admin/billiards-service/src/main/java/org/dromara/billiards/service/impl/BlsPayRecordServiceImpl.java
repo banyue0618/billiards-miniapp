@@ -19,8 +19,8 @@ import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
 import org.dromara.billiards.mapper.PayRecordMapper;
 import org.dromara.billiards.domain.bo.PaymentRequest;
-import org.dromara.billiards.domain.entity.PayRecord;
-import org.dromara.billiards.domain.entity.User;
+import org.dromara.billiards.domain.entity.BlsPayRecord;
+import org.dromara.billiards.domain.entity.BlsUser;
 import org.dromara.billiards.service.*;
 import org.dromara.common.pay.service.PayService;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +41,7 @@ import java.util.List;
 @Slf4j
 @Service
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
-public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRecord> implements IBlsPayRecordService {
+public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPayRecord> implements IBlsPayRecordService {
 
     @Resource
     private PayService payService;
@@ -61,11 +61,11 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
 
     @Override
     public String createPayment(PaymentRequest request, String channel) {
-        User user = userService.getUserInfoById();
+        BlsUser user = userService.getUserInfoById();
         log.info("创建支付订单: userId={}, openid={}, amount={}", user.getId(), user.getOpenid(), request.getAmount());
 
         // 创建支付记录
-        PayRecord payRecord = new PayRecord();
+        BlsPayRecord payRecord = new BlsPayRecord();
         payRecord.setId(IdUtil.fastSimpleUUID());
         payRecord.setOpenid(user.getOpenid());
         payRecord.setPayNo(generatePayNo());
@@ -99,7 +99,7 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
         // 调用微信支付接口创建预支付订单
         try {
             // 调用微信支付服务创建jsapi预支付订单，返回支付参数
-            String payParams = payService.jsApiPay(user.getOpenid(), payRecord.getAmount(), payRecord.getId());
+            String payParams = payService.jsApiPay(user.getOpenid(), payRecord.getAmount(), payRecord.getId(), "");
             log.info("创建预支付订单成功，支付参数: {}", payParams);
             return payParams;
         } catch (Exception e) {
@@ -129,8 +129,8 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
             final String outTradeNo = decryptRes.getOutTradeNo(); // 商户订单号
 
             // 查询支付记录
-            PayRecord payRecord = this.getOne(new LambdaQueryWrapper<PayRecord>()
-                .eq(PayRecord::getId, outTradeNo));
+            BlsPayRecord payRecord = this.getOne(new LambdaQueryWrapper<BlsPayRecord>()
+                .eq(BlsPayRecord::getId, outTradeNo));
 
             if (payRecord == null) {
                 log.error("支付回调找不到对应的支付记录: {}", outTradeNo);
@@ -168,27 +168,27 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, PayRec
     }
 
     @Override
-    public PayRecord getLastPayRecord(Long userId) {
+    public BlsPayRecord getLastPayRecord(Long userId) {
         // 根据用户查询最近的一条已支付记录
-        return this.getOne(new LambdaQueryWrapper<PayRecord>()
-            .eq(PayRecord::getUserId, userId)
-            .eq(PayRecord::getPaymentStatus, 1)
-            .orderByDesc(PayRecord::getCreateTime)
+        return this.getOne(new LambdaQueryWrapper<BlsPayRecord>()
+            .eq(BlsPayRecord::getUserId, userId)
+            .eq(BlsPayRecord::getPaymentStatus, 1)
+            .orderByDesc(BlsPayRecord::getCreateTime)
             .last("limit 1"));
     }
 
     @Override
-    public List<PayRecord> queryListWithStatus(PaymentStatus paymentStatus) {
-        LambdaQueryWrapper<PayRecord> lqw = Wrappers.lambdaQuery();
-        lqw.eq(PayRecord::getPaymentStatus, paymentStatus.getCode());
+    public List<BlsPayRecord> queryListWithStatus(PaymentStatus paymentStatus) {
+        LambdaQueryWrapper<BlsPayRecord> lqw = Wrappers.lambdaQuery();
+        lqw.eq(BlsPayRecord::getPaymentStatus, paymentStatus.getCode());
         return baseMapper.selectList(lqw);
     }
 
     @Override
-    public List<PayRecord> queryPayingTimeoutList(LocalDateTime threshold) {
-        LambdaQueryWrapper<PayRecord> lqw = Wrappers.lambdaQuery();
-        lqw.eq(PayRecord::getPaymentStatus, PaymentStatus.UNPAID.getCode())
-            .lt(PayRecord::getCreateTime, threshold);
+    public List<BlsPayRecord> queryPayingTimeoutList(LocalDateTime threshold) {
+        LambdaQueryWrapper<BlsPayRecord> lqw = Wrappers.lambdaQuery();
+        lqw.eq(BlsPayRecord::getPaymentStatus, PaymentStatus.UNPAID.getCode())
+            .lt(BlsPayRecord::getCreateTime, threshold);
         return baseMapper.selectList(lqw);
     }
 

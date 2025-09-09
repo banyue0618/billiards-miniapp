@@ -90,7 +90,16 @@ public class PayService {
         wxService.refundV3(request);
     }
 
-    public String jsApiPay(String openId, BigDecimal amount, String outTradeNo) throws WxPayException {
+    /**
+     *
+     * @param openId 付款用户
+     * @param amount
+     * @param outTradeNo 交易单号
+     * @param wxMchId 收款微信商户id
+     * @return
+     * @throws WxPayException
+     */
+    public String jsApiPay(String openId, BigDecimal amount, String outTradeNo, String wxMchId) throws WxPayException {
 
         WxPayUnifiedOrderV3Request request = new WxPayUnifiedOrderV3Request();
         WxPayUnifiedOrderV3Request.Payer payer = new WxPayUnifiedOrderV3Request.Payer();

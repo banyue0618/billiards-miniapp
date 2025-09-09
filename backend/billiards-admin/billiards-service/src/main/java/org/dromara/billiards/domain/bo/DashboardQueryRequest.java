@@ -15,9 +15,8 @@ import java.util.List;
 public class DashboardQueryRequest {
 
     @Schema(description = "开始日期")
-    @NotNull(message = "开始日期不能为空")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate startDate;
+    private LocalDate startDate = LocalDate.now();
 
     @Schema(description = "结束日期")
     @DateTimeFormat(pattern = "yyyy-MM-dd")

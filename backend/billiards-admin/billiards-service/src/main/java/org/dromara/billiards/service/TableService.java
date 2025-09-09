@@ -3,7 +3,7 @@ package org.dromara.billiards.service;
 import org.dromara.billiards.domain.bo.TableDto;
 import org.dromara.billiards.domain.bo.BatchTableRequest;
 import org.dromara.billiards.domain.bo.TableQueryRequest;
-import org.dromara.billiards.domain.entity.Table;
+import org.dromara.billiards.domain.entity.BlsTable;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.dromara.billiards.domain.vo.TableVO;
@@ -13,27 +13,27 @@ import java.util.List;
 /**
  * 桌台服务接口
  */
-public interface TableService extends IService<Table> {
+public interface TableService extends IService<BlsTable> {
 
     /**
      * 根据门店ID查询桌台列表
      * @param storeId 门店ID
      * @return 桌台列表
      */
-    List<Table> getTablesByStore(String storeId);
+    List<BlsTable> getTablesByStore(String storeId);
 
     /**
      * 创建桌台
      * @param tableDto 桌台信息
      * @return 创建后的桌台实体
      */
-    Table createTable(TableDto tableDto);
+    BlsTable createTable(TableDto tableDto);
 
     /**
      * 更新桌台
-     * @param table 桌台信息
+     * @param blsTable 桌台信息
      */
-    void updateTable(Table table);
+    void updateTable(BlsTable blsTable);
 
     /**
      * 删除桌台
@@ -59,7 +59,7 @@ public interface TableService extends IService<Table> {
      * @param tableQueryRequest 分页参数
      * @return 分页结果
      */
-    IPage<Table> getTablePage(TableQueryRequest tableQueryRequest);
+    IPage<BlsTable> getTablePage(TableQueryRequest tableQueryRequest);
 
     /**
      * 批量创建桌台
@@ -72,14 +72,14 @@ public interface TableService extends IService<Table> {
      * @param qrcodeUrl 二维码URL
      * @return 桌台信息
      */
-    Table getTableByQrcode(String qrcodeUrl);
+    BlsTable getTableByQrcode(String qrcodeUrl);
 
     /**
      * 生成桌台二维码
      * @param tableId 桌台ID
      * @return 桌台信息（含二维码）
      */
-    Table generateQrcode(String tableId);
+    BlsTable generateQrcode(String tableId);
 
     // --- Methods for Miniapp with specific error handling ---
 
@@ -95,14 +95,14 @@ public interface TableService extends IService<Table> {
      * @param qrcodeUrl 二维码URL
      * @return 桌台实体
      */
-    Table getTableInfoByQrcode(String qrcodeUrl);
+    BlsTable getTableInfoByQrcode(String qrcodeUrl);
 
     /**
      * 获取门店桌台列表
      * @param storeId
      * @return
      */
-    List<Table> listTablesByStore(String storeId);
+    List<BlsTable> listTablesByStore(String storeId);
 
     /**
      * 解锁桌台
@@ -117,5 +117,5 @@ public interface TableService extends IService<Table> {
      * @param tableId
      * @return
      */
-    Table lockTable(String tableId);
+    BlsTable lockTable(String tableId);
 }

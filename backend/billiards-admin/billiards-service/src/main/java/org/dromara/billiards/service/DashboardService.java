@@ -3,13 +3,7 @@ package org.dromara.billiards.service;
 import org.dromara.billiards.domain.bo.DashboardQueryRequest;
 import org.dromara.billiards.domain.vo.DashboardChartVO;
 import org.dromara.billiards.domain.vo.DashboardOverviewVO;
-import org.dromara.billiards.domain.vo.dashboard.HourlyAnalysisVO;
-import org.dromara.billiards.domain.vo.dashboard.PriceRuleAnalysisVO;
-import org.dromara.billiards.domain.vo.dashboard.StoreRankingVO;
-import org.dromara.billiards.domain.vo.dashboard.TopTableVO;
-import org.dromara.billiards.domain.vo.dashboard.RevenueAnalysisVO;
-import org.dromara.billiards.domain.vo.dashboard.StoreAnalysisVO;
-import org.dromara.billiards.domain.vo.dashboard.TimeAnalysisVO;
+import org.dromara.billiards.domain.vo.dashboard.*;
 
 import java.util.List;
 
@@ -83,6 +77,11 @@ public interface DashboardService {
      * 获取营收分析数据
      */
     RevenueAnalysisVO getRevenueAnalysis();
+
+    /**
+     * 获取营收趋势（柱：订单数 + 线：总收入）
+     */
+    RevenueTrendVO getRevenueTrend(DashboardQueryRequest request);
 
     /**
      * 获取门店分析数据

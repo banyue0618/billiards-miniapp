@@ -5,7 +5,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.common.constant.PaymentStatus;
 import org.dromara.billiards.domain.bo.BlsRefundRecordBo;
-import org.dromara.billiards.domain.entity.PayRecord;
+import org.dromara.billiards.domain.entity.BlsPayRecord;
 import org.dromara.billiards.domain.vo.BlsRefundRecordVo;
 import org.dromara.billiards.service.IBlsPayRecordService;
 import org.dromara.billiards.service.IBlsRefundRecordService;
@@ -35,11 +35,11 @@ public class PaymentMonitorServiceImpl implements PaymentMonitorService {
     @Override
     public void detectPaymentTimeouts() {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(payTimeoutMinutes);
-        List<PayRecord> timeoutList = payRecordService.queryPayingTimeoutList(threshold);
+        List<BlsPayRecord> timeoutList = payRecordService.queryPayingTimeoutList(threshold);
         if (timeoutList == null || timeoutList.isEmpty()) {
             return;
         }
-        for (PayRecord record : timeoutList) {
+        for (BlsPayRecord record : timeoutList) {
             record.setPaymentStatus(PaymentStatus.PAY_FAIL.getCode());
             record.setRemark("支付超时(>" + payTimeoutMinutes + "min)");
             record.setUpdateTime(LocalDateTime.now());
@@ -50,11 +50,11 @@ public class PaymentMonitorServiceImpl implements PaymentMonitorService {
 
     @Override
     public void reconcilePayingRecords() {
-        List<PayRecord> payingList = payRecordService.queryListWithStatus(PaymentStatus.PAYING);
+        List<BlsPayRecord> payingList = payRecordService.queryListWithStatus(PaymentStatus.PAYING);
         if (payingList == null || payingList.isEmpty()) {
             return;
         }
-        for (PayRecord record : payingList) {
+        for (BlsPayRecord record : payingList) {
             try {
                 WxPayOrderQueryV3Result payStatus = payRecordService.queryPayStatus(record.getTransactionId(), record.getPayNo());
                 String tradeState = payStatus.getTradeState();
@@ -92,9 +92,7 @@ public class PaymentMonitorServiceImpl implements PaymentMonitorService {
     @Override
     public void scanRefundFailures() {
         // 退款失败数据来源都是微信回调，返回失败。
-        BlsRefundRecordBo refundRecordBo = new BlsRefundRecordBo();
-        refundRecordBo.setRefundStatus(2); // 2=退款失败
-        List<BlsRefundRecordVo> failed = refundRecordService.queryList(refundRecordBo);
+        List<BlsRefundRecordVo> failed = refundRecordService.queryRefundFailiureList();
         if (failed == null || failed.isEmpty()) {
             return;
         }

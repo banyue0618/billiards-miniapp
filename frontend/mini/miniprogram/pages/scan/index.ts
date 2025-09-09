@@ -137,18 +137,9 @@ Page({
       loginUtil.showLoginModal(this);
       return;
     }
-    // 检查是否允许开台
-    const isAllow = await apiService.scanTableEnableCheck();
-    if(!isAllow){
-      // 不允许开发则跳转至充值页面
-      await wx.navigateTo({
-        url: '/pages/prepay/prepay',
-      })
-      return;
-    }
 
     // 测试使用，当作扫描二维码得到的结果
-    let result = "table_b0e41e300d0665732ba3c23c1df3db7f";
+    let result = "e79af5032d1e659c4738b50a6397d2be";
     this.handleScanResult(result);
 
 
@@ -176,7 +167,17 @@ Page({
       
       // 调用API获取桌台信息
       const tableInfo = await apiService.scanTable(qrCode)
-      
+      // 解析出门店后，设置全局门店上下文（后续请求带 X-Store-Id）
+      this.setStoreContext(tableInfo.storeId)
+
+      // 余额/开台资格校验（在已设置门店上下文之后）
+      const isAllow = await apiService.scanTableEnableCheck();
+      if(!isAllow){
+        hideLoading()
+        await wx.navigateTo({ url: '/pages/prepay/prepay' })
+        return;
+      }
+
       hideLoading()
       
       // 检查桌台状态，并显示对应提示或页面
@@ -270,7 +271,16 @@ Page({
       const qrCode = `table_${tableNumber}`
       
       const tableInfo = await apiService.scanTable(qrCode)
-      
+      // 设置门店上下文
+      this.setStoreContext(tableInfo.storeId)
+      // 余额/开台资格校验
+      const isAllow = await apiService.scanTableEnableCheck();
+      if(!isAllow){
+        hideLoading()
+        await wx.navigateTo({ url: '/pages/prepay/prepay' })
+        return;
+      }
+
       hideLoading()
       
       // 检查桌台状态
@@ -357,6 +367,22 @@ Page({
       hideLoading()
       this.setData({ isCreatingOrder: false , isOngoing: false })
       showError('开台失败，请重试')
+    }
+  },
+
+  // 统一设置门店上下文：写入全局与本地（供请求拦截器读取设置 X-Store-Id）
+  setStoreContext(storeId: string) {
+    if (storeId) {
+      try {
+        console.log("设置门店上下文", storeId);
+        // 全局保存（供内存读取）
+        (app as any).globalData = (app as any).globalData || {}
+        ;((app as any).globalData as any).storeId = storeId
+        // 本地缓存（供请求拦截器/重启后读取）
+        wx.setStorageSync('X-Store-Id', storeId)
+      } catch (e) {
+        console.warn('设置门店上下文失败', e)
+      }
     }
   }
 }) 

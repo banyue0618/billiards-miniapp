@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_table")
-public class Table extends BilliardsBaseEntity {
+public class BlsTable extends BilliardsBaseEntity {
 
     /**
      * 桌台ID

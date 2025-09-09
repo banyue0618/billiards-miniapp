@@ -1,7 +1,7 @@
 package org.dromara.billiards.convert;
 
 import org.dromara.billiards.domain.bo.StoreDto;
-import org.dromara.billiards.domain.entity.Store;
+import org.dromara.billiards.domain.entity.BlsStore;
 import org.dromara.billiards.domain.vo.StoreVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -41,7 +41,7 @@ public interface StoreConvert {
         // status 将由Service层设置
         // createTime, updateTime 等BaseEntity字段由MP自动处理
     })
-    Store toEntity(StoreDto dto);
+    BlsStore toEntity(StoreDto dto);
 
     /**
      * 根据 DTO 更新已存在的 Store 实体
@@ -58,7 +58,7 @@ public interface StoreConvert {
         // @Mapping(target = "createBy", ignore = true)
         // updateTime 和 updateBy 由 MyBatis-Plus 自动处理，无需显式忽略，MapStruct通常也不会映射它们，除非VO中有
     })
-    void updateStoreFromDto(StoreDto dto, @MappingTarget Store entity);
+    void updateStoreFromDto(StoreDto dto, @MappingTarget BlsStore entity);
 
     /**
      * 将 Store 实体转换为 StoreVo
@@ -68,18 +68,18 @@ public interface StoreConvert {
     @Mappings({
         // @Mapping(source = "entity.createTime", target = "createTime", dateFormat = "yyyy-MM-dd HH:mm:ss") // 如果需要日期格式转换
     })
-    StoreVO toVo(Store entity);
+    StoreVO toVo(BlsStore entity);
 
     /**
      * 将 List<Store> 转换为 List<StoreVo>
      */
-    List<StoreVO> toVoList(List<Store> storeList);
+    List<StoreVO> toVoList(List<BlsStore> blsStoreList);
 
     /**
      * 将 IPage<Store> 转换为 IPage<StoreVo>
      * This default method manually constructs the new Page to ensure all pagination properties are copied.
      */
-    default IPage<StoreVO> toVoPage(IPage<Store> storePage) {
+    default IPage<StoreVO> toVoPage(IPage<BlsStore> storePage) {
         if (storePage == null) {
             return null;
         }

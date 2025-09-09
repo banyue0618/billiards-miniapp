@@ -6,28 +6,24 @@
         <el-card shadow="hover" class="data-card">
           <div class="data-header">
             <span class="data-title">今日营收</span>
-            <el-tag size="small" effect="plain" type="success">同比 {{ overview.revenueGrowth }}%</el-tag>
+<!--            <el-tag size="small" effect="plain" type="success">同比 {{ overview.revenueGrowth }}%</el-tag>-->
           </div>
           <div class="data-body">
             <span class="data-value">¥{{ overview.todayRevenue }}</span>
           </div>
-          <div class="data-footer">
-            昨日：¥{{ overview.yesterdayRevenue }}
-          </div>
+          <div class="data-footer">昨日：¥{{ overview.yesterdayRevenue }}</div>
         </el-card>
       </el-col>
       <el-col :span="6">
         <el-card shadow="hover" class="data-card">
           <div class="data-header">
             <span class="data-title">今日订单</span>
-            <el-tag size="small" effect="plain" type="primary">同比 {{ overview.orderGrowth }}%</el-tag>
+<!--            <el-tag size="small" effect="plain" type="primary">同比 {{ overview.orderGrowth }}%</el-tag>-->
           </div>
           <div class="data-body">
-            <span class="data-value">{{ overview.todayOrders }}</span>
+            <span class="data-value">{{ overview.todayOrderCount }}</span>
           </div>
-          <div class="data-footer">
-            昨日：{{ overview.yesterdayOrders }}
-          </div>
+          <div class="data-footer">昨日：{{ overview.yesterdayOrderCount }}</div>
         </el-card>
       </el-col>
       <el-col :span="6">
@@ -39,9 +35,7 @@
           <div class="data-body">
             <span class="data-value">{{ overview.activeTables }}</span>
           </div>
-          <div class="data-footer">
-            总桌台：{{ overview.totalTables }}
-          </div>
+          <div class="data-footer">总桌台：{{ overview.totalTables }}</div>
         </el-card>
       </el-col>
       <el-col :span="6">
@@ -53,24 +47,17 @@
           <div class="data-body">
             <span class="data-value">{{ overview.avgUsageTime }}</span>
           </div>
-          <div class="data-footer">
-            昨日：{{ overview.yesterdayAvgUsageTime }}
-          </div>
+          <div class="data-footer">昨日：{{ overview.yesterdayAvgUsageTime }}</div>
         </el-card>
       </el-col>
     </el-row>
 
     <!-- 查询条件 -->
     <el-card class="filter-container" shadow="never">
-      <el-form :model="queryParams" ref="queryRef" :inline="true">
+      <el-form ref="queryRef" :model="queryParams" :inline="true">
         <el-form-item label="门店" prop="storeId">
           <el-select v-model="queryParams.storeId" placeholder="选择门店" clearable style="width: 200px">
-            <el-option
-              v-for="store in storeOptions"
-              :key="store.id"
-              :label="store.name"
-              :value="store.id"
-            />
+            <el-option v-for="store in storeOptions" :key="store.id" :label="store.name" :value="store.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="时间范围" prop="dateRange">
@@ -94,7 +81,7 @@
 
     <!-- 营收趋势图表 -->
     <el-row :gutter="20" class="mb-4">
-      <el-col :span="16">
+      <el-col :span="24">
         <el-card shadow="never">
           <template #header>
             <div class="card-header">
@@ -109,7 +96,7 @@
           <div ref="revenueChart" style="height: 300px"></div>
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="8" v-if="false">
         <el-card shadow="never">
           <template #header>
             <div class="card-header">
@@ -144,16 +131,12 @@
             <el-table-column type="index" label="排名" width="80" align="center" />
             <el-table-column prop="storeName" label="门店名称" />
             <el-table-column prop="revenue" label="营收金额">
-              <template #default="scope">
-                ¥{{ parseFloat(scope.row.revenue).toFixed(2) }}
-              </template>
+              <template #default="scope"> ¥{{ parseFloat(scope.row.totalRevenue).toFixed(2) }} </template>
             </el-table-column>
             <el-table-column prop="orderCount" label="订单数" align="center" />
             <el-table-column prop="growth" label="同比增长" align="center">
               <template #default="scope">
-                <span :class="scope.row.growth >= 0 ? 'text-success' : 'text-danger'">
-                  {{ scope.row.growth }}%
-                </span>
+                <span :class="scope.row.growth >= 0 ? 'text-success' : 'text-danger'"> {{ scope.row.growth }}% </span>
               </template>
             </el-table-column>
           </el-table>
@@ -176,9 +159,7 @@
             <el-table-column prop="tableNumber" label="桌台编号" align="center" />
             <el-table-column prop="usageCount" label="使用次数" align="center" />
             <el-table-column prop="usageTime" label="使用时长" align="center">
-              <template #default="scope">
-                {{ scope.row.usageTime }}分钟
-              </template>
+              <template #default="scope"> {{ scope.row.usageTime }}分钟 </template>
             </el-table-column>
           </el-table>
         </el-card>
@@ -228,8 +209,8 @@ const overview = reactive({
   todayRevenue: '0.00',
   yesterdayRevenue: '0.00',
   revenueGrowth: 0,
-  todayOrders: 0,
-  yesterdayOrders: 0,
+  todayOrderCount: 0,
+  yesterdayOrderCount: 0,
   orderGrowth: 0,
   activeTables: 0,
   totalTables: 0,
@@ -260,14 +241,14 @@ const queryRef = ref();
 
 /** 查询门店列表 */
 function getStoreList() {
-  listStore({ pageSize: 100 }).then(response => {
+  listStore({ pageSize: 100 }).then((response) => {
     storeOptions.value = response.data.records;
   });
 }
 
 /** 加载概览数据 */
 function loadOverview() {
-  getDashboardData(queryParams).then(response => {
+  getDashboardData(queryParams).then((response) => {
     Object.assign(overview, response.data);
   });
 }
@@ -285,43 +266,51 @@ function initCharts() {
 
 /** 加载营收趋势图表 */
 function loadRevenueChart() {
-  getRevenueChart({ ...queryParams, type: revenueChartType.value }).then(response => {
-    const { xAxis, series } = response.data;
+  getRevenueChart({ ...queryParams, chartType: revenueChartType.value }).then((response) => {
+    const { xAxis, orderSeries, revenueSeries } = response.data;
     revenueChartInstance.setOption({
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' }
       },
+      legend: { data: ['订单数', '营收'] },
       xAxis: {
         type: 'category',
         data: xAxis
       },
-      yAxis: {
-        type: 'value',
-        name: '金额（元）'
-      },
-      series: [{
-        name: '营收',
-        type: 'line',
-        smooth: true,
-        data: series,
-        itemStyle: {
-          color: '#409EFF'
+      yAxis: [
+        { type: 'value', name: '订单数', position: 'left' },
+        { type: 'value', name: '营收（元）', position: 'right' }
+      ],
+      series: [
+        {
+          name: '订单数',
+          type: 'bar',
+          data: orderSeries,
+          itemStyle: { color: '#409EFF' }
         },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(64,158,255,0.3)' },
-            { offset: 1, color: 'rgba(64,158,255,0.1)' }
-          ])
+        {
+          name: '营收',
+          type: 'line',
+          yAxisIndex: 1,
+          smooth: true,
+          data: revenueSeries,
+          itemStyle: { color: '#67C23A' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(103,194,58,0.25)' },
+              { offset: 1, color: 'rgba(103,194,58,0.05)' }
+            ])
+          }
         }
-      }]
+      ]
     });
   });
 }
 
 /** 加载使用率图表 */
 function loadUsageChart() {
-  getTableUsageChart(queryParams).then(response => {
+  getTableUsageChart(queryParams).then((response) => {
     const { data } = response;
     usageChartInstance.setOption({
       tooltip: {
@@ -333,43 +322,45 @@ function loadUsageChart() {
         right: 10,
         top: 'center'
       },
-      series: [{
-        name: '桌台状态',
-        type: 'pie',
-        radius: ['50%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 2
-        },
-        label: {
-          show: false
-        },
-        emphasis: {
+      series: [
+        {
+          name: '桌台状态',
+          type: 'pie',
+          radius: ['50%', '70%'],
+          avoidLabelOverlap: false,
+          itemStyle: {
+            borderRadius: 10,
+            borderColor: '#fff',
+            borderWidth: 2
+          },
           label: {
-            show: true,
-            fontSize: '16',
-            fontWeight: 'bold'
-          }
-        },
-        labelLine: {
-          show: false
-        },
-        data: [
-          { value: data.inUse, name: '使用中', itemStyle: { color: '#67C23A' } },
-          { value: data.free, name: '空闲', itemStyle: { color: '#909399' } },
-          { value: data.maintenance, name: '维修中', itemStyle: { color: '#E6A23C' } },
-          { value: data.locked, name: '锁定', itemStyle: { color: '#F56C6C' } }
-        ]
-      }]
+            show: false
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: '16',
+              fontWeight: 'bold'
+            }
+          },
+          labelLine: {
+            show: false
+          },
+          data: [
+            { value: data.inUse, name: '使用中', itemStyle: { color: '#67C23A' } },
+            { value: data.free, name: '空闲', itemStyle: { color: '#909399' } },
+            { value: data.maintenance, name: '维修中', itemStyle: { color: '#E6A23C' } },
+            { value: data.locked, name: '锁定', itemStyle: { color: '#F56C6C' } }
+          ]
+        }
+      ]
     });
   });
 }
 
 /** 加载时段分析图表 */
 function loadHourlyChart() {
-  getHourlyAnalysis(queryParams).then(response => {
+  getHourlyAnalysis(queryParams).then((response) => {
     const { hours, orders, revenue } = response.data;
     hourlyChartInstance.setOption({
       tooltip: {
@@ -423,7 +414,7 @@ function loadHourlyChart() {
 
 /** 加载计费规则分析图表 */
 function loadPriceRuleChart() {
-  getPriceRuleAnalysis(queryParams).then(response => {
+  getPriceRuleAnalysis(queryParams).then((response) => {
     const { data } = response;
     priceRuleChartInstance.setOption({
       tooltip: {
@@ -435,36 +426,38 @@ function loadPriceRuleChart() {
         right: 10,
         top: 'center'
       },
-      series: [{
-        name: '计费规则',
-        type: 'pie',
-        radius: '50%',
-        data: data.map((item: any) => ({
-          name: item.ruleName,
-          value: item.revenue
-        })),
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
+      series: [
+        {
+          name: '计费规则',
+          type: 'pie',
+          radius: '50%',
+          data: data.map((item: any) => ({
+            name: item.ruleName,
+            value: item.totalRevenue
+          })),
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
           }
         }
-      }]
+      ]
     });
   });
 }
 
 /** 加载门店排行数据 */
 function loadStoreRanking() {
-  getStoreRanking(queryParams).then(response => {
+  getStoreRanking(queryParams).then((response) => {
     storeRanking.value = response.data;
   });
 }
 
 /** 加载热门桌台数据 */
 function loadTopTables() {
-  getTopTables(queryParams).then(response => {
+  getTopTables(queryParams).then((response) => {
     topTables.value = response.data;
   });
 }
@@ -477,15 +470,41 @@ function handleResize() {
   priceRuleChartInstance?.resize();
 }
 
+/** 日期工具与默认范围 */
+function formatDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getDefaultDateRange(): string[] {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return [formatDate(today), formatDate(tomorrow)];
+}
+
 /** 搜索按钮操作 */
 function handleQuery() {
+  let start: string;
+  let end: string;
+
   if (dateRange.value && dateRange.value.length === 2) {
-    queryParams.startDate = dateRange.value[0];
-    queryParams.endDate = dateRange.value[1];
+    [start, end] = dateRange.value;
   } else {
-    queryParams.startDate = undefined;
-    queryParams.endDate = undefined;
+    [start, end] = getDefaultDateRange();
+    dateRange.value = [start, end];
   }
+
+  if (start > end) {
+    ElMessage.error('开始日期不能晚于结束日期');
+    return;
+  }
+
+  queryParams.startDate = start;
+  queryParams.endDate = end;
 
   loadData();
 }
@@ -505,20 +524,22 @@ function handleExport() {
     exportParams.endDate = dateRange.value[1];
   }
 
-  ElMessageBox.confirm('是否确认导出仪表盘数据?', "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  }).then(() => {
-    return exportDashboardData(exportParams);
-  }).then(response => {
-    const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = '营业数据报表.xlsx';
-    link.click();
-    URL.revokeObjectURL(link.href);
-  });
+  ElMessageBox.confirm('是否确认导出仪表盘数据?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(() => {
+      return exportDashboardData(exportParams);
+    })
+    .then((response) => {
+      const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '营业数据报表.xlsx';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
 }
 
 /** 加载所有数据 */
@@ -592,10 +613,10 @@ onBeforeUnmount(() => {
 }
 
 .text-success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .text-danger {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 </style>

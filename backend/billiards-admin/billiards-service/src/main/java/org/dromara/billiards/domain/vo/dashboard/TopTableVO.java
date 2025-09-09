@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class TopTableVO {
 
     @Schema(description = "桌台ID")
-    private Long tableId;
+    private String tableId;
 
     @Schema(description = "桌台编号")
     private String tableNumber;

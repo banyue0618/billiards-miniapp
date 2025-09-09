@@ -3,7 +3,7 @@
 <mapper namespace="org.dromara.billiards.mapper.UserMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.User">
+    <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.BlsUser">
         <id column="id" property="id"/>
         <result column="openid" property="openid"/>
         <result column="unionid" property="unionid"/>

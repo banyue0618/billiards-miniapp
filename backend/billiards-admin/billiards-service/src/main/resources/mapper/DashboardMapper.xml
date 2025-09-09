@@ -4,65 +4,72 @@
 
     <!-- 计算指定日期的营收 -->
     <select id="calculateDailyRevenue" resultType="java.math.BigDecimal">
-        SELECT COALESCE(SUM(total_amount), 0)
+        SELECT COALESCE(SUM(actual_amount), 0)
         FROM `bls_order`
-        WHERE DATE(create_time) = #{date}
+        WHERE create_time >= #{date}
+        AND create_time &lt; DATE_ADD(#{date}, INTERVAL 1 DAY)
         <if test="storeIds != null and storeIds.size() > 0">
             AND store_id IN
             <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
                 #{storeId}
             </foreach>
         </if>
-        AND status = 'COMPLETED'
+        AND status = 1
     </select>
 
     <!-- 统计指定日期的订单数 -->
     <select id="countDailyOrders" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM `bls_order`
-        WHERE DATE(create_time) = #{date}
+        WHERE create_time >= #{date}
+        AND create_time &lt; DATE_ADD(#{date}, INTERVAL 1 DAY)
         <if test="storeIds != null and storeIds.size() > 0">
             AND store_id IN
             <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
                 #{storeId}
             </foreach>
         </if>
-        AND status = 'COMPLETED'
+        AND status = 1
     </select>
 
     <!-- 计算指定日期的台球桌使用率 -->
     <select id="calculateDailyTableUsageRate" resultType="java.math.BigDecimal">
-        WITH bls_table_usage AS (
-            SELECT
-                COUNT(*) * 100.0 / (
-                    SELECT COUNT(*)
-                    FROM bls_table
-                    WHERE is_delete = 0
-                    <if test="storeIds != null and storeIds.size() > 0">
-                        AND store_id IN
-                        <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
-                            #{storeId}
-                        </foreach>
-                    </if>
-                ) as usage_rate
-            FROM bls_table_usage
-            WHERE DATE(start_time) = #{date}
-            <if test="storeIds != null and storeIds.size() > 0">
-                AND store_id IN
-                <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
-                    #{storeId}
-                </foreach>
-            </if>
-            AND status = 'COMPLETED'
-        )
-        SELECT COALESCE(usage_rate, 0) FROM bls_table_usage
+        SELECT COALESCE(
+            (
+                (SELECT COUNT(*)
+                 FROM `bls_table_usage`
+                 WHERE start_time >= #{date}
+                   AND start_time &lt; DATE_ADD(#{date}, INTERVAL 1 DAY)
+                 <if test="storeIds != null and storeIds.size() > 0">
+                     AND store_id IN
+                     <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
+                         #{storeId}
+                     </foreach>
+                 </if>
+                   AND status = 1)
+                * 100.0
+                /
+                NULLIF(
+                    (SELECT COUNT(*)
+                     FROM bls_table
+                     WHERE is_delete = 0
+                     <if test="storeIds != null and storeIds.size() > 0">
+                         AND store_id IN
+                         <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
+                             #{storeId}
+                         </foreach>
+                     </if>
+                    ), 0)
+            ), 0
+        ) AS usage_rate
     </select>
 
     <!-- 统计指定日期的新增会员数 -->
     <select id="countDailyNewMembers" resultType="java.lang.Integer">
         SELECT COUNT(*)
-        FROM bls_user
-        WHERE DATE(create_time) = #{date}
+        FROM `bls_member_user`
+        WHERE create_time >= #{date}
+        AND create_time &lt; DATE_ADD(#{date}, INTERVAL 1 DAY)
         <if test="storeIds != null and storeIds.size() > 0">
             AND store_id IN
             <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
@@ -70,7 +77,6 @@
             </foreach>
         </if>
         AND is_delete = 0
-        AND is_member = 1
     </select>
 
     <!-- 获取每小时分析数据 -->
@@ -78,16 +84,17 @@
         SELECT
             HOUR(create_time) as hour,
             COUNT(*) as orderCount,
-            COALESCE(SUM(total_amount), 0) as hourlyRevenue
+            COALESCE(SUM(actual_amount), 0) as hourlyRevenue
         FROM `bls_order`
-        WHERE DATE(create_time) = #{date}
+        WHERE create_time >= #{date}
+        AND create_time &lt; DATE_ADD(#{date}, INTERVAL 1 DAY)
         <if test="storeIds != null and storeIds.size() > 0">
             AND store_id IN
             <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
                 #{storeId}
             </foreach>
         </if>
-        AND status = 'COMPLETED'
+        AND status = 1
         GROUP BY HOUR(create_time)
         ORDER BY hour
     </select>
@@ -98,12 +105,13 @@
             s.id as storeId,
             s.name as storeName,
             COUNT(o.id) as orderCount,
-            COALESCE(SUM(o.total_amount), 0) as totalRevenue,
+            COALESCE(SUM(o.actual_amount), 0) as totalRevenue,
             COUNT(DISTINCT o.user_id) as customerCount
-        FROM bls_store s
+        FROM `bls_store` s
         LEFT JOIN `bls_order` o ON s.id = o.store_id
-            AND DATE(o.create_time) BETWEEN #{startDate} AND #{endDate}
-            AND o.status = 'COMPLETED'
+            AND o.create_time >= #{startDate}
+            AND o.create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+            AND o.status = 1
         WHERE s.is_delete = 0
         <if test="storeIds != null and storeIds.size() > 0">
             AND s.id IN
@@ -119,19 +127,19 @@
     <select id="getTopTablesData" resultType="org.dromara.billiards.domain.vo.dashboard.TopTableVO">
         SELECT
             t.id as tableId,
-            t.table_number as tableNumber,
+            concat(t.table_prefix, t.table_numeric) as tableNumber,
             t.store_id as storeId,
             s.name as storeName,
             COUNT(tu.id) as usageCount,
             COALESCE(SUM(tu.duration), 0) as totalDuration,
-            COALESCE(SUM(o.total_amount), 0) as totalRevenue
+            COALESCE(SUM(o.actual_amount), 0) as totalRevenue
         FROM bls_table t
         JOIN bls_store s ON t.store_id = s.id
         LEFT JOIN bls_table_usage tu ON t.id = tu.table_id
-            AND DATE(tu.start_time) BETWEEN #{startDate} AND #{endDate}
-            AND tu.status = 'COMPLETED'
+            AND tu.start_time >= #{startDate}
+            AND tu.start_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         LEFT JOIN `bls_order` o ON tu.order_id = o.id
-            AND o.status = 'COMPLETED'
+            AND o.status = 1
         WHERE t.is_delete = 0
         <if test="storeIds != null and storeIds.size() > 0">
             AND t.store_id IN
@@ -139,7 +147,7 @@
                 #{storeId}
             </foreach>
         </if>
-        GROUP BY t.id, t.table_number, t.store_id, s.name
+        GROUP BY t.id, t.table_prefix, t.table_numeric, t.store_id, s.name
         ORDER BY totalRevenue DESC
         LIMIT #{limit}
     </select>
@@ -149,13 +157,14 @@
         SELECT
             pr.id as ruleId,
             pr.name as ruleName,
-            COUNT(o.id) as orderCount,
-            COALESCE(SUM(o.total_amount), 0) as totalRevenue,
+            COUNT(o.id) as usageCount,
+            COALESCE(SUM(o.actual_amount), 0) as totalRevenue,
             COUNT(DISTINCT o.user_id) as customerCount
         FROM bls_price_rule pr
         LEFT JOIN `bls_order` o ON pr.id = o.price_rule_id
-            AND DATE(o.create_time) BETWEEN #{startDate} AND #{endDate}
-            AND o.status = 'COMPLETED'
+            AND o.create_time >= #{startDate}
+            AND o.create_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+            AND o.status = 1
         WHERE pr.is_delete = 0
         <if test="storeIds != null and storeIds.size() > 0">
             AND pr.store_id IN
@@ -165,6 +174,40 @@
         </if>
         GROUP BY pr.id, pr.name
         ORDER BY totalRevenue DESC
+    </select>
+    <select id="countTotalTables" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM bls_table
+        WHERE is_delete = 0 and status in (0 ,1)
+        <if test="storeIds != null and storeIds.size() > 0">
+            AND store_id IN
+            <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
+                #{storeId}
+            </foreach>
+        </if>
+    </select>
+    <select id="countActiveTables" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM bls_table
+        WHERE is_delete = 0 and status = 1
+        <if test="storeIds != null and storeIds.size() > 0">
+            AND store_id IN
+            <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
+                #{storeId}
+            </foreach>
+        </if>
+    </select>
+    <select id="calculateAverageUsageTime" resultType="java.lang.Integer">
+        SELECT COALESCE(AVG(duration), 0)
+        FROM bls_table_usage
+        WHERE start_time >= #{startDate}
+        AND start_time &lt; DATE_ADD(#{startDate}, INTERVAL 1 DAY)
+        <if test="storeIds != null and storeIds.size() > 0">
+            AND store_id IN
+            <foreach collection="storeIds" item="storeId" open="(" separator="," close=")">
+                #{storeId}
+            </foreach>
+        </if>
     </select>
 
 </mapper>

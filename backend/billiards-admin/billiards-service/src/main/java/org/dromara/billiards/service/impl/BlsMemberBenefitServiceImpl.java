@@ -2,6 +2,7 @@ package org.dromara.billiards.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import org.dromara.billiards.common.constant.BilliardsConstants;
+import org.dromara.billiards.domain.entity.BlsMemberLevelConfig;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;

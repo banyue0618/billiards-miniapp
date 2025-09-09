@@ -21,6 +21,21 @@
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
         </el-select>
 
+        <el-select
+          v-if="tenantEnabled"
+          v-model="currentMerchantId"
+          class="min-w-220px ml-8px"
+          clearable
+          filterable
+          reserve-keyword
+          placeholder="选择商户"
+          @change="dynamicMerchantEvent"
+          @clear="dynamicMerchantClearEvent"
+        >
+          <el-option v-for="m in merchantList" :key="m.id" :label="m.name" :value="String(m.id)"> </el-option>
+          <template #prefix><svg-icon icon-class="shopping" class="el-input__icon input-icon" /></template>
+        </el-select>
+
         <!-- <header-search id="header-search" class="right-menu-item" /> -->
         <search-menu ref="searchMenuRef" />
         <el-tooltip content="搜索" effect="dark" placement="bottom">
@@ -87,7 +102,8 @@ import useUserStore from '@/store/modules/user';
 import useSettingsStore from '@/store/modules/settings';
 import useNoticeStore from '@/store/modules/notice';
 import { getTenantList } from '@/api/login';
-import { dynamicClear, dynamicTenant } from '@/api/system/tenant';
+import { dynamicClear, dynamicTenant, listAllMerchantByCurrentTenant } from '@/api/system/tenant';
+import request from '@/utils/request';
 import { TenantVO } from '@/api/types';
 import notice from './notice/index.vue';
 
@@ -106,6 +122,9 @@ const tenantList = ref<TenantVO[]>([]);
 const dynamic = ref(false);
 // 租户开关
 const tenantEnabled = ref(true);
+// 商户选择
+const currentMerchantId = ref<string | undefined>(undefined);
+const merchantList = ref<Array<any>>([]);
 // 搜索菜单
 const searchMenuRef = ref<InstanceType<typeof SearchMenu>>();
 
@@ -118,6 +137,7 @@ const dynamicTenantEvent = async (tenantId: string) => {
   if (companyName.value != null && companyName.value !== '') {
     await dynamicTenant(tenantId);
     dynamic.value = true;
+    await reloadMerchantOptions();
     proxy?.$tab.closeAllPage();
     proxy?.$router.push('/');
     proxy?.$tab.refreshPage();
@@ -127,6 +147,8 @@ const dynamicTenantEvent = async (tenantId: string) => {
 const dynamicClearEvent = async () => {
   await dynamicClear();
   dynamic.value = false;
+  merchantList.value = [];
+  currentMerchantId.value = undefined;
   proxy?.$tab.closeAllPage();
   proxy?.$router.push('/');
   proxy?.$tab.refreshPage();
@@ -139,6 +161,27 @@ const initTenantList = async () => {
   if (tenantEnabled.value) {
     tenantList.value = data.voList;
   }
+};
+
+const reloadMerchantOptions = async () => {
+  try {
+    const { data } = await listAllMerchantByCurrentTenant();
+    merchantList.value = data ?? [];
+  } catch (e) {
+    merchantList.value = [];
+  }
+};
+
+const dynamicMerchantEvent = async (merchantId: string) => {
+  if (!merchantId) return;
+  await request({ url: `/system/merchant/dynamic/${merchantId}`, method: 'post' });
+  proxy?.$tab.refreshPage();
+};
+
+const dynamicMerchantClearEvent = async () => {
+  await request({ url: `/system/merchant/dynamic/clear`, method: 'post' });
+  currentMerchantId.value = undefined;
+  proxy?.$tab.refreshPage();
 };
 
 defineExpose({
@@ -156,7 +199,7 @@ const logout = async () => {
     type: 'warning'
   });
   await userStore.logout();
-  location.href = import.meta.env.VITE_APP_CONTEXT_PATH + 'index';
+  location.href = import.meta.env.VITE_APP_CONTEXT_PATH;
 };
 
 const emits = defineEmits(['setLayout']);

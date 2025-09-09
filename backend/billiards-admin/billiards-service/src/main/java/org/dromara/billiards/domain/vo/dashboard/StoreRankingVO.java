@@ -13,13 +13,13 @@ import java.math.BigDecimal;
 public class StoreRankingVO {
 
     @Schema(description = "门店ID")
-    private Long storeId;
+    private String storeId;
 
     @Schema(description = "门店名称")
     private String storeName;
 
     @Schema(description = "营收金额")
-    private BigDecimal revenue;
+    private BigDecimal totalRevenue;
 
     @Schema(description = "同比增长率(%)")
     private BigDecimal growth;

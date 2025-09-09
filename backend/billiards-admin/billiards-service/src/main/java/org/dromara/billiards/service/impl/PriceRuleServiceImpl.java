@@ -1,14 +1,13 @@
 package org.dromara.billiards.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.convert.PriceRuleConvert;
+import org.dromara.billiards.domain.entity.BlsTable;
 import org.dromara.billiards.mapper.PriceRuleMapper;
 import org.dromara.billiards.mapper.TableMapper;
-import org.dromara.billiards.domain.entity.PriceRule;
-import org.dromara.billiards.domain.entity.Table;
+import org.dromara.billiards.domain.entity.BlsPriceRule;
 import org.dromara.billiards.domain.bo.PriceRuleDto;
 import org.dromara.billiards.domain.vo.PriceRulePreviewVO;
 import org.dromara.billiards.service.PriceRuleService;
@@ -45,7 +44,7 @@ import org.dromara.billiards.service.pricing.PricingStrategyFactory;
 @Service
 @RequiredArgsConstructor
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
-public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule> implements PriceRuleService {
+public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, BlsPriceRule> implements PriceRuleService {
 
     private final PriceRuleConvert priceRuleConvert;
     private final TableMapper tableMapper;
@@ -57,15 +56,15 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
      * @return 计费规则信息
      */
     @Override
-    public PriceRule getPriceRuleInfo(String id) {
+    public BlsPriceRule getPriceRuleInfo(String id) {
         if (StringUtils.isEmpty(id)) {
             throw BilliardsException.of(ResultCode.PARAM_ERROR, "规则ID不能为空");
         }
-        PriceRule priceRule = this.getById(id);
-        if (priceRule == null) {
+        BlsPriceRule blsPriceRule = this.getById(id);
+        if (blsPriceRule == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "计费规则不存在");
         }
-        return priceRule;
+        return blsPriceRule;
     }
 
     /**
@@ -75,16 +74,16 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PriceRule createPriceRule(PriceRuleDto dto) {
+    public BlsPriceRule createPriceRule(PriceRuleDto dto) {
         // 基于规则类型进行验证
         validatePriceRuleDto(dto);
 
-        PriceRule priceRule = priceRuleConvert.toEntity(dto);
-        priceRule.setMerchantId(LoginHelper.getUserIdStr());
-        if (!this.save(priceRule)) {
+        BlsPriceRule blsPriceRule = priceRuleConvert.toEntity(dto);
+        // 商户写入：优先会话商户，其次避免误用用户ID
+        if (!this.save(blsPriceRule)) {
             throw BilliardsException.of(ResultCode.ERROR, "创建计费规则失败");
         }
-        return priceRule;
+        return blsPriceRule;
     }
 
     /**
@@ -95,21 +94,21 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PriceRule updatePriceRule(String id, PriceRuleDto dto) {
-        PriceRule existingPriceRule = this.getById(id);
-        if (existingPriceRule == null) {
+    public BlsPriceRule updatePriceRule(String id, PriceRuleDto dto) {
+        BlsPriceRule existingBlsPriceRule = this.getById(id);
+        if (existingBlsPriceRule == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "计费规则不存在，无法更新");
         }
 
         // 基于规则类型进行验证
         validatePriceRuleDto(dto);
 
-        priceRuleConvert.updateEntityFromDto(dto, existingPriceRule);
+        priceRuleConvert.updateEntityFromDto(dto, existingBlsPriceRule);
 
-        if (!this.updateById(existingPriceRule)) {
+        if (!this.updateById(existingBlsPriceRule)) {
             throw BilliardsException.of(ResultCode.ERROR, "更新计费规则失败");
         }
-        return existingPriceRule;
+        return existingBlsPriceRule;
     }
 
     /**
@@ -124,12 +123,12 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
         if (StringUtils.isEmpty(id) || status == null) {
             throw BilliardsException.of(ResultCode.PARAM_ERROR, "规则ID和状态不能为空");
         }
-        PriceRule priceRule = this.getById(id);
-        if (priceRule == null) {
+        BlsPriceRule blsPriceRule = this.getById(id);
+        if (blsPriceRule == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "计费规则不存在，无法更新状态");
         }
-        priceRule.setStatus(status);
-        if (!this.updateById(priceRule)) {
+        blsPriceRule.setStatus(status);
+        if (!this.updateById(blsPriceRule)) {
             throw BilliardsException.of(ResultCode.ERROR, "更新计费规则状态失败");
         }
         return true;
@@ -146,19 +145,18 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
         if (StringUtils.isEmpty(id)) {
             throw BilliardsException.of(ResultCode.PARAM_ERROR, "规则ID不能为空");
         }
-        PriceRule priceRule = this.getById(id);
-        if (priceRule == null) {
+        BlsPriceRule blsPriceRule = this.getById(id);
+        if (blsPriceRule == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "计费规则不存在，无法删除");
         }
-
         // 检查是否有桌台正在使用该计费规则
-        LambdaQueryWrapper<Table> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Table::getPriceRuleId, id);
-        List<Table> boundTables = tableMapper.selectList(queryWrapper);
+        LambdaQueryWrapper<BlsTable> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlsTable::getPriceRuleId, id);
+        List<BlsTable> boundBlsTables = tableMapper.selectList(queryWrapper);
 
-        if (!boundTables.isEmpty()) {
+        if (!boundBlsTables.isEmpty()) {
             // 判断是否有桌台正在使用中（状态为1表示使用中）
-            boolean hasTablesInUse = boundTables.stream()
+            boolean hasTablesInUse = boundBlsTables.stream()
                 .anyMatch(table -> table.getStatus() != null && table.getStatus() == 1);
 
             if (hasTablesInUse) {
@@ -167,12 +165,12 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
             }
 
             // 对已绑定的桌台解除绑定
-            log.info("计费规则{}被{}个桌台使用，执行解绑操作", id, boundTables.size());
+            log.info("计费规则{}被{}个桌台使用，执行解绑操作", id, boundBlsTables.size());
 
             // 为所有绑定的桌台设置为null
-            LambdaUpdateWrapper<Table> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(Table::getPriceRuleId, id)
-                       .set(Table::getPriceRuleId, null);
+            LambdaUpdateWrapper<BlsTable> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(BlsTable::getPriceRuleId, id)
+                       .set(BlsTable::getPriceRuleId, null);
             tableMapper.update(null, updateWrapper);
 
             log.info("已解绑计费规则{}的所有桌台", id);
@@ -189,25 +187,24 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
      * @return 计费规则列表
      */
     @Override
-    public List<PriceRule> listPriceRules() {
-        LambdaQueryWrapper<PriceRule> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(PriceRule::getMerchantId, LoginHelper.getUserId());
-        queryWrapper.orderByDesc(PriceRule::getCreateTime);
+    public List<BlsPriceRule> listPriceRules() {
+        LambdaQueryWrapper<BlsPriceRule> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByDesc(BlsPriceRule::getCreateTime);
         return this.list(queryWrapper);
     }
 
     @Override
-    public List<PriceRule> listPriceRulesByMerchantId(String merchantId, int ruleType) {
+    public List<BlsPriceRule> listPriceRulesByMerchantId(String merchantId, int ruleType) {
         // 现根据门店找到商家，再根据商家获取计费规则
         if (StringUtils.isEmpty(merchantId)) {
             throw BilliardsException.of(ResultCode.PARAM_ERROR, "商户ID不能为空");
         }
-        LambdaQueryWrapper<PriceRule> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(PriceRule::getMerchantId, merchantId);
+        LambdaQueryWrapper<BlsPriceRule> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlsPriceRule::getMerchantId, merchantId);
         if (ruleType > 0) {
-            queryWrapper.eq(PriceRule::getRuleType, ruleType);
+            queryWrapper.eq(BlsPriceRule::getRuleType, ruleType);
         }
-        queryWrapper.orderByAsc(PriceRule::getPriceUnit);
+        queryWrapper.orderByAsc(BlsPriceRule::getPriceUnit);
         return this.list(queryWrapper);
     }
 
@@ -222,8 +219,8 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
     @Override
     public BigDecimal calculateAmount(String priceRuleId, LocalDateTime startTime, LocalDateTime endTime, boolean isMember) {
         // 获取计费规则
-        PriceRule priceRule = this.getById(priceRuleId);
-        if (priceRule == null) {
+        BlsPriceRule blsPriceRule = this.getById(priceRuleId);
+        if (blsPriceRule == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "计费规则不存在");
         }
 
@@ -231,10 +228,10 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
         long minutes = Duration.between(startTime, endTime).toMinutes();
 
         // 使用策略工厂获取计费策略
-        PricingStrategy pricingStrategy = pricingStrategyFactory.getStrategy(priceRule.getRuleType());
+        PricingStrategy pricingStrategy = pricingStrategyFactory.getStrategy(blsPriceRule.getRuleType());
 
         // 计算费用
-        PricingResult pricingResult = pricingStrategy.calculatePrice(null, priceRule, (int) minutes, isMember);
+        PricingResult pricingResult = pricingStrategy.calculatePrice(null, blsPriceRule, (int) minutes, isMember);
         return pricingResult.getActualAmount();
     }
 
@@ -256,8 +253,8 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
         }
 
         // 获取计费规则
-        PriceRule priceRule = this.getById(ruleId);
-        if (priceRule == null) {
+        BlsPriceRule blsPriceRule = this.getById(ruleId);
+        if (blsPriceRule == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "计费规则不存在");
         }
 
@@ -266,19 +263,19 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
         List<PriceRulePreviewVO.CalculationDetail> details = new ArrayList<>();
 
         // 使用策略工厂获取计费策略
-        PricingStrategy pricingStrategy = pricingStrategyFactory.getStrategy(priceRule.getRuleType());
+        PricingStrategy pricingStrategy = pricingStrategyFactory.getStrategy(blsPriceRule.getRuleType());
 
         // 添加计算详情
-        if (priceRule.getRuleType() == 1) {
+        if (blsPriceRule.getRuleType() == 1) {
             // 标准计费详情
-            addStandardPricingDetails(priceRule, minutes, isMember, details);
-        } else if (priceRule.getRuleType() == 2) {
+            addStandardPricingDetails(blsPriceRule, minutes, isMember, details);
+        } else if (blsPriceRule.getRuleType() == 2) {
             // 阶梯计费详情
-            addLadderPricingDetails(priceRule, minutes, isMember, details);
+            addLadderPricingDetails(blsPriceRule, minutes, isMember, details);
         }
 
         // 计算费用
-        PricingResult pricingResult = pricingStrategy.calculatePrice(null, priceRule, minutes, isMember);
+        PricingResult pricingResult = pricingStrategy.calculatePrice(null, blsPriceRule, minutes, isMember);
 
         // 设置最终费用
         result.setFee(pricingResult.getActualAmount());
@@ -290,17 +287,17 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
     /**
      * 添加标准计费详情
      */
-    private void addStandardPricingDetails(PriceRule priceRule, Integer minutes, Boolean isMember,
-                                          List<PriceRulePreviewVO.CalculationDetail> details) {
+    private void addStandardPricingDetails(BlsPriceRule blsPriceRule, Integer minutes, Boolean isMember,
+                                           List<PriceRulePreviewVO.CalculationDetail> details) {
         // 选择正确的单价
         BigDecimal priceUnit;
-        if (isMember && priceRule.getMemberPrice() != null) {
-            priceUnit = priceRule.getMemberPrice();
+        if (isMember && blsPriceRule.getMemberPrice() != null) {
+            priceUnit = blsPriceRule.getMemberPrice();
             details.add(PriceRulePreviewVO.CalculationDetail.builder()
                 .description("使用会员价：" + priceUnit.multiply(new BigDecimal(60)) + "元/小时")
                 .build());
         } else {
-            priceUnit = priceRule.getPriceUnit();
+            priceUnit = blsPriceRule.getPriceUnit();
             details.add(PriceRulePreviewVO.CalculationDetail.builder()
                 .description("使用标准价：" + priceUnit.multiply(new BigDecimal(60)) + "元/小时")
                 .build());
@@ -313,18 +310,18 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
             .build());
 
         // 检查最低消费时长
-        if (priceRule.getMinMinutes() != null && priceRule.getMinMinutes() > 0 && minutes < priceRule.getMinMinutes()) {
-            BigDecimal minAmount = priceUnit.multiply(new BigDecimal(priceRule.getMinMinutes()));
+        if (blsPriceRule.getMinMinutes() != null && blsPriceRule.getMinMinutes() > 0 && minutes < blsPriceRule.getMinMinutes()) {
+            BigDecimal minAmount = priceUnit.multiply(new BigDecimal(blsPriceRule.getMinMinutes()));
             details.add(PriceRulePreviewVO.CalculationDetail.builder()
-                .description("应用最低消费：" + priceRule.getMinMinutes() + "分钟 = " + minAmount.setScale(2, RoundingMode.HALF_UP) + "元")
+                .description("应用最低消费：" + blsPriceRule.getMinMinutes() + "分钟 = " + minAmount.setScale(2, RoundingMode.HALF_UP) + "元")
                 .build());
         }
 
         // 检查封顶价格
-        if (priceRule.getMaxPrice() != null && priceRule.getMaxPrice().compareTo(BigDecimal.ZERO) > 0
-                && originalAmount.compareTo(priceRule.getMaxPrice()) > 0) {
+        if (blsPriceRule.getMaxPrice() != null && blsPriceRule.getMaxPrice().compareTo(BigDecimal.ZERO) > 0
+                && originalAmount.compareTo(blsPriceRule.getMaxPrice()) > 0) {
             details.add(PriceRulePreviewVO.CalculationDetail.builder()
-                .description("应用封顶价格：" + priceRule.getMaxPrice() + "元")
+                .description("应用封顶价格：" + blsPriceRule.getMaxPrice() + "元")
                 .build());
         }
     }
@@ -332,10 +329,10 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
     /**
      * 添加阶梯计费详情
      */
-    private void addLadderPricingDetails(PriceRule priceRule, Integer minutes, Boolean isMember,
-                                        List<PriceRulePreviewVO.CalculationDetail> details) {
+    private void addLadderPricingDetails(BlsPriceRule blsPriceRule, Integer minutes, Boolean isMember,
+                                         List<PriceRulePreviewVO.CalculationDetail> details) {
         // 从规则中解析阶梯价格设置
-        String ladderRulesJson = priceRule.getLadderRules();
+        String ladderRulesJson = blsPriceRule.getLadderRules();
         if (StringUtils.isBlank(ladderRulesJson)) {
             details.add(PriceRulePreviewVO.CalculationDetail.builder()
                 .description("未设置阶梯规则，使用基础价格")
@@ -351,9 +348,9 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
                 .description("使用阶梯计费：共" + ladderRules.size() + "个阶梯")
                 .build());
 
-            if (isMember && priceRule.getMemberDiscount() != null && priceRule.getMemberDiscount().compareTo(BigDecimal.ZERO) > 0) {
+            if (isMember && blsPriceRule.getMemberDiscount() != null && blsPriceRule.getMemberDiscount().compareTo(BigDecimal.ZERO) > 0) {
                 details.add(PriceRulePreviewVO.CalculationDetail.builder()
-                    .description("会员折扣：" + priceRule.getMemberDiscount().multiply(new BigDecimal(10)) + "折")
+                    .description("会员折扣：" + blsPriceRule.getMemberDiscount().multiply(new BigDecimal(10)) + "折")
                     .build());
             }
 
@@ -376,8 +373,8 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
                     }
 
                     if (ladderMinutes > 0) {
-                        BigDecimal ladderPrice = isMember && priceRule.getMemberDiscount() != null ?
-                            price.multiply(priceRule.getMemberDiscount()) : price;
+                        BigDecimal ladderPrice = isMember && blsPriceRule.getMemberDiscount() != null ?
+                            price.multiply(blsPriceRule.getMemberDiscount()) : price;
 
                         details.add(PriceRulePreviewVO.CalculationDetail.builder()
                             .description("第" + currentLadder + "阶梯：" + startMinute + "分钟至" +
@@ -391,9 +388,9 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
             }
 
             // 检查封顶价格
-            if (priceRule.getMaxPrice() != null && priceRule.getMaxPrice().compareTo(BigDecimal.ZERO) > 0) {
+            if (blsPriceRule.getMaxPrice() != null && blsPriceRule.getMaxPrice().compareTo(BigDecimal.ZERO) > 0) {
                 details.add(PriceRulePreviewVO.CalculationDetail.builder()
-                    .description("封顶价格：" + priceRule.getMaxPrice() + "元")
+                    .description("封顶价格：" + blsPriceRule.getMaxPrice() + "元")
                     .build());
             }
 
@@ -562,13 +559,13 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, PriceRule
         }
 
         // 获取计费规则
-        PriceRule priceRule = this.getById(ruleId);
-        if (priceRule == null) {
+        BlsPriceRule blsPriceRule = this.getById(ruleId);
+        if (blsPriceRule == null) {
             throw BilliardsException.of(ResultCode.NOT_FOUND, "计费规则不存在");
         }
 
         // 检查计费规则是否启用
-        if (priceRule.getStatus() != null && priceRule.getStatus() != 0) {
+        if (blsPriceRule.getStatus() != null && blsPriceRule.getStatus() != 0) {
             throw BilliardsException.of(ResultCode.ERROR, "计费规则已停用，无法应用");
         }
 

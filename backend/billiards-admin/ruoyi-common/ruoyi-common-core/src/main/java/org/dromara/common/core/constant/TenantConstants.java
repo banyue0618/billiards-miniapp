@@ -32,4 +32,14 @@ public interface TenantConstants {
      */
     String DEFAULT_TENANT_ID = "000000";
 
+    /**
+     * 商户管理员角色 roleKey
+     */
+    String MERCHANT_ADMIN_ROLE_KEY = "subadmin";
+
+    /**
+     * 商户管理员角色名称
+     */
+    String MERCHANT_ADMIN_ROLE_NAME = "管理员";
+
 }

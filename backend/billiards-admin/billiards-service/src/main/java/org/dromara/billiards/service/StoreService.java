@@ -1,6 +1,6 @@
 package org.dromara.billiards.service;
 
-import org.dromara.billiards.domain.entity.Store;
+import org.dromara.billiards.domain.entity.BlsStore;
 import org.dromara.billiards.domain.vo.NearbyStoreVO;
 import org.dromara.billiards.domain.bo.StoreDto;
 import org.dromara.billiards.domain.bo.StoreQueryRequest;
@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * 门店服务接口
  */
-public interface StoreService extends IService<Store> {
+public interface StoreService extends IService<BlsStore> {
 
     /**
      * 新增门店
@@ -22,7 +22,7 @@ public interface StoreService extends IService<Store> {
      * @param storeDto 门店创建数据
      * @return 创建后的门店实体
      */
-    Store createStore(StoreDto storeDto);
+    BlsStore createStore(StoreDto storeDto);
 
     /**
      * 更新门店信息
@@ -31,14 +31,14 @@ public interface StoreService extends IService<Store> {
      * @param storeDto 门店更新数据
      * @return 更新后的门店实体
      */
-    Store updateStore(String id, StoreDto storeDto);
+    BlsStore updateStore(String id, StoreDto storeDto);
 
     /**
      * 获取门店详情（后端）
      * @param id 门店ID
      * @return 门店信息
      */
-    Store getStoreInfo(String id);
+    BlsStore getStoreInfo(String id);
 
     /**
      * 获取门店详情（小程序）
@@ -83,7 +83,7 @@ public interface StoreService extends IService<Store> {
      * @param request 查询参数
      * @return 门店分页实体列表
      */
-    IPage<Store> pageStores(StoreQueryRequest request);
+    IPage<BlsStore> pageStores(StoreQueryRequest request);
 
     /**
      * 删除单个门店
@@ -98,12 +98,12 @@ public interface StoreService extends IService<Store> {
      * (小程序) 获取所有可用门店列表 (status=0)
      * @return 可用门店实体列表
      */
-    List<Store> listAvailableStores();
+    List<BlsStore> listAvailableStores();
 
     /**
      * (小程序) 分页查询可用门店列表 (status=0, keyword search)
      * @param request 查询参数 (包含分页和关键词)
      * @return 可用门店分页实体列表
      */
-    IPage<Store> pageAvailableStores(StoreQueryRequest request);
+    IPage<BlsStore> pageAvailableStores(StoreQueryRequest request);
 }

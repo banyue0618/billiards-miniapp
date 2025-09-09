@@ -101,10 +101,10 @@ public class DashboardController {
         return Result.success(data);
     }
 
-    @Operation(summary = "获取营收分析数据")
+    @Operation(summary = "获取营收趋势（柱：订单 + 线：营收）")
     @GetMapping("/revenue-chart")
-    public RevenueAnalysisVO getRevenueAnalysis(@RequestParam (required = false) String type) {
-        return dashboardService.getRevenueAnalysis();
+    public Result<RevenueTrendVO> getRevenueTrend(@Validated DashboardQueryRequest request) {
+        return Result.success(dashboardService.getRevenueTrend(request));
     }
 
     @Operation(summary = "获取门店分析数据")

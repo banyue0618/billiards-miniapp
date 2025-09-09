@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.common.mybatis.DataSourceFillStrategy;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -33,9 +33,8 @@ public class BilliardsDbFillStrategy implements DataSourceFillStrategy {
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
 
         // 创建人和更新人填充
-        String username = getLoginUsername();
-        this.strictInsertFill(metaObject, "createBy", String.class, username);
-        this.strictInsertFill(metaObject, "updateBy", String.class, username);
+        this.strictInsertFill(metaObject, "createBy", String.class, getLoginUsername());
+        this.strictInsertFill(metaObject, "updateBy", String.class, getLoginUsername());
 
         // 删除标记填充
         this.strictInsertFill(metaObject, "isDelete", Integer.class, 0);
@@ -48,8 +47,7 @@ public class BilliardsDbFillStrategy implements DataSourceFillStrategy {
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
 
         // 更新人填充
-        String username = getLoginUsername();
-        this.strictUpdateFill(metaObject, "updateBy", String.class, username);
+        this.strictUpdateFill(metaObject, "updateBy", String.class, getLoginUsername());
     }
 
     /**
@@ -58,7 +56,7 @@ public class BilliardsDbFillStrategy implements DataSourceFillStrategy {
     private String getLoginUsername() {
         try {
             if (StpUtil.isLogin()) {
-                return StpUtil.getLoginIdAsString();
+                return LoginHelper.getUserIdStr();
             }
         } catch (Exception e) {
             log.debug("获取当前登录用户异常", e);

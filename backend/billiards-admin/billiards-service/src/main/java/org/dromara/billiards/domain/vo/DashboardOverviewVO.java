@@ -35,4 +35,16 @@ public class DashboardOverviewVO {
 
     @Schema(description = "昨日新增会员数")
     private Integer yesterdayNewMembers;
+
+    @Schema(description = "总桌台")
+    private Integer totalTables;
+
+    @Schema(description = "使用中桌台")
+    private Integer activeTables;
+
+    @Schema(description = "平均使用时长")
+    private Integer avgUsageTime;
+
+    @Schema(description = "昨日平均使用时长")
+    private Integer yesterdayAvgUsageTime;
 }

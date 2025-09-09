@@ -105,4 +105,26 @@ public interface DashboardMapper {
             @Param("endDate") LocalDate endDate,
             @Param("storeIds") List<Long> storeIds
     );
+
+    /**
+     * 统计总桌台数
+     * @param storeIds
+     * @return
+     */
+    Integer countTotalTables(@Param("storeIds") List<Long> storeIds);
+
+    /**
+     * 统计使用中桌台数
+     * @param storeIds
+     * @return
+     */
+    Integer countActiveTables(@Param("storeIds") List<Long> storeIds);
+
+    /**
+     * 计算平均使用时长（分钟）
+     * @param date
+     * @param storeIds
+     * @return
+     */
+    Integer calculateAverageUsageTime(@Param("startDate") LocalDate date,@Param("storeIds") List<Long> storeIds);
 }

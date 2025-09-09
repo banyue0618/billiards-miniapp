@@ -110,6 +110,18 @@ export function getTenantList(): AxiosPromise<TenantInfo> {
   });
 }
 
+// 搜索租户（远程关键字搜索）
+export function searchTenant(params: { keyword: string; limit?: number }): AxiosPromise<TenantVO[]> {
+  return request({
+    url: '/auth/tenant/search',
+    headers: {
+      isToken: false
+    },
+    method: 'get',
+    params
+  });
+}
+
 // 重置密码
 export function resetPassword(data: ResetPwdBody) {
   return request({

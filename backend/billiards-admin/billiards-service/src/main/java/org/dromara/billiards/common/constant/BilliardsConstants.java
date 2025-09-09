@@ -22,6 +22,11 @@ public interface BilliardsConstants {
     String ORDER_PREFIX = "BL";
 
     /**
+     * 订单前缀
+     */
+    String APPLY_NO_PREFIX = "AP";
+
+    /**
      * 登录用户key
      */
     String LOGIN_USER_KEY = "loginUser";

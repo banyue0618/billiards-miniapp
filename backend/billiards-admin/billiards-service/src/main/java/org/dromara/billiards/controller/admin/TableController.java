@@ -5,7 +5,7 @@ import org.dromara.billiards.convert.TableConvert;
 import org.dromara.billiards.domain.bo.TableDto;
 import org.dromara.billiards.domain.bo.TableQueryRequest;
 import org.dromara.billiards.domain.bo.BatchTableRequest;
-import org.dromara.billiards.domain.entity.Table;
+import org.dromara.billiards.domain.entity.BlsTable;
 import org.dromara.billiards.domain.vo.TableVO;
 import org.dromara.billiards.service.TableService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -42,7 +42,7 @@ public class TableController {
     @GetMapping("/list")
     @Operation(summary = "桌台列表", description = "分页获取桌台列表")
     public R<IPage<TableVO>> list(TableQueryRequest tableQueryRequest) {
-        IPage<Table> tablePage = tableService.getTablePage(tableQueryRequest);
+        IPage<BlsTable> tablePage = tableService.getTablePage(tableQueryRequest);
         return ApiResult.success(tableConvert.toVoPage(tablePage));
     }
 
@@ -61,8 +61,8 @@ public class TableController {
     @PostMapping
     @Operation(summary = "新增桌台", description = "添加单个桌台")
     public R<TableVO> add(@Validated @RequestBody TableDto tableDto) {
-        Table createdTable = tableService.createTable(tableDto);
-        return ApiResult.success(tableConvert.toVo(createdTable));
+        BlsTable createdBlsTable = tableService.createTable(tableDto);
+        return ApiResult.success(tableConvert.toVo(createdBlsTable));
     }
 
     /**
@@ -81,9 +81,9 @@ public class TableController {
     @PutMapping("/{id}")
     @Operation(summary = "修改桌台", description = "更新桌台信息")
     public R<Boolean> update(@PathVariable String id, @Validated @RequestBody TableDto requestDto) {
-        Table tableToUpdate = tableService.getById(id); // 先获取托管实体
-        tableConvert.updateEntityFromDto(requestDto, tableToUpdate);
-        tableService.updateTable(tableToUpdate); // 假设 updateTable 接收实体
+        BlsTable blsTableToUpdate = tableService.getById(id); // 先获取托管实体
+        tableConvert.updateEntityFromDto(requestDto, blsTableToUpdate);
+        tableService.updateTable(blsTableToUpdate); // 假设 updateTable 接收实体
         return ApiResult.success(true); // 按照规范，操作成功返回 true
     }
 
@@ -132,8 +132,8 @@ public class TableController {
     @Operation(summary = "生成二维码", description = "为桌台生成二维码")
     @Parameter(name = "id", description = "桌台ID", required = true)
     public R<TableVO> generateQrcode(@PathVariable String id) {
-        Table table = tableService.generateQrcode(id);
-        return ApiResult.success(tableConvert.toVo(table));
+        BlsTable blsTable = tableService.generateQrcode(id);
+        return ApiResult.success(tableConvert.toVo(blsTable));
     }
 
     /**
@@ -146,7 +146,7 @@ public class TableController {
     @Operation(summary = "桌台列表", description = "根据门店获取桌台列表，支持分页和条件查询")
     public R<IPage<TableVO>> tables( @PathVariable String storeId, TableQueryRequest queryRequest ) {
         queryRequest.setStoreId(storeId);
-        IPage<Table> page = tableService.getTablePage(queryRequest);
+        IPage<BlsTable> page = tableService.getTablePage(queryRequest);
         return ApiResult.success(tableConvert.toVoPage(page));
     }
 }

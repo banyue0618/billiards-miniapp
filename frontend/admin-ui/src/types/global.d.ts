@@ -27,6 +27,8 @@ declare global {
      * 是否显示
      */
     visible: boolean;
+    /** 审核模式 */
+    approve?: boolean;
   }
 
   declare interface UploadOption {

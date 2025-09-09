@@ -4,7 +4,7 @@ import com.github.binarywang.wxpay.bean.result.WxPayRefundQueryV3Result;
 import jakarta.servlet.http.HttpServletRequest;
 import org.dromara.billiards.domain.bo.BlsRefundRecordBo;
 import org.dromara.billiards.domain.entity.BlsRefundRecord;
-import org.dromara.billiards.domain.entity.PayRecord;
+import org.dromara.billiards.domain.entity.BlsPayRecord;
 import org.dromara.billiards.domain.vo.BlsRefundRecordVo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
@@ -77,10 +77,10 @@ public interface IBlsRefundRecordService {
     /**
      * 发起退款
      * @param orderId
-     * @param lastPayRecord
+     * @param lastBlsPayRecord
      * @param deductBalance
      */
-    void refund(String orderId, PayRecord lastPayRecord, BigDecimal deductBalance);
+    void refund(String orderId, BlsPayRecord lastBlsPayRecord, BigDecimal deductBalance);
 
     /**
      * 微信退款回调接口
@@ -104,4 +104,12 @@ public interface IBlsRefundRecordService {
      * @return
      */
     boolean handleRefundResult(String refundStatus, BlsRefundRecord refundRecord, boolean ifThrowException);
+
+
+    /**
+     * 查询退款失败的记录
+     *
+     * @return 退款记录列表
+     */
+    List<BlsRefundRecordVo> queryRefundFailiureList();
 }

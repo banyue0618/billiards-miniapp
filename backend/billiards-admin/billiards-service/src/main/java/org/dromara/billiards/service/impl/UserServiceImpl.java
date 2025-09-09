@@ -7,10 +7,10 @@ import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.constant.PaymentStatus;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
+import org.dromara.billiards.domain.entity.BlsUser;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
-import org.dromara.billiards.domain.entity.PayRecord;
+import org.dromara.billiards.domain.entity.BlsPayRecord;
 import org.dromara.billiards.mapper.UserMapper;
-import org.dromara.billiards.domain.entity.User;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.dromara.billiards.service.IBlsPayRecordService;
@@ -25,7 +25,6 @@ import org.dromara.common.satoken.utils.LoginHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 /**
@@ -35,7 +34,7 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, BlsUser> implements UserService {
 
     private final IBlsWalletAccountService walletAccountService;
 
@@ -49,7 +48,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return 用户对象
      */
     @Override
-    public User getByPhone(String phone) {
+    public BlsUser getByPhone(String phone) {
         return baseMapper.selectByPhone(phone);
     }
 
@@ -59,7 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return 用户对象
      */
     @Override
-    public User getByOpenid(String openid) {
+    public BlsUser getByOpenid(String openid) {
         return baseMapper.selectByOpenid(openid);
     }
 
@@ -71,11 +70,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateCurrentUserInfo(UserUpdateDto dto) {
-        User existUser = this.getUserInfoById();
+        BlsUser existBlsUser = this.getUserInfoById();
         // 使用 MapStruct 更新允许修改的字段
-        userConvert.updateUserFromDto(dto, existUser);
+        userConvert.updateUserFromDto(dto, existBlsUser);
 
-        return this.updateById(existUser);
+        return this.updateById(existBlsUser);
     }
 
     /**
@@ -91,16 +90,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         Long userId = LoginHelper.getUserId();
-        User user = this.getUserInfoById();
+        BlsUser blsUser = this.getUserInfoById();
         // 检查手机号是否已绑定其他用户
-        User existPhone = this.getByPhone(phone);
+        BlsUser existPhone = this.getByPhone(phone);
         if (existPhone != null && !existPhone.getId().equals(userId)) {
             throw BilliardsException.of(ResultCode.PHONE_ALREADY_BOUND);
         }
 
         // 更新手机号
-        user.setPhone(phone);
-        return this.updateById(user);
+        blsUser.setPhone(phone);
+        return this.updateById(blsUser);
     }
 
     /**
@@ -108,12 +107,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return 用户实体
      */
     @Override
-    public User getUserInfoById() {
+    public BlsUser getUserInfoById() {
         return this.getById(LoginHelper.getUserId());
     }
 
     @Override
-    public User getUserInfoById(Long userId) {
+    public BlsUser getUserInfoById(Long userId) {
         return this.getById(userId);
     }
 
@@ -132,16 +131,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 余额未更新则检查是否有充值记录,查询最近一次的支付记录
-        PayRecord lastPayRecord = payRecordService.getLastPayRecord(LoginHelper.getUserId());
-        if (lastPayRecord != null) {
-            if(PaymentStatus.UNPAID.getCode() == lastPayRecord.getPaymentStatus()){
+        BlsPayRecord lastBlsPayRecord = payRecordService.getLastPayRecord(LoginHelper.getUserId());
+        if (lastBlsPayRecord != null) {
+            if(PaymentStatus.UNPAID.getCode() == lastBlsPayRecord.getPaymentStatus()){
                 // 如果最近的支付记录状态为未支付，表示用户还未支付，不能开台
                 return false;
             }
-            if(PaymentStatus.PAYING.getCode() == lastPayRecord.getPaymentStatus()){
+            if(PaymentStatus.PAYING.getCode() == lastBlsPayRecord.getPaymentStatus()){
                 // 如果最近的支付记录状态为支付中，调用微信支付接口查询支付结果
                 try {
-                    WxPayOrderQueryV3Result payStatus = payRecordService.queryPayStatus(lastPayRecord.getTransactionId(), lastPayRecord.getPayNo());
+                    WxPayOrderQueryV3Result payStatus = payRecordService.queryPayStatus(lastBlsPayRecord.getTransactionId(), lastBlsPayRecord.getPayNo());
                     if(WxPayConstants.ResultCode.SUCCESS.equals(payStatus.getTradeState())){
                         // 如果查询到支付成功，则认为可以开台
                         return true;

@@ -4,7 +4,7 @@ import org.dromara.billiards.common.result.ApiResult;
 import org.dromara.billiards.convert.StoreConvert;
 import org.dromara.billiards.domain.bo.NearbyStoreRequest;
 import org.dromara.billiards.domain.bo.StoreQueryRequest;
-import org.dromara.billiards.domain.entity.Store;
+import org.dromara.billiards.domain.entity.BlsStore;
 import org.dromara.billiards.domain.vo.NearbyStoreVO;
 import org.dromara.billiards.domain.vo.StoreVO;
 import org.dromara.billiards.service.StoreService;
@@ -38,8 +38,8 @@ public class StoreController {
     @GetMapping("/list")
     @Operation(summary = "门店列表", description = "获取所有可用门店列表")
     public R<List<StoreVO>> getStoreList() {
-        List<org.dromara.billiards.domain.entity.Store> storeList = storeService.listAvailableStores();
-        return ApiResult.success(storeConvert.toVoList(storeList));
+        List<BlsStore> blsStoreList = storeService.listAvailableStores();
+        return ApiResult.success(storeConvert.toVoList(blsStoreList));
     }
 
     /**
@@ -61,7 +61,7 @@ public class StoreController {
     @GetMapping("/page")
     @Operation(summary = "门店分页列表", description = "分页查询门店列表")
     public R<IPage<StoreVO>> getStorePage(@Validated StoreQueryRequest request) {
-        IPage<Store> storePage = storeService.pageAvailableStores(request);
+        IPage<BlsStore> storePage = storeService.pageAvailableStores(request);
         return ApiResult.success(storeConvert.toVoPage(storePage));
     }
 

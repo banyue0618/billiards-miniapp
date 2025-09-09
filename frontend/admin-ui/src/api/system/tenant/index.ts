@@ -79,6 +79,15 @@ export function dynamicClear() {
   });
 }
 
+// 获取当前租户下的全部商户（无分页）
+export function listAllMerchantByCurrentTenant(params?: any) {
+  return request({
+    url: '/system/merchant/listAllByCurrentTenant',
+    method: 'get',
+    params
+  });
+}
+
 // 同步租户套餐
 export function syncTenantPackage(tenantId: string | number, packageId: string | number) {
   const data = {

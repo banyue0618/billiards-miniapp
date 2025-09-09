@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class PriceRuleAnalysisVO {
 
     @Schema(description = "规则ID")
-    private Long ruleId;
+    private String ruleId;
 
     @Schema(description = "规则名称")
     private String ruleName;
@@ -22,7 +22,7 @@ public class PriceRuleAnalysisVO {
     private Integer usageCount;
 
     @Schema(description = "营收金额")
-    private BigDecimal revenue;
+    private BigDecimal totalRevenue;
 
     @Schema(description = "营收占比(%)")
     private BigDecimal revenueRatio;

@@ -1,7 +1,6 @@
 package org.dromara.billiards.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_pay_record")
-public class PayRecord extends BilliardsBaseEntity {
+public class BlsPayRecord extends BilliardsBaseEntity {
 
     /**
      * 记录ID

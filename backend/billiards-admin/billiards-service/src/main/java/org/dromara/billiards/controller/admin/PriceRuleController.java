@@ -4,7 +4,7 @@ import org.dromara.billiards.common.result.ApiResult;
 import org.dromara.billiards.convert.PriceRuleConvert;
 import org.dromara.billiards.domain.bo.PriceRuleDto;
 import org.dromara.billiards.domain.bo.PriceRulePreviewDto;
-import org.dromara.billiards.domain.entity.PriceRule;
+import org.dromara.billiards.domain.entity.BlsPriceRule;
 import org.dromara.billiards.domain.vo.PriceRulePreviewVO;
 import org.dromara.billiards.domain.vo.PriceRuleVO;
 import org.dromara.billiards.service.PriceRuleService;
@@ -36,8 +36,8 @@ public class PriceRuleController {
     @GetMapping("/{id}")
     @Operation(summary = "计费规则详情", description = "获取计费规则详细信息")
     public R<PriceRuleVO> detail(@PathVariable String id) {
-        PriceRule priceRule = priceRuleService.getPriceRuleInfo(id);
-        return ApiResult.success(priceRuleConvert.toVo(priceRule));
+        BlsPriceRule blsPriceRule = priceRuleService.getPriceRuleInfo(id);
+        return ApiResult.success(priceRuleConvert.toVo(blsPriceRule));
     }
 
     /**
@@ -46,8 +46,8 @@ public class PriceRuleController {
     @PostMapping
     @Operation(summary = "新增计费规则", description = "添加新的计费规则")
     public R<PriceRuleVO> add(@RequestBody PriceRuleDto dto) {
-        PriceRule priceRule = priceRuleService.createPriceRule(dto);
-        return ApiResult.success(priceRuleConvert.toVo(priceRule));
+        BlsPriceRule blsPriceRule = priceRuleService.createPriceRule(dto);
+        return ApiResult.success(priceRuleConvert.toVo(blsPriceRule));
     }
 
     /**
@@ -56,8 +56,8 @@ public class PriceRuleController {
     @PutMapping("/{id}")
     @Operation(summary = "修改计费规则", description = "修改计费规则信息")
     public R<PriceRuleVO> update(@PathVariable String id, @RequestBody PriceRuleDto dto) {
-        PriceRule updatedPriceRule = priceRuleService.updatePriceRule(id, dto);
-        return ApiResult.success(priceRuleConvert.toVo(updatedPriceRule));
+        BlsPriceRule updatedBlsPriceRule = priceRuleService.updatePriceRule(id, dto);
+        return ApiResult.success(priceRuleConvert.toVo(updatedBlsPriceRule));
     }
 
     /**
@@ -87,7 +87,7 @@ public class PriceRuleController {
     @GetMapping("/list")
     @Operation(summary = "获取商家所有计费规则", description = "获取指定商家的所有计费规则（不分页）")
     public R<List<PriceRuleVO>> listByMerchant() {
-        List<PriceRule> ruleList = priceRuleService.listPriceRules();
+        List<BlsPriceRule> ruleList = priceRuleService.listPriceRules();
         return ApiResult.success(ruleList.stream().map(priceRuleConvert::toVo).toList());
     }
 

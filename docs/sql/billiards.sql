@@ -164,19 +164,17 @@ CREATE TABLE `bls_table_usage` (
     `start_time` datetime NOT NULL COMMENT '开始时间',
     `end_time` datetime DEFAULT NULL COMMENT '结束时间',
     `duration` int DEFAULT NULL COMMENT '使用时长(分钟)',
-    `status` varchar(20) NOT NULL COMMENT '状态 ONGOING-进行中 COMPLETED-已完成 CANCELLED-已取消',
     `create_time` datetime NOT NULL COMMENT '创建时间',
     `update_time` datetime NOT NULL COMMENT '更新时间',
     `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
     `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
-    `is_deleted` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+    `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
     PRIMARY KEY (`id`),
     KEY `idx_store_id` (`store_id`),
     KEY `idx_table_id` (`table_id`),
     KEY `idx_order_id` (`order_id`),
     KEY `idx_user_id` (`user_id`),
-    KEY `idx_start_time` (`start_time`),
-    KEY `idx_status` (`status`)
+    KEY `idx_start_time` (`start_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='桌台使用记录表';
 
 -- 创建会员变更记录表
@@ -195,7 +193,7 @@ CREATE TABLE `bls_member_change_log` (
     `update_time` datetime NOT NULL COMMENT '更新时间',
     `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
     `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
-    `is_deleted` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+    `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
     PRIMARY KEY (`id`),
     KEY `idx_user_id` (`user_id`),
     KEY `idx_store_id` (`store_id`),

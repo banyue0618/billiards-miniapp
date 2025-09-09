@@ -21,7 +21,7 @@ interface RequestConfig extends Omit<WechatMiniprogram.RequestOption, 'url'> {
 // 响应数据接口
 interface ApiResponse<T = any> {
   code: number;
-  msg: string;
+  message: string;
   data: T;
 }
 
@@ -52,9 +52,11 @@ class Http {
     const token = wx.getStorageSync('token')
     const app = getApp<IAppOptionExtended>();
     
+    const storeId = wx.getStorageSync('X-Store-Id')
     mergedConfig.header = {
       ...mergedConfig.header,
-      'clientid': app ? app.clientId : ''
+      'clientid': app ? app.clientId : '',
+      ...(storeId ? { 'X-Store-Id': storeId } : {})
     }
     
     if (token) {
@@ -109,8 +111,8 @@ class Http {
           if (response.code !== 200) {
             // 业务错误
             this.handleBusinessError(response, mergedConfig)
-            console.log("业务异常：{}", response.msg);
-            reject(new Error(response.msg || '请求失败'))
+            console.log("业务异常：{}", response.message);
+            reject(new Error(response.message || '请求失败'))
             return
           }
           

@@ -1,6 +1,6 @@
 package org.dromara.billiards.mapper;
 
-import org.dromara.billiards.domain.entity.Order;
+import org.dromara.billiards.domain.entity.BlsOrder;
 import org.dromara.billiards.domain.vo.OrderVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -14,7 +14,7 @@ import java.util.List;
  * 订单Mapper接口
  */
 @Mapper
-public interface OrderMapper extends BaseMapper<Order> {
+public interface OrderMapper extends BaseMapper<BlsOrder> {
 
     /**
      * 查询用户进行中的订单

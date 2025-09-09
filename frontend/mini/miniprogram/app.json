@@ -9,7 +9,6 @@
     "pages/common/privacy/index",
     "pages/common/legal/index",
     "pages/common/protocol/index",
-    "pages/logs/logs",
     "pages/prepay/prepay"
   ],
   "window": {

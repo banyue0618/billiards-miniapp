@@ -2,7 +2,7 @@ package org.dromara.billiards.service;
 
 import org.dromara.billiards.domain.bo.BlsWalletAccountBo;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
-import org.dromara.billiards.domain.entity.PayRecord;
+import org.dromara.billiards.domain.entity.BlsPayRecord;
 import org.dromara.billiards.domain.vo.BlsWalletAccountVo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
@@ -80,10 +80,9 @@ public interface IBlsWalletAccountService {
     /**
      * 初始化用户钱包账户
      * @param userId
-     * @param initialBalance
      * @return
      */
-    BlsWalletAccount initWalletAccount(Long userId, BigDecimal initialBalance);
+    BlsWalletAccount initWalletAccount(Long userId);
 
     /**
      * 根据用户ID获取钱包账户
@@ -102,8 +101,8 @@ public interface IBlsWalletAccountService {
 
     /**
      * 更新用户钱包余额 & 新增钱包流水
-     * @param payRecord
+     * @param blsPayRecord
      * @return
      */
-    BlsWalletAccount updateWalletBalanceAndWalletTransaction(PayRecord payRecord);
+    BlsWalletAccount updateWalletBalanceAndWalletTransaction(BlsPayRecord blsPayRecord);
 }

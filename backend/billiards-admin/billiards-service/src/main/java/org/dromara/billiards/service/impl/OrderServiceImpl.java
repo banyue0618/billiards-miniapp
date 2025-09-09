@@ -2,7 +2,6 @@ package org.dromara.billiards.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.github.binarywang.wxpay.bean.result.WxPayRefundQueryV3Result;
-import com.github.binarywang.wxpay.constant.WxPayConstants;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.constant.OrderChannelEnum;
 import org.dromara.billiards.common.constant.OrderCompleteFlagEnum;
@@ -10,6 +9,7 @@ import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.common.utils.OrderNumberGenerator;
 import org.dromara.billiards.convert.OrderConvert;
+import org.dromara.billiards.domain.bo.OrderUpdateDto;
 import org.dromara.billiards.mapper.OrderMapper;
 import org.dromara.billiards.domain.entity.*;
 import org.dromara.billiards.domain.vo.OrderVO;
@@ -42,7 +42,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
-public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
+public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> implements OrderService {
 
     private final PriceRuleService priceRuleService;
     private final PricingStrategyFactory pricingStrategyFactory;
@@ -51,46 +51,63 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final StoreService storeService;
     private final TableService tableService;
     private final IBlsWalletAccountService walletAccountService;
+    private final IBlsTableUsageService blsTableUsageService;
     private final OrderConvert orderConvert = OrderConvert.INSTANCE;
 
     @Override
-    public IPage<Order> pageAdminOrders(OrderQueryRequest request) {
-        Page<Order> pageParam = new Page<>(request.getPageNum(), request.getPageSize());
-        LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
+    public IPage<BlsOrder> pageAdminOrders(OrderQueryRequest request) {
+        Page<BlsOrder> pageParam = new Page<>(request.getPageNum(), request.getPageSize());
+        LambdaQueryWrapper<BlsOrder> queryWrapper = new LambdaQueryWrapper<>();
 
-        queryWrapper.like(StringUtils.isNotBlank(request.getOrderNo()), Order::getOrderNo, request.getOrderNo());
-        queryWrapper.eq(request.getUserId() != null, Order::getUserId, request.getUserId());
-        queryWrapper.eq(StringUtils.isNotBlank(request.getStoreId()), Order::getStoreId, request.getStoreId());
-        queryWrapper.eq(request.getStatus() != null, Order::getStatus, request.getStatus());
+        queryWrapper.like(StringUtils.isNotBlank(request.getOrderNo()), BlsOrder::getOrderNo, request.getOrderNo());
+        queryWrapper.eq(request.getUserId() != null, BlsOrder::getUserId, request.getUserId());
+        queryWrapper.eq(StringUtils.isNotBlank(request.getStoreId()), BlsOrder::getStoreId, request.getStoreId());
+        queryWrapper.eq(request.getStatus() != null, BlsOrder::getStatus, request.getStatus());
 
         if (request.getStartTime() != null && request.getEndTime() != null) {
-            queryWrapper.between(Order::getCreateTime, request.getStartTime(), request.getEndTime());
+            queryWrapper.between(BlsOrder::getCreateTime, request.getStartTime(), request.getEndTime());
         } else if (request.getStartTime() != null) {
-            queryWrapper.ge(Order::getCreateTime, request.getStartTime());
+            queryWrapper.ge(BlsOrder::getCreateTime, request.getStartTime());
         } else if (request.getEndTime() != null) {
-            queryWrapper.le(Order::getCreateTime, request.getEndTime());
+            queryWrapper.le(BlsOrder::getCreateTime, request.getEndTime());
         }
-        queryWrapper.orderByDesc(Order::getCreateTime);
-        return this.page(pageParam, queryWrapper);
+        queryWrapper.orderByDesc(BlsOrder::getCreateTime);
+
+        Page<BlsOrder> page = this.page(pageParam, queryWrapper);
+
+        if (CollectionUtil.isNotEmpty(page.getRecords())) {
+            // 流式计算实时金额，并返回vo对象
+            page.setRecords(page.getRecords().stream().map(order -> {
+                if(order.getStatus() == 1){
+                    return order; // 已完成订单不计算
+                }
+                PricingResult pricingResult = calculateAmount(order.getStartTime(), order.getEndTime(), order.getPriceRuleId(), false);
+                fillOrderResult(order, pricingResult);
+                return order;
+            }).toList());
+        }
+        return page;
     }
     /**
      * 手动结束订单，防止意外情况发生
-     * @param orderId 订单ID
+     *
+     * @param orderId   订单ID
+     * @param updateDto
      * @return 是否成功，如果操作失败或订单未找到则抛出异常
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean endAdminOrder(String orderId) {
-        Order order = this.getById(orderId);
-        if (order == null) {
+    public boolean endAdminOrder(String orderId, OrderUpdateDto updateDto) {
+        BlsOrder blsOrder = this.getById(orderId);
+        if (blsOrder == null) {
             throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
         }
-        if (order.getStatus() != null && order.getStatus() != 0) {
+        if (blsOrder.getStatus() != null && blsOrder.getStatus() != 0) {
             throw BilliardsException.of(ResultCode.ORDER_ALREADY_ENDED);
         }
-        order.setCompleteFlag(OrderCompleteFlagEnum.ADMIN_END.getCode()); // 设置管理员结束标志
-        order.setRemark("管理员手动结束订单");
-        endOrder(order);
+        blsOrder.setCompleteFlag(OrderCompleteFlagEnum.ADMIN_END.getCode()); // 设置管理员结束标志
+        blsOrder.setRemark(updateDto.getRemark());
+        endOrder(blsOrder);
         return true;
     }
 
@@ -102,22 +119,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean cancelAdminOrder(String orderId) {
-        Order order = this.getById(orderId);
-        if (order == null) {
+        BlsOrder blsOrder = this.getById(orderId);
+        if (blsOrder == null) {
             throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
         }
-        if (order.getStatus() != null && order.getStatus() == 2) {
+        if (blsOrder.getStatus() != null && blsOrder.getStatus() == 2) {
              throw BilliardsException.of(ResultCode.ORDER_STATUS_ERROR);
         }
 
 //        order.setStatus(2);
-        order.setEndTime(LocalDateTime.now());
-        boolean success = this.updateById(order);
+        blsOrder.setEndTime(LocalDateTime.now());
+        boolean success = this.updateById(blsOrder);
         if (!success) {
             throw BilliardsException.of(ResultCode.ERROR);
         }
         // 释放桌台
-        tableService.releaseTable(order.getTableId());
+        tableService.releaseTable(blsOrder.getTableId());
         return true;
     }
 
@@ -128,7 +145,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Order createOrder(String tableId, String channel) {
+    public BlsOrder createOrder(String tableId, String channel) {
         // 限定渠道
         if(OrderChannelEnum.fromString(channel) == null) {
             throw BilliardsException.of(ResultCode.INVALID_CHANNEL);
@@ -141,18 +158,23 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
 
         // 获取桌台信息
-        Table table = tableService.lockTable(tableId); // 锁定桌台，防止其他用户同时使用
+        BlsTable blsTable = tableService.lockTable(tableId); // 锁定桌台，防止其他用户同时使用
 
         // 创建订单
-        Order order = this.orderInit(table);
-        order.setChannel(channel);
+        BlsOrder blsOrder = this.orderInit(blsTable);
+        blsOrder.setChannel(channel);
 
         // 保存订单
-        if (!save(order)) {
+        if (!save(blsOrder)) {
             throw BilliardsException.of(ResultCode.ERROR);
         }
 
-        return order;
+        // 生成桌台使用记录
+        if(!blsTableUsageService.saveTableUsage(blsOrder)){
+            throw BilliardsException.of(ResultCode.ERROR);
+        }
+
+        return blsOrder;
     }
 
     /**
@@ -171,15 +193,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      * @return 当前金额
      */
     @Override
-    public Order calculateCurrentAmount(String orderId) {
+    public BlsOrder calculateCurrentAmount(String orderId) {
         // 获取订单信息
-        Order order = getById(orderId);
-        if (order == null) {
+        BlsOrder blsOrder = getById(orderId);
+        if (blsOrder == null) {
             throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
         }
-        PricingResult result = calculateAmount(order.getStartTime(), null, order.getPriceRuleId(), false);
-        fillOrderResult(order, result);
-        return order;
+        PricingResult result = calculateAmount(blsOrder.getStartTime(), null, blsOrder.getPriceRuleId(), false);
+        fillOrderResult(blsOrder, result);
+        return blsOrder;
     }
 
     /**
@@ -195,20 +217,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Override
     public OrderVO getUserOrderDetail(String orderId) {
-        Order order = getById(orderId);
+        BlsOrder blsOrder = getById(orderId);
         // 如果订单不存在，抛出异常
-        if (order == null) {
+        if (blsOrder == null) {
             throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
         }
-        // 校验订单属于是否当前用户
         // 如果订单的用户ID与当前登录用户ID不一致，抛出权限异常
-        if (!LoginHelper.getUserId().equals(order.getUserId())) {
+        if (!LoginHelper.getUserId().equals(blsOrder.getUserId())) {
             throw BilliardsException.of(ResultCode.FORBIDDEN);
         }
-        OrderVO orderVO = orderConvert.toVo(order);
+        OrderVO orderVO = orderConvert.toVo(blsOrder);
         // 如果是进行中订单，计算实时金额
-        if (order.getStatus() != null && order.getStatus() == 0 && order.getStartTime() != null) {
-            PricingResult pricingResult = calculateAmount(order.getStartTime(), null, order.getPriceRuleId(), false);
+        if (blsOrder.getStatus() != null && blsOrder.getStatus() == 0 && blsOrder.getStartTime() != null) {
+            PricingResult pricingResult = calculateAmount(blsOrder.getStartTime(), null, blsOrder.getPriceRuleId(), false);
             // 更新VO对象
             fillOrderVO(orderVO, pricingResult);
         }
@@ -217,35 +238,35 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Order endUserOrder(String orderId) {
-        Order order = this.getById(orderId);
-        if (order == null) {
+    public BlsOrder endUserOrder(String orderId) {
+        BlsOrder blsOrder = this.getById(orderId);
+        if (blsOrder == null) {
             throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
         }
-        if (LoginHelper.getUserId() != order.getUserId()) {
+        if (LoginHelper.getUserId() != blsOrder.getUserId()) {
             throw BilliardsException.of(ResultCode.FORBIDDEN);
         }
-        order.setCompleteFlag(OrderCompleteFlagEnum.USER_END.getCode()); // 设置用户结束标志
-        return endOrder(order); // Return the updated order
+        blsOrder.setCompleteFlag(OrderCompleteFlagEnum.USER_END.getCode()); // 设置用户结束标志
+        return endOrder(blsOrder); // Return the updated order
     }
 
     @Override
-    public IPage<Order> listUserOrders(OrderQueryRequest queryRequest) {
+    public IPage<BlsOrder> listUserOrders(OrderQueryRequest queryRequest) {
         queryRequest.setUserId(LoginHelper.getUserId());
-        Page<Order> pageParam = new Page<>(queryRequest.getPageNum(), queryRequest.getPageSize());
-        LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Order::getUserId, queryRequest.getUserId());
+        Page<BlsOrder> pageParam = new Page<>(queryRequest.getPageNum(), queryRequest.getPageSize());
+        LambdaQueryWrapper<BlsOrder> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlsOrder::getUserId, queryRequest.getUserId());
 
-        queryWrapper.eq(queryRequest.getStatus() != null, Order::getStatus, queryRequest.getStatus());
+        queryWrapper.eq(queryRequest.getStatus() != null, BlsOrder::getStatus, queryRequest.getStatus());
         if (queryRequest.getStartTime() != null && queryRequest.getEndTime() != null) {
-            queryWrapper.between(Order::getCreateTime, queryRequest.getStartTime(), queryRequest.getEndTime());
+            queryWrapper.between(BlsOrder::getCreateTime, queryRequest.getStartTime(), queryRequest.getEndTime());
         } else if (queryRequest.getStartTime() != null) {
-            queryWrapper.ge(Order::getCreateTime, queryRequest.getStartTime());
+            queryWrapper.ge(BlsOrder::getCreateTime, queryRequest.getStartTime());
         } else if (queryRequest.getEndTime() != null) {
-            queryWrapper.le(Order::getCreateTime, queryRequest.getEndTime());
+            queryWrapper.le(BlsOrder::getCreateTime, queryRequest.getEndTime());
         }
 
-        queryWrapper.orderByDesc(Order::getCreateTime);
+        queryWrapper.orderByDesc(BlsOrder::getCreateTime);
         return this.page(pageParam, queryWrapper);
     }
 
@@ -265,54 +286,55 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     @Override
-    public Order getRefundingOrder() {
+    public BlsOrder getRefundingOrder() {
         // 找出当前用户退款中的订单，只有一条
-        List<Order> orders = this.list(new LambdaQueryWrapper<Order>()
-                .eq(Order::getUserId, LoginHelper.getUserIdStr())
-                .eq(Order::getPaymentStatus, 2) // 2 for refunding
-                .orderByDesc(Order::getCreateTime)
+        List<BlsOrder> blsOrders = this.list(new LambdaQueryWrapper<BlsOrder>()
+                .eq(BlsOrder::getUserId, LoginHelper.getUserIdStr())
+                .eq(BlsOrder::getPaymentStatus, 2) // 2 for refunding
+                .orderByDesc(BlsOrder::getCreateTime)
                 .last("LIMIT 1"));
-        if (CollectionUtil.isNotEmpty(orders)) {
-            return orders.get(0);
+        if (CollectionUtil.isNotEmpty(blsOrders)) {
+            return blsOrders.get(0);
         }
         return null;
     }
 
     @Override
-    public Order completeOrder(String orderId) {
-        Order order = this.getById(orderId);
-        if (order == null) {
+    public BlsOrder completeOrder(String orderId) {
+        BlsOrder blsOrder = this.getById(orderId);
+        if (blsOrder == null) {
             throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
         }
-        if(order.getPaymentStatus() != 2){
+        if(blsOrder.getPaymentStatus() != 2){
             throw BilliardsException.of(ResultCode.ORDER_NOT_REFUNDING);
         }
-        order.setPaymentStatus(1);
+        blsOrder.setPaymentStatus(1);
         // 更新订单状态
-        if (!this.updateById(order)) {
+        if (!this.updateById(blsOrder)) {
             throw BilliardsException.of(ResultCode.ERROR);
         }
-        return order;
+        return blsOrder;
     }
 
     @Override
-    public List<Order> listOngoingOrders() {
+    public List<BlsOrder> listOngoingOrders() {
         // 查询所有进行中的订单
-        return this.list(new LambdaQueryWrapper<Order>()
-                .eq(Order::getStatus, 0) // 0 for in progress
-                .orderByDesc(Order::getCreateTime));
+        return this.list(new LambdaQueryWrapper<BlsOrder>()
+                .eq(BlsOrder::getStatus, 0) // 0 for in progress
+                .orderByDesc(BlsOrder::getCreateTime));
     }
 
     @Override
     public void detectOrders() {
-        List<Order> orders = listOngoingOrders();
+        List<BlsOrder> blsOrders = listOngoingOrders();
         // 计算使用费用，如果消费金额达到一定额度，则发出提醒，告知用户余额不足，如果余额为0，直接结束当前订单
-        for (Order order : orders) {
+        for (BlsOrder blsOrder : blsOrders) {
+            // todo 获取用户会员标识
             // 计算当前订单的实时金额
-            PricingResult result = calculateAmount(order.getStartTime(), null, order.getPriceRuleId(), false);
+            PricingResult result = calculateAmount(blsOrder.getStartTime(), null, blsOrder.getPriceRuleId(), false);
 
             // 获取当前用户的余额
-            BigDecimal userBalance = walletAccountService.getWalletAccountByUserId(order.getUserId()).getBalance();
+            BigDecimal userBalance = walletAccountService.getWalletAccountByUserId(blsOrder.getUserId()).getBalance();
 
             // 余额不足预警提醒的阈值
             BigDecimal warningThreshold = new BigDecimal("10.00"); // 例如10元
@@ -323,21 +345,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             // 判断是否达到临界点，如果已经在临界点范围之内，则发出提醒。 如果差值为0，表示用户余额使用完毕
             if (balanceDifference.compareTo(BigDecimal.ZERO) <= 0) {
                 // 用户余额不足，结束订单
-                order.setRemark("用户余额不足，定时任务自动结束订单");
-                order.setCompleteFlag(OrderCompleteFlagEnum.TIMEOUT_END.getCode()); // 设置系统结束标志
-                endOrder(order);
-                log.warn("User {} has insufficient balance, ending order {}", order.getUserId(), order.getOrderNo());
+                blsOrder.setRemark("用户余额不足，定时任务自动结束订单");
+                blsOrder.setCompleteFlag(OrderCompleteFlagEnum.TIMEOUT_END.getCode()); // 设置系统结束标志
+                endOrder(blsOrder);
+                log.warn("User {} has insufficient balance, ending order {}", blsOrder.getUserId(), blsOrder.getOrderNo());
                 continue;
             }
             // 如果余额差值小于等于预警阈值，发出余额不足预警提醒
             if (balanceDifference.compareTo(warningThreshold) <= 0) {
                 // 余额不足预警提醒
                 log.warn("User {} is approaching low balance threshold, current balance: {}, order: {}",
-                    order.getUserId(), userBalance, order.getOrderNo());
+                    blsOrder.getUserId(), userBalance, blsOrder.getOrderNo());
                 // todo 给用户发出提醒
             }
         }
-        log.info("Order detection completed, processed {} ongoing orders.", orders.size());
+        log.info("Order detection completed, processed {} ongoing orders.", blsOrders.size());
     }
 
     @Override
@@ -346,6 +368,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         if (order == null) {
             throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
         }
+        // todo 获取用户会员标识
         // 如果是进行中订单，计算实时金额
         PricingResult pricingResult = calculateAmount(order.getStartTime(), order.getEndTime(), order.getPriceRuleId(), false);
         // 更新VO对象
@@ -354,78 +377,86 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
 
-    private Order orderInit(Table table){
-        Order order = new Order();
-        order.setOrderNo(OrderNumberGenerator.generate());
-        order.setUserId(LoginHelper.getUserId());
-        order.setStoreId(table.getStoreId());
-        order.setStoreName(storeService.getById(table.getStoreId()).getName());
-        order.setTableId(table.getId());
-        order.setTableNumber(table.getTablePrefix() + table.getTableNumber());
-        order.setPriceRuleId(table.getPriceRuleId());
-        order.setStartTime(LocalDateTime.now());
-        order.setDuration(0);
-        order.setOriginalAmount(BigDecimal.ZERO);
-        order.setDiscountAmount(BigDecimal.ZERO);
-        order.setActualAmount(BigDecimal.ZERO);
-        order.setPaymentStatus(0);
-        order.setStatus(0);
-        return order;
+    private BlsOrder orderInit(BlsTable blsTable){
+        BlsOrder blsOrder = new BlsOrder();
+        blsOrder.setOrderNo(OrderNumberGenerator.generate());
+        blsOrder.setUserId(LoginHelper.getUserId());
+        blsOrder.setStoreId(blsTable.getStoreId());
+        blsOrder.setStoreName(storeService.getById(blsTable.getStoreId()).getName());
+        blsOrder.setTableId(blsTable.getId());
+        blsOrder.setTableNumber(blsTable.getTableNumber());
+        blsOrder.setPriceRuleId(blsTable.getPriceRuleId());
+        blsOrder.setStartTime(LocalDateTime.now());
+        blsOrder.setDuration(0);
+        blsOrder.setOriginalAmount(BigDecimal.ZERO);
+        blsOrder.setDiscountAmount(BigDecimal.ZERO);
+        blsOrder.setActualAmount(BigDecimal.ZERO);
+        blsOrder.setPaymentStatus(0);
+        blsOrder.setStatus(0);
+        return blsOrder;
     }
 
     /**
      * 用户结束计费，订单的支付状态从未支付变成已支付、订单的状态从进行中变成已完成。
      * 如果需要退款，则支付状态变成退款中、订单状态变成已结束
      * 待退款回调完成，变成已支付、订单也变成已完成
-     * @param order
+     * @param blsOrder
      * @return
      */
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Order endOrder(Order order){
-        if (order.getStatus() != null && order.getStatus() != 0) {
+    public BlsOrder endOrder(BlsOrder blsOrder){
+        if (blsOrder.getStatus() != null && blsOrder.getStatus() != 0) {
             throw BilliardsException.of(ResultCode.ORDER_ALREADY_ENDED);
         }
+        // todo 获取用户会员标识
         // 计算消费额
-        PricingResult result = calculateAmount(order.getStartTime(), null, order.getPriceRuleId(), false);
+        PricingResult result = calculateAmount(blsOrder.getStartTime(), null, blsOrder.getPriceRuleId(), false);
         // 更新订单信息
-        fillOrderResult(order, result);
-        order.setStatus(1); // 1 for completed
+        fillOrderResult(blsOrder, result);
+        blsOrder.setStatus(1); // 1 for completed
 
         // 解锁桌台
-        tableService.releaseTable(order.getTableId());
+        if(!tableService.releaseTable(blsOrder.getTableId())){
+            throw BilliardsException.of(ResultCode.ERROR);
+        }
+
+        // 记录桌台结束时间
+        if(!blsTableUsageService.trackTableUsage(blsOrder)){
+            throw BilliardsException.of(ResultCode.ERROR);
+        }
 
         // 扣费操作，返回退款金额
-        final BigDecimal refundAmount = walletAccountService.deductBalance(order.getUserId(), result.getActualAmount());
+        final BigDecimal refundAmount = walletAccountService.deductBalance(blsOrder.getUserId(), result.getActualAmount());
 
         // 如果退款金额大于0，发起微信退款(以后考虑异步，以防止微信调用失败导致无法结束订单)
         if(refundAmount.compareTo(BigDecimal.ZERO) > 0){
             // 更新订单支付状态为退款中
-            order.setPaymentStatus(2);
-            this.updateById(order);
+            blsOrder.setPaymentStatus(2);
+            this.updateById(blsOrder);
             // 获取系统中该用户已支付的最新记录，
-            PayRecord lastPayRecord = payRecordService.getLastPayRecord(LoginHelper.getUserId());
+            BlsPayRecord lastBlsPayRecord = payRecordService.getLastPayRecord(LoginHelper.getUserId());
 
             // 发起退款
-            refundRecordService.refund(order.getId(), lastPayRecord, refundAmount);
-            return order;
+            refundRecordService.refund(blsOrder.getId(), lastBlsPayRecord, refundAmount);
+            return blsOrder;
         }
         // 无需退款，直接更新记录为 已支付
-        order.setPaymentStatus(1); // 已支付
-        this.updateById(order);
+        blsOrder.setPaymentStatus(1); // 已支付
+        this.updateById(blsOrder);
         // 发起微信退款
-        return order;
+        return blsOrder;
     }
 
     @Override
     public void orderRefundByAdmin(String orderId) {
         // 根据订单找到退款失败的记录
-        Order order = this.getById(orderId);
-        if(order ==null){
+        BlsOrder blsOrder = this.getById(orderId);
+        if(blsOrder ==null){
             throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
         }
-        if(order.getPaymentStatus() != 2){
+        if(blsOrder.getPaymentStatus() != 2){
             throw BilliardsException.of(ResultCode.ORDER_NOT_REFUNDING);
         }
 
@@ -445,9 +476,46 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     }
 
+    @Override
+    public List<OrderVO> listOngoingOrders(String storeId) {
+        LambdaQueryWrapper<BlsOrder> queryWrapper = new LambdaQueryWrapper<BlsOrder>()
+            .eq(BlsOrder::getStatus, 0) // 0 for in progress
+            .eq(StringUtils.isNotBlank(storeId), BlsOrder::getStoreId, storeId)
+            .orderByDesc(BlsOrder::getCreateTime);
+        List<BlsOrder> orders = this.list(queryWrapper);
+
+        // 流式计算实时金额，并返回vo对象
+        if (CollectionUtil.isNotEmpty(orders)) {
+            return orders.stream().map(order -> {
+                PricingResult pricingResult = calculateAmount(order.getStartTime(), null, order.getPriceRuleId(), false);
+                OrderVO orderVO = orderConvert.toVo(order);
+                fillOrderVO(orderVO, pricingResult);
+                return orderVO;
+            }).toList();
+        }
+        return orderConvert.toVoList(orders);
+    }
+
+    @Override
+    public void changeOrderAmount(String orderId, OrderUpdateDto updateDto) {
+        BlsOrder blsOrder = this.getById(orderId);
+        if(blsOrder == null){
+            throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
+        }
+        if(blsOrder.getStatus() != null && blsOrder.getStatus() != 0){
+            throw BilliardsException.of(ResultCode.ORDER_ALREADY_ENDED);
+        }
+        blsOrder.setActualAmount(updateDto.getAmount());
+        blsOrder.setRemark(updateDto.getRemark());
+        if(!this.updateById(blsOrder)){
+            throw BilliardsException.of(ResultCode.ERROR);
+        }
+
+    }
+
     private PricingResult calculateAmount(LocalDateTime startTime, LocalDateTime endTime, String priceRuleId, boolean isMember){
         // 获取计费规则
-        PriceRule priceRule = priceRuleService.getById(priceRuleId);
+        BlsPriceRule blsPriceRule = priceRuleService.getById(priceRuleId);
 
         // 计算当前使用时长
         endTime = endTime == null ? LocalDateTime.now() : endTime;
@@ -461,13 +529,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         int minutes = (int) duration.toMinutes();
 
         // 确保达到最低消费时长
-        minutes = Math.max(minutes, priceRule.getMinMinutes());
+        minutes = Math.max(minutes, blsPriceRule.getMinMinutes());
 
         // 例如: isMember = userService.checkMemberStatus(order.getUserId());
 
         // 使用策略模式计算费用
-        PricingStrategy strategy = pricingStrategyFactory.getStrategy(priceRule.getRuleType());
-        PricingResult result = strategy.calculatePrice(null, priceRule, minutes, isMember);
+        PricingStrategy strategy = pricingStrategyFactory.getStrategy(blsPriceRule.getRuleType());
+        PricingResult result = strategy.calculatePrice(null, blsPriceRule, minutes, isMember);
         result.setEndTime(endTime);
         result.setStartTime(startTime);
         result.setDuration(minutes);
@@ -486,12 +554,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         orderVO.setMemberDiscount(pricingResult.getMemberDiscount());
     }
 
-    private void fillOrderResult(Order order, PricingResult result){
-        order.setDuration(result.getDuration());
-        order.setOriginalAmount(result.getOriginalAmount());
-        order.setDiscountAmount(result.getDiscountAmount());
-        order.setActualAmount(result.getActualAmount());
-        order.setEndTime(result.getEndTime());
+    private void fillOrderResult(BlsOrder blsOrder, PricingResult result){
+        blsOrder.setDuration(result.getDuration());
+        blsOrder.setOriginalAmount(result.getOriginalAmount());
+        blsOrder.setDiscountAmount(result.getDiscountAmount());
+        blsOrder.setActualAmount(result.getActualAmount());
+        blsOrder.setEndTime(result.getEndTime());
     }
 
 }
