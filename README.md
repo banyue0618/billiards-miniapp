@@ -4,13 +4,13 @@
 
 # 多租户系统设计
    ## 系统定位
-        - 多租户SaaS：租户(tenant) → 商户(merchant) 1:N → 门店(store) N。
-        - 小程序“聚合形态”：一个小程序服务多个租户/商户/门店。
+        多租户SaaS：租户(tenant) → 商户(merchant) 1:N → 门店(store) N。
+        小程序“聚合形态”：一个小程序服务多个租户/商户/门店。
    ## 数据与隔离
-        - 业务表统一含 tenant_id；桌台/会员/积分/订单/资金等再含 merchant_id（按商户隔离）。
-        - 用户表 bls_user 为平台级账户（不绑定商户；聚合小程序登录不强绑定租户）。
-        - 订单链路冗余 merchant_id，便于统计与对账。
-   ## 详细设计可查看doc目录下的文档
+        业务表统一含 tenant_id；桌台/会员/积分/订单/资金等再含 merchant_id（按商户隔离）。
+        用户表 bls_user 为平台级账户（不绑定商户；聚合小程序登录不强绑定租户）。
+        订单链路冗余 merchant_id，便于统计与对账。
+        详细设计可查看doc目录下的文档
 # 线上后台管理地址
 https://www.banyue.xin/billiards/
  - 账号：admin
