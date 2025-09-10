@@ -1,5 +1,6 @@
 package org.dromara.billiards.service;
 
+import org.dromara.billiards.domain.entity.BlsMemberLevelConfig;
 import org.dromara.billiards.domain.vo.BlsMemberLevelConfigVo;
 import org.dromara.billiards.domain.bo.BlsMemberLevelConfigBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -65,4 +66,10 @@ public interface IBlsMemberLevelConfigService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
+
+    /**
+     *
+     * @return 会员等级配置列表
+     */
+    List<BlsMemberLevelConfig> queryList();
 }

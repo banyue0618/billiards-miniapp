@@ -3,7 +3,7 @@ package org.dromara.billiards.domain.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import java.io.Serial;
 
@@ -55,12 +55,12 @@ public class BlsMemberBenefit extends BilliardsBaseEntity {
     /**
      * 生效时间
      */
-    private Date effectiveTime;
+    private LocalDateTime effectiveTime;
 
     /**
      * 失效时间
      */
-    private Date expireTime;
+    private LocalDateTime expireTime;
 
     /**
      * 权益图标

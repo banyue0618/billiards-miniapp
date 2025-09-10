@@ -53,6 +53,9 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
     @Resource
     private IBlsWalletAccountService walletAccountService;
 
+    @Resource
+    private IBlsUserTenantService userTenantService;
+
     /**
      * 是否启用模拟支付（开发环境使用）
      */
@@ -61,45 +64,46 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
 
     @Override
     public String createPayment(PaymentRequest request, String channel) {
-        BlsUser user = userService.getUserInfoById();
-        log.info("创建支付订单: userId={}, openid={}, amount={}", user.getId(), user.getOpenid(), request.getAmount());
+        BlsUser blsUser = userService.getUserInfoById();
+        log.info("创建支付订单: userId={}, openid={}, amount={}", blsUser.getId(), blsUser.getOpenid(), request.getAmount());
 
         // 创建支付记录
-        BlsPayRecord payRecord = new BlsPayRecord();
-        payRecord.setId(IdUtil.fastSimpleUUID());
-        payRecord.setOpenid(user.getOpenid());
-        payRecord.setPayNo(generatePayNo());
-        payRecord.setUserId(user.getId());
-        payRecord.setAmount(request.getAmount());
-        payRecord.setChannel(channel);
-        payRecord.setPaymentStatus(PaymentStatus.UNPAID.getCode()); // 未支付
+        BlsPayRecord blsPayRecord = new BlsPayRecord();
+        blsPayRecord.setId(IdUtil.fastSimpleUUID());
+        blsPayRecord.setOpenid(blsUser.getOpenid());
+        blsPayRecord.setPayNo(generatePayNo());
+        blsPayRecord.setUserId(blsUser.getId());
+        blsPayRecord.setAmount(request.getAmount());
+        blsPayRecord.setChannel(channel);
+        blsPayRecord.setPaymentStatus(PaymentStatus.UNPAID.getCode()); // 未支付
 
         // 保存支付记录
-        boolean saved = this.save(payRecord);
+        boolean saved = this.save(blsPayRecord);
         if (!saved) {
             throw BilliardsException.of("创建支付记录失败");
         }
 
+        // 保存用户所属租户记录
+        userTenantService.saveUserTenantRecord(blsUser);
+
         // 如果启用了模拟支付，则直接更新用户余额并返回成功
         if (mockPaymentEnabled) {
             log.info("模拟支付模式已启用，直接更新用户余额");
-            BlsWalletAccount walletAccount = walletAccountService.updateWalletBalance(user.getId(), request.getAmount());
-            if (walletAccount.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-                // 更新支付记录状态为支付成功
-                payRecord.setPaymentStatus(PaymentStatus.PAID.getCode());
-                payRecord.setRemark("模拟支付成功");
-                payRecord.setUpdateTime(LocalDateTime.now());
-                this.updateById(payRecord);
+            BlsWalletAccount walletAccount = walletAccountService.updateWalletBalance(blsUser.getId(), request.getAmount());
+            // 更新支付记录状态为支付成功
+            blsPayRecord.setPaymentStatus(PaymentStatus.PAID.getCode());
+            blsPayRecord.setRemark("模拟支付成功");
+            blsPayRecord.setUpdateTime(LocalDateTime.now());
+            this.updateById(blsPayRecord);
 
-                // 返回特殊标记，前端可据此判断是模拟支付
-                return "{\"mock\":true,\"message\":\"模拟支付成功\"}";
-            }
+            // 返回特殊标记，前端可据此判断是模拟支付
+            return "{\"mock\":true,\"message\":\"模拟支付成功\"}";
         }
 
         // 调用微信支付接口创建预支付订单
         try {
-            // 调用微信支付服务创建jsapi预支付订单，返回支付参数
-            String payParams = payService.jsApiPay(user.getOpenid(), payRecord.getAmount(), payRecord.getId(), "");
+            // 调用微信支付服务创建jsapi预支付订单，返回支付参数 todo
+            String payParams = payService.jsApiPay(blsUser.getOpenid(), blsPayRecord.getAmount(), blsPayRecord.getId(), "");
             log.info("创建预支付订单成功，支付参数: {}", payParams);
             return payParams;
         } catch (Exception e) {
@@ -129,36 +133,36 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
             final String outTradeNo = decryptRes.getOutTradeNo(); // 商户订单号
 
             // 查询支付记录
-            BlsPayRecord payRecord = this.getOne(new LambdaQueryWrapper<BlsPayRecord>()
+            BlsPayRecord blsPayRecord = this.getOne(new LambdaQueryWrapper<BlsPayRecord>()
                 .eq(BlsPayRecord::getId, outTradeNo));
 
-            if (payRecord == null) {
+            if (blsPayRecord == null) {
                 log.error("支付回调找不到对应的支付记录: {}", outTradeNo);
                 return false;
             }
 
             // 判断是否已处理过，判断状态是否是 0或者1，如果不是，则表示已经处理过
-            if(!(payRecord.getPaymentStatus() >= 0 && (payRecord.getPaymentStatus() & (payRecord.getPaymentStatus() - 1)) == 0)){
+            if(!(blsPayRecord.getPaymentStatus() >= 0 && (blsPayRecord.getPaymentStatus() & (blsPayRecord.getPaymentStatus() - 1)) == 0)){
                 log.info("支付回调重复处理: {}", outTradeNo);
                 return true;
             }
 
             // 更新支付记录
-            payRecord.setTransactionId(decryptRes.getTransactionId());
-            payRecord.setNotifyTime(LocalDateTime.now());
-            payRecord.setNotifyData(notifyData);
-            payRecord.setRemark(decryptRes.getTradeStateDesc());
+            blsPayRecord.setTransactionId(decryptRes.getTransactionId());
+            blsPayRecord.setNotifyTime(LocalDateTime.now());
+            blsPayRecord.setNotifyData(notifyData);
+            blsPayRecord.setRemark(decryptRes.getTradeStateDesc());
             // 判断支付状态
             if (WxPayConstants.WxpayTradeStatus.SUCCESS.equals(decryptRes.getTradeState())) {
-                payRecord.setPaymentStatus(PaymentStatus.PAID.getCode()); // 支付成功
+                blsPayRecord.setPaymentStatus(PaymentStatus.PAID.getCode()); // 支付成功
                 log.info("支付成功: {}", outTradeNo);
-                walletAccountService.updateWalletBalanceAndWalletTransaction(payRecord);
+                walletAccountService.updateWalletBalanceAndWalletTransaction(blsPayRecord);
             } else {
-                payRecord.setPaymentStatus(PaymentStatus.PAY_FAIL.getCode()); // 支付失败
+                blsPayRecord.setPaymentStatus(PaymentStatus.PAY_FAIL.getCode()); // 支付失败
                 // todo 付款失败
             }
-            payRecord.setUpdateTime(LocalDateTime.now());
-            this.updateById(payRecord);
+            blsPayRecord.setUpdateTime(LocalDateTime.now());
+            this.updateById(blsPayRecord);
             return true;
         } catch (Exception e) {
             log.error("处理支付回调异常", e);
@@ -172,7 +176,7 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
         // 根据用户查询最近的一条已支付记录
         return this.getOne(new LambdaQueryWrapper<BlsPayRecord>()
             .eq(BlsPayRecord::getUserId, userId)
-            .eq(BlsPayRecord::getPaymentStatus, 1)
+            .eq(BlsPayRecord::getPaymentStatus, PaymentStatus.PAID.getCode())
             .orderByDesc(BlsPayRecord::getCreateTime)
             .last("limit 1"));
     }

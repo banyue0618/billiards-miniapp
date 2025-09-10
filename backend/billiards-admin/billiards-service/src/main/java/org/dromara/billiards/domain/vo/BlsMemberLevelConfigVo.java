@@ -37,7 +37,7 @@ public class BlsMemberLevelConfigVo implements Serializable {
      * 等级编码
      */
     @ExcelProperty(value = "等级编码")
-    private Long levelCode;
+    private String levelCode;
 
     /**
      * 等级名称
@@ -55,7 +55,7 @@ public class BlsMemberLevelConfigVo implements Serializable {
      * 折扣率
      */
     @ExcelProperty(value = "折扣率")
-    private Long discount;
+    private BigDecimal discount;
 
     /**
      * 每月赠送时长（分钟）
@@ -68,13 +68,13 @@ public class BlsMemberLevelConfigVo implements Serializable {
      * 积分获取倍率
      */
     @ExcelProperty(value = "积分获取倍率")
-    private Long pointsMultiplier;
+    private BigDecimal pointsMultiplier;
 
     /**
      * 生日特权折扣率
      */
     @ExcelProperty(value = "生日特权折扣率")
-    private Long birthdayDiscount;
+    private BigDecimal birthdayDiscount;
 
     /**
      * 可带朋友享受会员价的人数

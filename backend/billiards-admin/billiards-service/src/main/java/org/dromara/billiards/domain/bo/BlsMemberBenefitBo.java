@@ -8,13 +8,14 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
-import java.util.Date;
+import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 会员权益业务对象 bls_member_benefit
  *
  * @author banyue
- * @date 2025-06-17
+ * @date 2025-09-09
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,9 +35,9 @@ public class BlsMemberBenefitBo extends BaseEntity {
     private String name;
 
     /**
-     * 权益类型：1-折扣 2-赠送 3-积分 4-特权
+     * 权益类型
      */
-    @NotNull(message = "权益类型：1-折扣 2-赠送 3-积分 4-特权不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "权益类型不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long type;
 
     /**
@@ -59,12 +60,12 @@ public class BlsMemberBenefitBo extends BaseEntity {
     /**
      * 生效时间
      */
-    private Date effectiveTime;
+    private LocalDateTime effectiveTime;
 
     /**
      * 失效时间
      */
-    private Date expireTime;
+    private LocalDateTime expireTime;
 
     /**
      * 权益图标
@@ -82,31 +83,30 @@ public class BlsMemberBenefitBo extends BaseEntity {
     private String instructions;
 
     /**
-     * 状态：0-启用 1-禁用
+     * 状态
      */
-    @NotNull(message = "状态：0-启用 1-禁用不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "状态不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long status;
 
     /**
      * 排序号
      */
-    @NotNull(message = "排序号不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long sortOrder;
 
     /**
-     * 是否限时权益：0-永久 1-限时
+     * 是否限时
      */
-    @NotNull(message = "是否限时权益：0-永久 1-限时不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "是否限时不能为空", groups = { AddGroup.class, EditGroup.class })
     private Integer isLimited;
 
     /**
-     * 是否节日特权：0-否 1-是
+     * 是否节日特权
      */
-    @NotNull(message = "是否节日特权：0-否 1-是不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "是否节日特权不能为空", groups = { AddGroup.class, EditGroup.class })
     private Integer isHoliday;
 
     /**
-     * 权益标签，多个用逗号分隔
+     * 权益标签
      */
     private String tags;
 

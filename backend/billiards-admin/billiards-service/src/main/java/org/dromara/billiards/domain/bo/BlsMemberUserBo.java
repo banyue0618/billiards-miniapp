@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 会员用户业务对象 bls_member_user
@@ -61,12 +61,12 @@ public class BlsMemberUserBo extends BaseEntity {
     /**
      * 等级有效期
      */
-    private Date levelExpireTime;
+    private LocalDateTime levelExpireTime;
 
     /**
      * 最近消费时间
      */
-    private Date lastConsumeTime;
+    private LocalDateTime lastConsumeTime;
 
     /**
      * 状态：0-正常 1-禁用

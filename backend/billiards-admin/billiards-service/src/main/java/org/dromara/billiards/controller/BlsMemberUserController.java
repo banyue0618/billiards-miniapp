@@ -31,7 +31,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/billiards/memberUser")
+@RequestMapping("/api/memberUser")
 public class BlsMemberUserController extends BaseController {
 
     private final IBlsMemberUserService blsMemberUserService;

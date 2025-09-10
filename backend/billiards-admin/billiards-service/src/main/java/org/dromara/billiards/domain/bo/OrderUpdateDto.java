@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  * @Author zhangsip
  * @Version V1.0.0
  * @Since 1.0
- * @Date 2025/9/4
+ * @LocalDateTime 2025/9/4
  */
 @Data
 public class OrderUpdateDto implements Serializable {

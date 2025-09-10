@@ -1,5 +1,7 @@
 package org.dromara.billiards.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import org.dromara.billiards.domain.entity.BlsMemberPointsValidity;
 import org.dromara.billiards.domain.vo.BlsMemberPointsValidityVo;
 import org.dromara.billiards.domain.bo.BlsMemberPointsValidityBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -14,7 +16,7 @@ import java.util.List;
  * @author banyue
  * @date 2025-06-17
  */
-public interface IBlsMemberPointsValidityService {
+public interface IBlsMemberPointsValidityService extends IService<BlsMemberPointsValidity> {
 
     /**
      * 查询积分有效期

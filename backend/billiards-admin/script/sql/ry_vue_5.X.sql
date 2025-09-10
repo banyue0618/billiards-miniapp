@@ -142,6 +142,7 @@ insert into sys_dept values(109, '000000', 102, '0,100,102',  '财务部门',   
 create table sys_user (
     user_id           bigint(20)      not null                   comment '用户ID',
     tenant_id         varchar(20)     default '000000'           comment '租户编号',
+    merchant_id       bigint(20)                                 comment '商户id',
     dept_id           bigint(20)      default null               comment '部门ID',
     user_name         varchar(30)     not null                   comment '用户账号',
     nick_name         varchar(30)     not null                   comment '用户昵称',
@@ -167,9 +168,9 @@ create table sys_user (
 -- ----------------------------
 -- 初始化-用户信息表数据
 -- ----------------------------
-insert into sys_user values(1, '000000', 103, 'admin', '疯狂的狮子Li', 'sys_user', 'crazyLionLi@163.com', '15888888888', '1', null, '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), 103, 1, sysdate(), null, null, '管理员');
-insert into sys_user values(3, '000000', 108, 'test', '本部门及以下 密码666666', 'sys_user', '', '', '0', null, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', '0', '0', '127.0.0.1', sysdate(), 103, 1, sysdate(), 3, sysdate(), null);
-insert into sys_user values(4, '000000', 102, 'test1', '仅本人 密码666666', 'sys_user', '', '', '0', null, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', '0', '0', '127.0.0.1', sysdate(), 103, 1, sysdate(), 4, sysdate(), null);
+insert into sys_user values(1, '000000',1, 103, 'admin', '疯狂的狮子Li', 'sys_user', 'crazyLionLi@163.com', '15888888888', '1', null, '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), 103, 1, sysdate(), null, null, '管理员');
+insert into sys_user values(3, '000000',1, 108, 'test', '本部门及以下 密码666666', 'sys_user', '', '', '0', null, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', '0', '0', '127.0.0.1', sysdate(), 103, 1, sysdate(), 3, sysdate(), null);
+insert into sys_user values(4, '000000',1, 102, 'test1', '仅本人 密码666666', 'sys_user', '', '', '0', null, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', '0', '0', '127.0.0.1', sysdate(), 103, 1, sysdate(), 4, sysdate(), null);
 
 -- ----------------------------
 -- 3、岗位信息表
@@ -264,7 +265,7 @@ create table sys_menu (
 -- ----------------------------
 -- 一级菜单
 insert into sys_menu values('1', '系统管理', '0', '1', 'system',           null, '', 1, 0, 'M', '0', '0', '', 'system',   103, 1, sysdate(), null, null, '系统管理目录');
--- insert into sys_menu values('6', '租户管理', '0', '2', 'tenant',           null, '', 1, 0, 'M', '0', '0', '', 'chart',    103, 1, sysdate(), null, null, '租户管理目录');
+insert into sys_menu values('6', '租户管理', '0', '2', 'tenant',           null, '', 1, 0, 'M', '0', '0', '', 'chart',    103, 1, sysdate(), null, null, '租户管理目录');
 insert into sys_menu values('2', '系统监控', '0', '3', 'monitor',          null, '', 1, 0, 'M', '0', '0', '', 'monitor',  103, 1, sysdate(), null, null, '系统监控目录');
 insert into sys_menu values('3', '系统工具', '0', '4', 'tool',             null, '', 1, 0, 'M', '0', '0', '', 'tool',     103, 1, sysdate(), null, null, '系统工具目录');
 -- 二级菜单
@@ -280,16 +281,17 @@ insert into sys_menu values('108',  '日志管理',     '1',   '9', 'log',      
 insert into sys_menu values('109',  '在线用户',     '2',   '1', 'online',           'monitor/online/index',         '', 1, 0, 'C', '0', '0', 'monitor:online:list',         'online',        103, 1, sysdate(), null, null, '在线用户菜单');
 insert into sys_menu values('113',  '缓存监控',     '2',   '5', 'cache',            'monitor/cache/index',          '', 1, 0, 'C', '0', '0', 'monitor:cache:list',          'redis',         103, 1, sysdate(), null, null, '缓存监控菜单');
 insert into sys_menu values('115',  '代码生成',     '3',   '2', 'gen',              'tool/gen/index',               '', 1, 0, 'C', '0', '0', 'tool:gen:list',               'code',          103, 1, sysdate(), null, null, '代码生成菜单');
--- insert into sys_menu values('121',  '租户管理',     '6',   '1', 'tenant',           'system/tenant/index',          '', 1, 0, 'C', '0', '0', 'system:tenant:list',          'list',          103, 1, sysdate(), null, null, '租户管理菜单');
--- insert into sys_menu values('122',  '租户套餐管理',  '6',   '2', 'tenantPackage',    'system/tenantPackage/index',   '', 1, 0, 'C', '0', '0', 'system:tenantPackage:list',   'form',          103, 1, sysdate(), null, null, '租户套餐管理菜单');
+insert into sys_menu values('121',  '租户管理',     '6',   '1', 'tenant',           'system/tenant/index',          '', 1, 0, 'C', '0', '0', 'system:tenant:list',          'list',          103, 1, sysdate(), null, null, '租户管理菜单');
+insert into sys_menu values('122',  '租户套餐管理',  '6',   '2', 'tenantPackage',    'system/tenantPackage/index',   '', 1, 0, 'C', '0', '0', 'system:tenantPackage:list',   'form',          103, 1, sysdate(), null, null, '租户套餐管理菜单');
+insert into sys_menu values('124',  '商户管理',   '6',   '3', 'merchant',           'system/merchant/index',          '', 1, 0, 'C', '0', '0', 'system:merchant:list',          'international', 103, 1, sysdate(), null, null, '商户管理菜单');
 insert into sys_menu values('123',  '客户端管理',   '1',   '11', 'client',           'system/client/index',          '', 1, 0, 'C', '0', '0', 'system:client:list',          'international', 103, 1, sysdate(), null, null, '客户端管理菜单');
 
 -- springboot-admin监控
--- insert into sys_menu values('117',  'Admin监控',   '2',   '5',  'Admin',            'monitor/admin/index',         '', 1, 0, 'C', '0', '0', 'monitor:admin:list',           'dashboard',     103, 1, sysdate(), null, null, 'Admin监控菜单');
+insert into sys_menu values('117',  'Admin监控',   '2',   '5',  'Admin',            'monitor/admin/index',         '', 1, 0, 'C', '0', '0', 'monitor:admin:list',           'dashboard',     103, 1, sysdate(), null, null, 'Admin监控菜单');
 -- oss菜单
--- insert into sys_menu values('118',  '文件管理',     '1',   '10', 'oss',              'system/oss/index',            '', 1, 0, 'C', '0', '0', 'system:oss:list',              'upload',        103, 1, sysdate(), null, null, '文件管理菜单');
+insert into sys_menu values('118',  '文件管理',     '1',   '10', 'oss',              'system/oss/index',            '', 1, 0, 'C', '0', '0', 'system:oss:list',              'upload',        103, 1, sysdate(), null, null, '文件管理菜单');
 -- snail-job server控制台
--- insert into sys_menu values('120',  '任务调度中心',  '2',   '6',  'snailjob',     'monitor/snailjob/index',    '', 1, 0, 'C', '0', '0', 'monitor:snailjob:list',          'job',           103, 1, sysdate(), null, null, 'SnailJob控制台菜单');
+insert into sys_menu values('120',  '任务调度中心',  '2',   '6',  'snailjob',     'monitor/snailjob/index',    '', 1, 0, 'C', '0', '0', 'monitor:snailjob:list',          'job',           103, 1, sysdate(), null, null, 'SnailJob控制台菜单');
 
 -- 三级菜单
 insert into sys_menu values('500',  '操作日志', '108', '1', 'operlog',    'monitor/operlog/index',    '', 1, 0, 'C', '0', '0', 'monitor:operlog:list',    'form',          103, 1, sysdate(), null, null, '操作日志菜单');
@@ -885,62 +887,98 @@ insert into sys_client values (1, 'e5cd7e4891bf95d1d19206ce24a7b32e', 'pc', 'pc1
 insert into sys_client values (2, '428a8310cd442757ae699df5d894f051', 'app', 'app123', 'password,sms,social', 'android', 1800, 604800, 0, 0, 103, 1, sysdate(), 1, sysdate());
 
 
--- 台球管理一级菜单
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-values (2000, '台球管理', 0, 5, 'billiards', null, 1, 0, 'M', '0', '0', null, 'billiards', 1, now(), '台球管理目录');
+-- ----------------------------
+-- 商户表（租户 1:N 商户）
+-- ----------------------------
+CREATE TABLE `sys_merchant` (
+                                `id` bigint(20) NOT NULL COMMENT '商家ID',
+                                `tenant_id` varchar(20) NOT NULL COMMENT '租户编号(=sys_tenant.tenant_id)',
+                                `wx_mch_id` varchar(20) COMMENT '微信商户id',
+                                `name` varchar(100) NOT NULL COMMENT '商家名称',
+                                `logo` varchar(255) DEFAULT NULL COMMENT '商家Logo',
+                                `contact_name` varchar(50) DEFAULT NULL COMMENT '联系人姓名',
+                                `contact_phone` varchar(20) DEFAULT NULL COMMENT '联系电话',
+                                `status` tinyint DEFAULT 0 COMMENT '状态 0-正常 1-冻结',
+                                `create_dept`        bigint(20)                       comment '创建部门',
+                                `create_time` datetime NOT NULL COMMENT '创建时间',
+                                `update_time` datetime NOT NULL COMMENT '更新时间',
+                                `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+                                `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
+                                `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
+                                PRIMARY KEY (`id`),
+                                KEY `idx_tenant` (`tenant_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商户表';
 
--- 门店管理
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-values (2001, '门店管理', 2000, 1, 'store', 'billiards/store/index', 1, 0, 'C', '0', '0', 'billiards:store:list', 'store', 1, now(), '门店管理菜单');
+-- 初始化数据
+INSERT INTO `sys_merchant` VALUES (1, '000000', '1604899180', '测试商户', '', '张三', '13800138000', 0, 103, sysdate(), sysdate(), '1', '1', 0);
+INSERT INTO `sys_merchant` VALUES (2, '000000', '1604899181', '测试商户2', '', '李四', '13800138001', 0, 103, sysdate(), sysdate(), '1', '1', 0);
+INSERT INTO `sys_merchant` VALUES (3, '000000', '1604899182', '测试商户3', '', '王五', '13800138002', 0, 103, sysdate(), sysdate(), '1', '1', 0);
+INSERT INTO `sys_merchant` VALUES (4, '000000', '1604899183', '测试商户4', '', '赵六', '13800138003', 0, 103, sysdate(), sysdate(), '1', '1', 0);
 
--- 桌台管理
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-values (2002, '桌台管理', 2000, 2, 'table', 'billiards/table/index', 1, 0, 'C', '0', '0', 'billiards:table:list', 'table', 1, now(), '桌台管理菜单');
 
--- 计费规则
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-values (2003, '计费规则', 2000, 3, 'priceRule', 'billiards/priceRule/index', 1, 0, 'C', '0', '0', 'billiards:priceRule:list', 'money', 1, now(), '计费规则菜单');
+CREATE TABLE sys_tenant_apply (
+                                  id                BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+                                  apply_no          VARCHAR(50) NOT NULL UNIQUE COMMENT '申请单号',
+                                  company_name      VARCHAR(100) NOT NULL COMMENT '公司/机构名称',
+                                  credit_code       VARCHAR(32)  NULL COMMENT '统一社会信用代码',
+                                  contact_name      VARCHAR(50)  NOT NULL COMMENT '联系人姓名',
+                                  contact_phone     VARCHAR(20)  NOT NULL COMMENT '联系人手机号',
+                                  contact_email     VARCHAR(100) NULL COMMENT '联系人邮箱',
+                                  province          VARCHAR(50)  NULL COMMENT '省',
+                                  city              VARCHAR(50)  NULL COMMENT '市',
+                                  district          VARCHAR(50)  NULL COMMENT '区/县',
+                                  address           VARCHAR(200) NULL COMMENT '详细地址',
+                                  business_license  VARCHAR(255) NULL COMMENT '营业执照附件(资源ID/URL)',
+                                  package_id        BIGINT       NULL COMMENT '租户套餐ID（可选）',
+                                  expected_users    INT          NULL COMMENT '预计账户数(可选，用于套餐评估)',
+                                  remark            VARCHAR(500) NULL COMMENT '备注/补充说明',
+                                  status            TINYINT      NOT NULL DEFAULT 0 COMMENT '状态:0待审 1通过 2驳回',
+                                  audit_by          BIGINT       NULL COMMENT '审核人ID（sys_user）',
+                                  audit_time        DATETIME     NULL COMMENT '审核时间',
+                                  audit_reason      VARCHAR(500) NULL COMMENT '审核意见/驳回原因',
+    -- 审计
+                                  create_by         VARCHAR(64)  NULL,
+                                  create_dept         bigint(20)    default null        comment '创建部门',
+                                  create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                  update_by         VARCHAR(64)  NULL,
+                                  update_time       DATETIME     NULL ON UPDATE CURRENT_TIMESTAMP,
+                                  is_delete         TINYINT      NOT NULL DEFAULT 0,
+                                  KEY idx_status (status),
+                                  KEY idx_company (company_name),
+                                  KEY idx_create_time (create_time)
+) COMMENT='租户注册申请';
 
--- 订单管理
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-values (2004, '订单管理', 2000, 4, 'order', 'billiards/order/index', 1, 0, 'C', '0', '0', 'billiards:order:list', 'order', 1, now(), '订单管理菜单');
-
--- 营业概况
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-values (2005, '营业概况', 2000, 5, 'dashboard', 'billiards/dashboard/index', 1, 0, 'C', '0', '0', 'billiards:dashboard:view', 'data-board', 1, now(), '营业概况菜单');
-
--- 门店管理按钮
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, perms, menu_type, visible, status, is_frame, is_cache, icon, create_by, create_time, remark) values
-                                                                                                                                                               (2010, '门店查询', 2001, 1, '', 'billiards:store:query', 'F', '0', '0', 1, 0, '#', 1, now(), '门店查询按钮'),
-                                                                                                                                                               (2011, '门店新增', 2001, 2, '', 'billiards:store:add', 'F', '0', '0', 1, 0, '#', 1, now(), '门店新增按钮'),
-                                                                                                                                                               (2012, '门店修改', 2001, 3, '', 'billiards:store:edit', 'F', '0', '0', 1, 0, '#', 1, now(), '门店修改按钮'),
-                                                                                                                                                               (2013, '门店删除', 2001, 4, '', 'billiards:store:remove', 'F', '0', '0', 1, 0, '#', 1, now(), '门店删除按钮'),
-                                                                                                                                                               (2014, '门店导出', 2001, 5, '', 'billiards:store:export', 'F', '0', '0', 1, 0, '#', 1, now(), '门店导出按钮');
-
--- 桌台管理按钮
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, perms, menu_type, visible, status, is_frame, is_cache, icon, create_by, create_time, remark) values
-                                                                                                                                                               (2020, '桌台查询', 2002, 1, '', 'billiards:table:query', 'F', '0', '0', 1, 0, '#', 1, now(), '桌台查询按钮'),
-                                                                                                                                                               (2021, '桌台新增', 2002, 2, '', 'billiards:table:add', 'F', '0', '0', 1, 0, '#', 1, now(), '桌台新增按钮'),
-                                                                                                                                                               (2022, '桌台修改', 2002, 3, '', 'billiards:table:edit', 'F', '0', '0', 1, 0, '#', 1, now(), '桌台修改按钮'),
-                                                                                                                                                               (2023, '桌台删除', 2002, 4, '', 'billiards:table:remove', 'F', '0', '0', 1, 0, '#', 1, now(), '桌台删除按钮'),
-                                                                                                                                                               (2024, '桌台导出', 2002, 5, '', 'billiards:table:export', 'F', '0', '0', 1, 0, '#', 1, now(), '桌台导出按钮');
-
--- 计费规则按钮
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, perms, menu_type, visible, status, is_frame, is_cache, icon, create_by, create_time, remark) values
-                                                                                                                                                               (2030, '计费规则查询', 2003, 1, '', 'billiards:priceRule:query', 'F', '0', '0', 1, 0, '#', 1, now(), '计费规则查询按钮'),
-                                                                                                                                                               (2031, '计费规则新增', 2003, 2, '', 'billiards:priceRule:add', 'F', '0', '0', 1, 0, '#', 1, now(), '计费规则新增按钮'),
-                                                                                                                                                               (2032, '计费规则修改', 2003, 3, '', 'billiards:priceRule:edit', 'F', '0', '0', 1, 0, '#', 1, now(), '计费规则修改按钮'),
-                                                                                                                                                               (2033, '计费规则删除', 2003, 4, '', 'billiards:priceRule:remove', 'F', '0', '0', 1, 0, '#', 1, now(), '计费规则删除按钮'),
-                                                                                                                                                               (2034, '计费规则导出', 2003, 5, '', 'billiards:priceRule:export', 'F', '0', '0', 1, 0, '#', 1, now(), '计费规则导出按钮');
-
--- 订单管理按钮
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, perms, menu_type, visible, status, is_frame, is_cache, icon, create_by, create_time, remark) values
-                                                                                                                                                               (2040, '订单查询', 2004, 1, '', 'billiards:order:query', 'F', '0', '0', 1, 0, '#', 1, now(), '订单查询按钮'),
-                                                                                                                                                               (2041, '订单新增', 2004, 2, '', 'billiards:order:add', 'F', '0', '0', 1, 0, '#', 1, now(), '订单新增按钮'),
-                                                                                                                                                               (2042, '订单修改', 2004, 3, '', 'billiards:order:edit', 'F', '0', '0', 1, 0, '#', 1, now(), '订单修改按钮'),
-                                                                                                                                                               (2043, '订单删除', 2004, 4, '', 'billiards:order:remove', 'F', '0', '0', 1, 0, '#', 1, now(), '订单删除按钮'),
-                                                                                                                                                               (2044, '订单导出', 2004, 5, '', 'billiards:order:export', 'F', '0', '0', 1, 0, '#', 1, now(), '订单导出按钮');
-
--- 营业概况按钮（如有）
-insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, perms, menu_type, visible, status, is_frame, is_cache, icon, create_by, create_time, remark) values
-(2050, '营业概况查看', 2005, 1, '', 'billiards:dashboard:view', 'F', '0', '0', 1, 0, '#', 1, now(), '营业概况查看按钮');
+CREATE TABLE sys_merchant_apply (
+                                    id                BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+                                    apply_no          VARCHAR(50)  NOT NULL UNIQUE COMMENT '申请单号',
+                                    tenant_id         VARCHAR(32)  NOT NULL COMMENT '所属租户ID（字符串，与现有租户模型一致）',
+                                    name              VARCHAR(100) NOT NULL COMMENT '商户名称',
+                                    wx_mch_id         VARCHAR(64)  NULL COMMENT '微信商户号(选填或后置提交)',
+                                    contact_name      VARCHAR(50)  NOT NULL COMMENT '联系人姓名',
+                                    contact_phone     VARCHAR(20)  NOT NULL COMMENT '联系人手机号',
+                                    contact_email     VARCHAR(100) NULL COMMENT '联系人邮箱',
+                                    province          VARCHAR(50)  NULL,
+                                    city              VARCHAR(50)  NULL,
+                                    district          VARCHAR(50)  NULL,
+                                    address           VARCHAR(200) NULL,
+                                    logo              VARCHAR(255) NULL COMMENT 'Logo 资源ID/URL',
+                                    business_license  VARCHAR(255) NULL COMMENT '营业执照附件(资源ID/URL)',
+                                    bank_account_name VARCHAR(100) NULL COMMENT '结算-账户名',
+                                    bank_account_no   VARCHAR(64)  NULL COMMENT '结算-账号',
+                                    bank_name         VARCHAR(100) NULL COMMENT '结算-开户行',
+                                    remark            VARCHAR(500) NULL COMMENT '备注/补充说明',
+                                    status            TINYINT      NOT NULL DEFAULT 0 COMMENT '状态:0待审 1通过 2驳回',
+                                    audit_by          BIGINT       NULL COMMENT '审核人ID（sys_user）',
+                                    audit_time        DATETIME     NULL COMMENT '审核时间',
+                                    audit_reason      VARCHAR(500) NULL COMMENT '审核意见/驳回原因',
+    -- 审计
+                                    create_by         VARCHAR(64)  NULL,
+                                    create_dept         bigint(20)    default null        comment '创建部门',
+                                    create_time       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    update_by         VARCHAR(64)  NULL,
+                                    update_time       DATETIME     NULL ON UPDATE CURRENT_TIMESTAMP,
+                                    is_delete         TINYINT      NOT NULL DEFAULT 0,
+                                    KEY idx_tenant_status (tenant_id, status),
+                                    KEY idx_name (name),
+                                    KEY idx_create_time (create_time)
+) COMMENT='商户注册申请';

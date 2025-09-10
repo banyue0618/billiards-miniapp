@@ -7,29 +7,33 @@
             <el-form-item label="用户ID" prop="userId">
               <el-input v-model="queryParams.userId" placeholder="请输入用户ID" clearable @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="积分数量" prop="points">
-              <el-input v-model="queryParams.points" placeholder="请输入积分数量" clearable @keyup.enter="handleQuery" />
+            <el-form-item label="变动类型" prop="type">
+              <el-select v-model="queryParams.type" placeholder="请选择积分变动类型" clearable>
+                <el-option v-for="dict in points_change_type" :key="dict.value" :label="dict.label" :value="dict.value" />
+              </el-select>
             </el-form-item>
-            <el-form-item label="场景，与积分规则表场景对应" prop="scene">
-              <el-input v-model="queryParams.scene" placeholder="请输入场景，与积分规则表场景对应" clearable @keyup.enter="handleQuery" />
+            <el-form-item label="积分场景" prop="scene">
+              <el-select v-model="queryParams.scene" placeholder="请选择积分场景" clearable>
+                <el-option v-for="dict in points_scene" :key="dict.value" :label="dict.label" :value="dict.value" />
+              </el-select>
             </el-form-item>
-            <el-form-item label="对应的规则ID" prop="ruleId">
-              <el-input v-model="queryParams.ruleId" placeholder="请输入对应的规则ID" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="关联业务ID" prop="businessId">
-              <el-input v-model="queryParams.businessId" placeholder="请输入关联业务ID" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="积分描述" prop="description">
-              <el-input v-model="queryParams.description" placeholder="请输入积分描述" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="过期时间" prop="expireTime">
-              <el-date-picker clearable
-                v-model="queryParams.expireTime"
-                type="date"
-                value-format="YYYY-MM-DD"
-                placeholder="请选择过期时间"
-              />
-            </el-form-item>
+<!--            <el-form-item label="对应的规则ID" prop="ruleId">-->
+<!--              <el-input v-model="queryParams.ruleId" placeholder="请输入对应的规则ID" clearable @keyup.enter="handleQuery" />-->
+<!--            </el-form-item>-->
+<!--            <el-form-item label="关联业务ID" prop="businessId">-->
+<!--              <el-input v-model="queryParams.businessId" placeholder="请输入关联业务ID" clearable @keyup.enter="handleQuery" />-->
+<!--            </el-form-item>-->
+<!--            <el-form-item label="积分描述" prop="description">-->
+<!--              <el-input v-model="queryParams.description" placeholder="请输入积分描述" clearable @keyup.enter="handleQuery" />-->
+<!--            </el-form-item>-->
+<!--            <el-form-item label="过期时间" prop="expireTime">-->
+<!--              <el-date-picker clearable-->
+<!--                v-model="queryParams.expireTime"-->
+<!--                type="date"-->
+<!--                value-format="YYYY-MM-DD"-->
+<!--                placeholder="请选择过期时间"-->
+<!--              />-->
+<!--            </el-form-item>-->
             <el-form-item>
               <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
               <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -60,19 +64,27 @@
 
       <el-table v-loading="loading" :data="memberPointsRecordList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="记录ID" align="center" prop="id" v-if="true" />
+        <el-table-column label="记录ID" align="center" prop="id" v-if="false" />
         <el-table-column label="用户ID" align="center" prop="userId" />
         <el-table-column label="积分数量" align="center" prop="points" />
-        <el-table-column label="类型：1-获取 2-消耗" align="center" prop="type" />
-        <el-table-column label="场景，与积分规则表场景对应" align="center" prop="scene" />
-        <el-table-column label="对应的规则ID" align="center" prop="ruleId" />
-        <el-table-column label="关联业务ID" align="center" prop="businessId" />
-        <el-table-column label="积分描述" align="center" prop="description" />
-        <el-table-column label="过期时间" align="center" prop="expireTime" width="180">
+        <el-table-column label="类型" align="center" prop="type">
           <template #default="scope">
-            <span>{{ parseTime(scope.row.expireTime, '{y}-{m}-{d}') }}</span>
+            <dict-tag :options="points_rule_type" :value="scope.row.type" />
           </template>
         </el-table-column>
+        <el-table-column label="积分场景" align="center" prop="scene">
+          <template #default="scope">
+            <dict-tag :options="points_scene" :value="scope.row.scene" />
+          </template>
+        </el-table-column>
+<!--        <el-table-column label="对应的规则ID" align="center" prop="ruleId" />-->
+<!--        <el-table-column label="关联业务ID" align="center" prop="businessId" />-->
+        <el-table-column label="积分描述" align="center" prop="description" />
+<!--        <el-table-column label="过期时间" align="center" prop="expireTime" width="180">-->
+<!--          <template #default="scope">-->
+<!--            <span>{{ parseTime(scope.row.expireTime, '{y}-{m}-{d}') }}</span>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
@@ -130,8 +142,12 @@
 <script setup name="MemberPointsRecord" lang="ts">
 import { listMemberPointsRecord, getMemberPointsRecord, delMemberPointsRecord, addMemberPointsRecord, updateMemberPointsRecord } from '@/api/billiards/memberPointsRecord';
 import { MemberPointsRecordVO, MemberPointsRecordQuery, MemberPointsRecordForm } from '@/api/billiards/memberPointsRecord/types';
+import {parseTime} from "../../../utils/ruoyi";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { points_scene, sys_yes_no, points_rule_type, enable_status, points_value_type, points_change_type } = toRefs<any>(
+  proxy?.useDict('points_scene', 'sys_yes_no', 'points_rule_type', 'enable_status', 'points_value_type', 'points_change_type')
+);
 
 const memberPointsRecordList = ref<MemberPointsRecordVO[]>([]);
 const buttonLoading = ref(false);

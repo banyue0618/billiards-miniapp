@@ -3,6 +3,7 @@ package org.dromara.billiards.service.impl;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.domain.entity.BlsTableUsage;
+import org.dromara.billiards.security.MerchantQueryHelper;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -77,18 +78,10 @@ public class BlsPointsRuleServiceImpl implements IBlsPointsRuleService {
         lqw.like(StringUtils.isNotBlank(bo.getName()), BlsPointsRule::getName, bo.getName());
         lqw.eq(bo.getType() != null, BlsPointsRule::getType, bo.getType());
         lqw.eq(bo.getScene() != null, BlsPointsRule::getScene, bo.getScene());
-        lqw.eq(bo.getValueType() != null, BlsPointsRule::getValueType, bo.getValueType());
-        lqw.eq(bo.getPointsValue() != null, BlsPointsRule::getPointsValue, bo.getPointsValue());
-        lqw.eq(bo.getMaxPoints() != null, BlsPointsRule::getMaxPoints, bo.getMaxPoints());
-        lqw.eq(StringUtils.isNotBlank(bo.getRuleConfig()), BlsPointsRule::getRuleConfig, bo.getRuleConfig());
-        lqw.eq(StringUtils.isNotBlank(bo.getLevelBonus()), BlsPointsRule::getLevelBonus, bo.getLevelBonus());
-        lqw.eq(StringUtils.isNotBlank(bo.getTimeBonus()), BlsPointsRule::getTimeBonus, bo.getTimeBonus());
         lqw.eq(bo.getEffectiveTime() != null, BlsPointsRule::getEffectiveTime, bo.getEffectiveTime());
         lqw.eq(bo.getExpireTime() != null, BlsPointsRule::getExpireTime, bo.getExpireTime());
-        lqw.eq(StringUtils.isNotBlank(bo.getDescription()), BlsPointsRule::getDescription, bo.getDescription());
         lqw.eq(bo.getStatus() != null, BlsPointsRule::getStatus, bo.getStatus());
         lqw.eq(bo.getEnableActivityBonus() != null, BlsPointsRule::getEnableActivityBonus, bo.getEnableActivityBonus());
-        lqw.eq(bo.getValidityDays() != null, BlsPointsRule::getValidityDays, bo.getValidityDays());
         return lqw;
     }
 

@@ -188,10 +188,12 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         BlsRefundRecord refundRecord = new BlsRefundRecord();
         refundRecord.setPayRecordId(lastBlsPayRecord.getId());
         refundRecord.setOrderId(orderId);
-        refundRecord.setUserId(LoginHelper.getUserId());
+        refundRecord.setUserId(lastBlsPayRecord.getUserId());
         refundRecord.setAmount(refundAmount);
         refundRecord.setRefundStatus(0); // 0 for refunding
         refundRecord.setTransactionId(lastBlsPayRecord.getTransactionId());
+        refundRecord.setMerchantId(lastBlsPayRecord.getMerchantId());
+        refundRecord.setTenantId(lastBlsPayRecord.getTenantId());
         baseMapper.insert(refundRecord);
         if (mockPaymentEnabled) {
             log.info("模拟退款模式已启用，自动完成微信退款回调步骤！");
@@ -295,7 +297,7 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         orderService.completeOrder(refundRecord.getOrderId());
 
         // 新增钱包流水记录 BlsWalletTransaction
-        walletTransactionService.addWalletTransaction(refundRecord.getUserId(), refundRecord.getAmount(), refundRecord.getId(), refundRecord.getTransactionId(), "退款成功", TransTypeEnum.REFUND);
+        walletTransactionService.addRefundWalletTransaction(refundRecord, "退款成功");
 
         // 更新钱包 BlsWalletAccount
         walletAccountService.updateWalletBalance(refundRecord.getUserId(), refundRecord.getAmount().negate());

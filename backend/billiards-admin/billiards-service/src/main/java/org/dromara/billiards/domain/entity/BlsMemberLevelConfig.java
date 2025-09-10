@@ -30,7 +30,7 @@ public class BlsMemberLevelConfig extends BilliardsBaseEntity {
     /**
      * 等级编码
      */
-    private Long levelCode;
+    private String levelCode;
 
     /**
      * 等级名称
@@ -45,7 +45,7 @@ public class BlsMemberLevelConfig extends BilliardsBaseEntity {
     /**
      * 折扣率
      */
-    private Long discount;
+    private BigDecimal discount;
 
     /**
      * 每月赠送时长（分钟）
@@ -55,12 +55,12 @@ public class BlsMemberLevelConfig extends BilliardsBaseEntity {
     /**
      * 积分获取倍率
      */
-    private Long pointsMultiplier;
+    private BigDecimal pointsMultiplier;
 
     /**
      * 生日特权折扣率
      */
-    private Long birthdayDiscount;
+    private BigDecimal birthdayDiscount;
 
     /**
      * 可带朋友享受会员价的人数

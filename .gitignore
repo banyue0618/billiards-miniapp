@@ -109,3 +109,5 @@ nbdist/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+
+uploads/

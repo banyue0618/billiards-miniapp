@@ -1,6 +1,6 @@
 package org.dromara.billiards.domain.vo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.dromara.billiards.domain.entity.BlsMemberPointsRecord;
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
@@ -82,7 +82,7 @@ public class BlsMemberPointsRecordVo implements Serializable {
      * 过期时间
      */
     @ExcelProperty(value = "过期时间")
-    private Date expireTime;
+    private LocalDateTime expireTime;
 
 
 }

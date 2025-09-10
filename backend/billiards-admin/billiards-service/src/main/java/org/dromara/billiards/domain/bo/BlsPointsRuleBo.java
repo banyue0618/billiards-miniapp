@@ -8,13 +8,14 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
-import java.util.Date;
+import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 积分规则业务对象 bls_points_rule
  *
  * @author banyue
- * @date 2025-06-17
+ * @date 2025-09-09
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,21 +35,21 @@ public class BlsPointsRuleBo extends BaseEntity {
     private String name;
 
     /**
-     * 规则类型：1-获取 2-消耗
+     * 规则类型
      */
-    @NotNull(message = "规则类型：1-获取 2-消耗不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "规则类型不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long type;
 
     /**
-     * 积分场景：获取场景：1-消费 2-签到 3-活动 4-评价 5-首次绑定 6-邀请好友；消耗场景：1-抵扣 2-兑换商品 3-兑换优惠券
+     * 积分场景
      */
-    @NotNull(message = "积分场景：获取场景：1-消费 2-签到 3-活动 4-评价 5-首次绑定 6-邀请好友；消耗场景：1-抵扣 2-兑换商品 3-兑换优惠券不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "积分场景不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long scene;
 
     /**
-     * 积分值类型：1-固定值 2-比例值
+     * 积分值类型
      */
-    @NotNull(message = "积分值类型：1-固定值 2-比例值不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "积分值类型不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long valueType;
 
     /**
@@ -81,12 +82,12 @@ public class BlsPointsRuleBo extends BaseEntity {
     /**
      * 生效时间
      */
-    private Date effectiveTime;
+    private LocalDateTime effectiveTime;
 
     /**
      * 失效时间
      */
-    private Date expireTime;
+    private LocalDateTime expireTime;
 
     /**
      * 规则描述
@@ -94,21 +95,18 @@ public class BlsPointsRuleBo extends BaseEntity {
     private String description;
 
     /**
-     * 状态：0-启用 1-禁用
+     * 状态
      */
-    @NotNull(message = "状态：0-启用 1-禁用不能为空", groups = { AddGroup.class, EditGroup.class })
     private Integer status;
 
     /**
-     * 是否参与活动加成：0-否 1-是
+     * 是否参与活动加成
      */
-    @NotNull(message = "是否参与活动加成：0-否 1-是不能为空", groups = { AddGroup.class, EditGroup.class })
     private Integer enableActivityBonus;
 
     /**
      * 积分有效期（天）：0表示永久有效
      */
-    @NotNull(message = "积分有效期（天）：0表示永久有效不能为空", groups = { AddGroup.class, EditGroup.class })
     private Integer validityDays;
 
 

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import java.io.Serial;
 
@@ -36,7 +36,7 @@ public class BlsMemberUser extends BilliardsBaseEntity {
     /**
      * 当前等级编码
      */
-    private Long levelCode;
+    private String levelCode;
 
     /**
      * 累计消费金额
@@ -56,12 +56,12 @@ public class BlsMemberUser extends BilliardsBaseEntity {
     /**
      * 等级有效期
      */
-    private Date levelExpireTime;
+    private LocalDateTime levelExpireTime;
 
     /**
      * 最近消费时间
      */
-    private Date lastConsumeTime;
+    private LocalDateTime lastConsumeTime;
 
     /**
      * 状态：0-正常 1-禁用

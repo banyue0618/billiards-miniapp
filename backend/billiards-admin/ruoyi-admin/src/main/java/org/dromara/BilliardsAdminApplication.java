@@ -4,11 +4,13 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * 自助台球厅管理系统应用程序启动类
  */
+@EnableAsync
 @SpringBootApplication
 @EnableTransactionManagement
 // 扩展Mapper扫描路径，包括若依框架的Mapper和您的应用Mapper
