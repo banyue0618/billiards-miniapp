@@ -145,4 +145,9 @@ public class BlsMemberLevelConfigServiceImpl implements IBlsMemberLevelConfigSer
         }
         return baseMapper.deleteByIds(ids) > 0;
     }
+
+    @Override
+    public List<BlsMemberLevelConfig> queryList() {
+        return baseMapper.selectList();
+    }
 }

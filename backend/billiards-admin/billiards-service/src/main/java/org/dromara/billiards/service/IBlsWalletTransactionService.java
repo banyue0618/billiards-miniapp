@@ -2,6 +2,7 @@ package org.dromara.billiards.service;
 
 import org.dromara.billiards.common.constant.TransTypeEnum;
 import org.dromara.billiards.domain.bo.BlsWalletTransactionBo;
+import org.dromara.billiards.domain.entity.BlsRefundRecord;
 import org.dromara.billiards.domain.vo.BlsWalletTransactionVo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -79,4 +80,12 @@ public interface IBlsWalletTransactionService {
      * @return
      */
     Boolean addWalletTransaction(Long userId, BigDecimal amount, String payRecordId, String transactionId, String remark, TransTypeEnum transType);
+
+    /**
+     *  增加退款流水
+     * @param refundRecord
+     * @param remark
+     * @return
+     */
+    Boolean addRefundWalletTransaction(BlsRefundRecord refundRecord, String remark);
 }

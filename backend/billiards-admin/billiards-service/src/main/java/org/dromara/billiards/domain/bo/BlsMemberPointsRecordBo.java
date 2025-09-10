@@ -8,7 +8,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 会员积分记录业务对象 bls_member_points_record
@@ -42,7 +42,7 @@ public class BlsMemberPointsRecordBo extends BaseEntity {
     /**
      * 类型：1-获取 2-消耗
      */
-    @NotNull(message = "类型：1-获取 2-消耗不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "类型不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long type;
 
     /**
@@ -70,7 +70,7 @@ public class BlsMemberPointsRecordBo extends BaseEntity {
     /**
      * 过期时间
      */
-    private Date expireTime;
+    private LocalDateTime expireTime;
 
 
 }

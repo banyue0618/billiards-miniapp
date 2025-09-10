@@ -110,9 +110,6 @@
             <el-form-item label="联系人手机号" prop="contactPhone">
               <el-input v-model="form.contactPhone" placeholder="请输入联系人手机号" />
             </el-form-item>
-            <el-form-item label="联系人邮箱" prop="contactEmail">
-              <el-input v-model="form.contactEmail" placeholder="请输入联系人邮箱" />
-            </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="24" :md="12" :lg="12">
             <el-form-item label="省" prop="province">
@@ -124,9 +121,20 @@
             <el-form-item label="区/县" prop="district">
               <el-input v-model="form.district" placeholder="请输入区/县" />
             </el-form-item>
+            <el-form-item label="联系人邮箱" prop="contactEmail">
+              <el-input v-model="form.contactEmail" placeholder="请输入联系人邮箱" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="24">
             <el-form-item label="详细地址" prop="address">
               <el-input v-model="form.address" placeholder="请输入详细地址" />
             </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="24">
             <el-form-item label="营业执照" prop="businessLicense">
               <img v-if="businessLicenseUrl" :src="businessLicenseUrl" class="avatar" />
               <div v-else class="uploader-tip">暂无营业执照图片</div>

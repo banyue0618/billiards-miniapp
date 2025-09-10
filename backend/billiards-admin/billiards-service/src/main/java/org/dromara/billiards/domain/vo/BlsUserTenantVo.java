@@ -1,6 +1,6 @@
 package org.dromara.billiards.domain.vo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -12,7 +12,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 
 
@@ -76,13 +76,13 @@ public class BlsUserTenantVo implements Serializable {
      * 首次登录时间
      */
     @ExcelProperty(value = "首次登录时间")
-    private Date firstTime;
+    private LocalDateTime firstTime;
 
     /**
      * 最后登录时间
      */
     @ExcelProperty(value = "最后登录时间")
-    private Date lastTime;
+    private LocalDateTime lastTime;
 
 
 }

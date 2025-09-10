@@ -1,7 +1,7 @@
 package org.dromara.billiards.domain.vo;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.dromara.billiards.domain.entity.BlsMemberUser;
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
@@ -70,13 +70,13 @@ public class BlsMemberUserVo implements Serializable {
      * 等级有效期
      */
     @ExcelProperty(value = "等级有效期")
-    private Date levelExpireTime;
+    private LocalDateTime levelExpireTime;
 
     /**
      * 最近消费时间
      */
     @ExcelProperty(value = "最近消费时间")
-    private Date lastConsumeTime;
+    private LocalDateTime lastConsumeTime;
 
     /**
      * 状态：0-正常 1-禁用

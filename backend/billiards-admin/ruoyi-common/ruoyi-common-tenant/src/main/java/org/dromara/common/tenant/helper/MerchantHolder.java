@@ -2,6 +2,7 @@ package org.dromara.common.tenant.helper;
 
 import cn.dev33.satoken.stp.StpUtil;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.common.satoken.utils.LoginHelper;
 
 /**
  * @Description
@@ -19,7 +20,7 @@ public class MerchantHolder {
         String mid = MerchantContext.get();
         if (StringUtils.isNotBlank(mid)) return mid;
 
-        if(!StpUtil.isLogin()){
+        if(!LoginHelper.isLogin()){
             return null;
         }
 

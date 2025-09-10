@@ -8,7 +8,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
@@ -64,13 +64,13 @@ public class BlsUserTenantBo extends BaseEntity {
      * 首次登录时间
      */
     @NotNull(message = "首次登录时间不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Date firstTime;
+    private LocalDateTime firstTime;
 
     /**
      * 最后登录时间
      */
     @NotNull(message = "最后登录时间不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Date lastTime;
+    private LocalDateTime lastTime;
 
 
 }

@@ -1,6 +1,6 @@
 package org.dromara.billiards.domain.vo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.dromara.billiards.domain.entity.BlsMemberBenefit;
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
@@ -70,13 +70,13 @@ public class BlsMemberBenefitVo implements Serializable {
      * 生效时间
      */
     @ExcelProperty(value = "生效时间")
-    private Date effectiveTime;
+    private LocalDateTime effectiveTime;
 
     /**
      * 失效时间
      */
     @ExcelProperty(value = "失效时间")
-    private Date expireTime;
+    private LocalDateTime expireTime;
 
     /**
      * 权益图标

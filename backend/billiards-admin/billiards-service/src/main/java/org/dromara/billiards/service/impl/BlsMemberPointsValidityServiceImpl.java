@@ -1,6 +1,7 @@
 package org.dromara.billiards.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.domain.entity.BlsMemberUser;
 import org.dromara.billiards.security.MerchantQueryHelper;
@@ -30,9 +31,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Service
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
-public class BlsMemberPointsValidityServiceImpl implements IBlsMemberPointsValidityService {
-
-    private final BlsMemberPointsValidityMapper baseMapper;
+public class BlsMemberPointsValidityServiceImpl extends ServiceImpl<BlsMemberPointsValidityMapper, BlsMemberPointsValidity> implements IBlsMemberPointsValidityService {
 
     /**
      * 查询积分有效期

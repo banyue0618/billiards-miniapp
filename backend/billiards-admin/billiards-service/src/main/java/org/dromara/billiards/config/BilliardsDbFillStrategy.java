@@ -64,7 +64,7 @@ public class BilliardsDbFillStrategy implements DataSourceFillStrategy {
      */
     private String getLoginUsername() {
         try {
-            if (StpUtil.isLogin()) {
+            if (LoginHelper.isLogin()) {
                 return LoginHelper.getUserIdStr();
             }
         } catch (Exception e) {

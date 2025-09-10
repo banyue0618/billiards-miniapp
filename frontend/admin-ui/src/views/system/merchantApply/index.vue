@@ -29,18 +29,22 @@
       <template #header>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
-            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['system:merchantApply:add']">新增</el-button>
+            <el-button v-hasPermi="['system:merchantApply:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['system:merchantApply:edit']">修改</el-button>
+            <el-button v-hasPermi="['system:merchantApply:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()"
+              >修改</el-button
+            >
           </el-col>
           <el-col :span="1.5">
-            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['system:merchantApply:remove']">删除</el-button>
+            <el-button v-hasPermi="['system:merchantApply:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()"
+              >删除</el-button
+            >
           </el-col>
           <el-col :span="1.5">
-            <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['system:merchantApply:export']">导出</el-button>
+            <el-button v-hasPermi="['system:merchantApply:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
           </el-col>
-          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+          <right-toolbar v-model:showSearch="showSearch" @query-table="getList"></right-toolbar>
         </el-row>
       </template>
 
@@ -58,22 +62,28 @@
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
-              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:merchantApply:edit']"></el-button>
+              <el-button v-hasPermi="['system:merchantApply:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:merchantApply:remove']"></el-button>
+              <el-button v-hasPermi="['system:merchantApply:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip content="审核" placement="top">
-              <el-button link type="primary" icon="Refrigerator" @click="handleApprove(scope.row)" v-hasPermi="['system:merchantApply:audit']"></el-button>
+              <el-button
+                v-hasPermi="['system:merchantApply:audit']"
+                link
+                type="primary"
+                icon="Refrigerator"
+                @click="handleApprove(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
     </el-card>
     <!-- 添加或修改商户注册申请对话框 -->
-    <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
+    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
       <el-form ref="merchantApplyFormRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="商户名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入商户名称" />
@@ -118,7 +128,7 @@
           <el-input v-model="form.bankName" placeholder="请输入结算-开户行" />
         </el-form-item>
         <el-form-item label="备注/补充说明" prop="remark">
-            <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -135,7 +145,15 @@
 </template>
 
 <script setup name="MerchantApply" lang="ts">
-import { listMerchantApply, getMerchantApply, delMerchantApply, addMerchantApply, updateMerchantApply, approveMerchantApply, rejectMerchantApply } from '@/api/system/merchantApply';
+import {
+  listMerchantApply,
+  getMerchantApply,
+  delMerchantApply,
+  addMerchantApply,
+  updateMerchantApply,
+  approveMerchantApply,
+  rejectMerchantApply
+} from '@/api/system/merchantApply';
 import { MerchantApplyVO, MerchantApplyQuery, MerchantApplyForm } from '@/api/system/merchantApply/types';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -174,10 +192,10 @@ const initFormData: MerchantApplyForm = {
   bankAccountName: undefined,
   bankAccountNo: undefined,
   bankName: undefined,
-  remark: undefined,
-}
+  remark: undefined
+};
 const data = reactive<PageData<MerchantApplyForm, MerchantApplyQuery>>({
-  form: {...initFormData},
+  form: { ...initFormData },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -186,22 +204,13 @@ const data = reactive<PageData<MerchantApplyForm, MerchantApplyQuery>>({
     contactName: undefined,
     contactPhone: undefined,
     status: undefined,
-    params: {
-    }
+    params: {}
   },
   rules: {
-    id: [
-      { required: true, message: "主键不能为空", trigger: "blur" }
-    ],
-    name: [
-      { required: true, message: "商户名称不能为空", trigger: "blur" }
-    ],
-    contactName: [
-      { required: true, message: "联系人姓名不能为空", trigger: "blur" }
-    ],
-    contactPhone: [
-      { required: true, message: "联系人手机号不能为空", trigger: "blur" }
-    ],
+    id: [{ required: true, message: '主键不能为空', trigger: 'blur' }],
+    name: [{ required: true, message: '商户名称不能为空', trigger: 'blur' }],
+    contactName: [{ required: true, message: '联系人姓名不能为空', trigger: 'blur' }],
+    contactPhone: [{ required: true, message: '联系人手机号不能为空', trigger: 'blur' }]
   }
 });
 
@@ -214,67 +223,67 @@ const getList = async () => {
   merchantApplyList.value = res.rows;
   total.value = res.total;
   loading.value = false;
-}
+};
 
 /** 取消按钮 */
 const cancel = () => {
   reset();
   dialog.visible = false;
-}
+};
 
 /** 表单重置 */
 const reset = () => {
-  form.value = {...initFormData};
+  form.value = { ...initFormData };
   merchantApplyFormRef.value?.resetFields();
-}
+};
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
-}
+};
 
 /** 重置按钮操作 */
 const resetQuery = () => {
   queryFormRef.value?.resetFields();
   handleQuery();
-}
+};
 
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: MerchantApplyVO[]) => {
-  ids.value = selection.map(item => item.id);
+  ids.value = selection.map((item) => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
-}
+};
 
 /** 新增按钮操作 */
 const handleAdd = () => {
   reset();
   dialog.visible = true;
-  dialog.title = "添加商户注册申请";
-}
+  dialog.title = '添加商户注册申请';
+};
 
 /** 修改按钮操作 */
 const handleUpdate = async (row?: MerchantApplyVO) => {
   reset();
-  const _id = row?.id || ids.value[0]
+  const _id = row?.id || ids.value[0];
   const res = await getMerchantApply(_id);
   Object.assign(form.value, res.data);
   dialog.visible = true;
   dialog.approve = false;
-  dialog.title = "修改商户注册申请";
-}
+  dialog.title = '修改商户注册申请';
+};
 
 /** 审核按钮操作 */
 const handleApprove = async (row?: MerchantApplyVO) => {
   reset();
-  const _id = row?.id || ids.value[0]
+  const _id = row?.id || ids.value[0];
   const res = await getMerchantApply(_id);
   Object.assign(form.value, res.data);
   dialog.visible = true;
   dialog.approve = true;
-  dialog.title = "商户申请审核";
-}
+  dialog.title = '商户申请审核';
+};
 
 /** 提交按钮 */
 const submitForm = () => {
@@ -282,32 +291,36 @@ const submitForm = () => {
     if (valid) {
       buttonLoading.value = true;
       if (form.value.id) {
-        await updateMerchantApply(form.value).finally(() =>  buttonLoading.value = false);
+        await updateMerchantApply(form.value).finally(() => (buttonLoading.value = false));
       } else {
-        await addMerchantApply(form.value).finally(() =>  buttonLoading.value = false);
+        await addMerchantApply(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess("操作成功");
+      proxy?.$modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
   });
-}
+};
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: MerchantApplyVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal.confirm('是否确认删除商户注册申请编号为"' + _ids + '"的数据项？').finally(() => loading.value = false);
+  await proxy?.$modal.confirm('是否确认删除商户注册申请编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
   await delMerchantApply(_ids);
-  proxy?.$modal.msgSuccess("删除成功");
+  proxy?.$modal.msgSuccess('删除成功');
   await getList();
-}
+};
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download('system/merchantApply/export', {
-    ...queryParams.value
-  }, `merchantApply_${new Date().getTime()}.xlsx`)
-}
+  proxy?.download(
+    'system/merchantApply/export',
+    {
+      ...queryParams.value
+    },
+    `merchantApply_${new Date().getTime()}.xlsx`
+  );
+};
 
 onMounted(() => {
   getList();
@@ -319,13 +332,13 @@ const approve = async () => {
   try {
     buttonLoading.value = true;
     await approveMerchantApply(form.value.id, { remark: form.value.remark });
-    proxy?.$modal.msgSuccess("已通过");
+    proxy?.$modal.msgSuccess('已通过');
     dialog.visible = false;
     await getList();
   } finally {
     buttonLoading.value = false;
   }
-}
+};
 
 /** 审批驳回 */
 const reject = async () => {
@@ -334,16 +347,18 @@ const reject = async () => {
     const reason = await ElMessageBox.prompt('请输入驳回原因', '审核驳回', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      inputType: 'textarea',
-    }).then(res => res.value).catch(() => undefined);
+      inputType: 'textarea'
+    })
+      .then((res) => res.value)
+      .catch(() => undefined);
     if (reason === undefined) return;
     buttonLoading.value = true;
     await rejectMerchantApply(form.value.id, { auditReason: reason, remark: form.value.remark });
-    proxy?.$modal.msgSuccess("已驳回");
+    proxy?.$modal.msgSuccess('已驳回');
     dialog.visible = false;
     await getList();
   } finally {
     buttonLoading.value = false;
   }
-}
+};
 </script>

@@ -3,7 +3,7 @@ package org.dromara.billiards.domain.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import java.io.Serial;
 
@@ -60,12 +60,12 @@ public class BlsUserTenant extends BlsTenantMchEntity {
     /**
      * 首次登录时间
      */
-    private Date firstTime;
+    private LocalDateTime firstTime;
 
     /**
      * 最后登录时间
      */
-    private Date lastTime;
+    private LocalDateTime lastTime;
 
 
 }

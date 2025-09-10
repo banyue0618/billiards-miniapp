@@ -8,7 +8,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 积分有效期业务对象 bls_member_points_validity
@@ -49,7 +49,7 @@ public class BlsMemberPointsValidityBo extends BaseEntity {
      * 过期时间
      */
     @NotNull(message = "过期时间不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Date expireTime;
+    private LocalDateTime expireTime;
 
 
 }

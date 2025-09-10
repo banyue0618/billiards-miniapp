@@ -90,16 +90,14 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
         if (mockPaymentEnabled) {
             log.info("模拟支付模式已启用，直接更新用户余额");
             BlsWalletAccount walletAccount = walletAccountService.updateWalletBalance(blsUser.getId(), request.getAmount());
-            if (walletAccount.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-                // 更新支付记录状态为支付成功
-                blsPayRecord.setPaymentStatus(PaymentStatus.PAID.getCode());
-                blsPayRecord.setRemark("模拟支付成功");
-                blsPayRecord.setUpdateTime(LocalDateTime.now());
-                this.updateById(blsPayRecord);
+            // 更新支付记录状态为支付成功
+            blsPayRecord.setPaymentStatus(PaymentStatus.PAID.getCode());
+            blsPayRecord.setRemark("模拟支付成功");
+            blsPayRecord.setUpdateTime(LocalDateTime.now());
+            this.updateById(blsPayRecord);
 
-                // 返回特殊标记，前端可据此判断是模拟支付
-                return "{\"mock\":true,\"message\":\"模拟支付成功\"}";
-            }
+            // 返回特殊标记，前端可据此判断是模拟支付
+            return "{\"mock\":true,\"message\":\"模拟支付成功\"}";
         }
 
         // 调用微信支付接口创建预支付订单

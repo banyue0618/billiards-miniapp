@@ -10,7 +10,7 @@ import { MemberUserVO, MemberUserForm, MemberUserQuery } from '@/api/billiards/m
 
 export const listMemberUser = (query?: MemberUserQuery): AxiosPromise<MemberUserVO[]> => {
   return request({
-    url: '/billiards/memberUser/list',
+    url: '/api/memberUser/list',
     method: 'get',
     params: query
   });
@@ -22,7 +22,7 @@ export const listMemberUser = (query?: MemberUserQuery): AxiosPromise<MemberUser
  */
 export const getMemberUser = (id: string | number): AxiosPromise<MemberUserVO> => {
   return request({
-    url: '/billiards/memberUser/' + id,
+    url: '/api/memberUser/' + id,
     method: 'get'
   });
 };
@@ -33,7 +33,7 @@ export const getMemberUser = (id: string | number): AxiosPromise<MemberUserVO> =
  */
 export const addMemberUser = (data: MemberUserForm) => {
   return request({
-    url: '/billiards/memberUser',
+    url: '/api/memberUser',
     method: 'post',
     data: data
   });
@@ -45,7 +45,7 @@ export const addMemberUser = (data: MemberUserForm) => {
  */
 export const updateMemberUser = (data: MemberUserForm) => {
   return request({
-    url: '/billiards/memberUser',
+    url: '/api/memberUser',
     method: 'put',
     data: data
   });
@@ -57,7 +57,7 @@ export const updateMemberUser = (data: MemberUserForm) => {
  */
 export const delMemberUser = (id: string | number | Array<string | number>) => {
   return request({
-    url: '/billiards/memberUser/' + id,
+    url: '/api/memberUser/' + id,
     method: 'delete'
   });
 };

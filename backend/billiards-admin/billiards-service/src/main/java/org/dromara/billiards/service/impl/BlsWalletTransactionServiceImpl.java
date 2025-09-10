@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.constant.TransTypeEnum;
 import org.dromara.billiards.domain.bo.BlsWalletTransactionBo;
+import org.dromara.billiards.domain.entity.BlsRefundRecord;
 import org.dromara.billiards.domain.entity.BlsWalletTransaction;
 import org.dromara.billiards.domain.vo.BlsWalletTransactionVo;
 import org.dromara.billiards.security.MerchantQueryHelper;
@@ -151,6 +152,22 @@ public class BlsWalletTransactionServiceImpl implements IBlsWalletTransactionSer
         transaction.setRemark(remark);
         // 插入记录到数据库
         validEntityBeforeSave(transaction);
+        return baseMapper.insert(transaction) > 0;
+    }
+
+    @Override
+    public Boolean addRefundWalletTransaction(BlsRefundRecord refundRecord, String remark) {
+        BlsWalletTransaction transaction = new BlsWalletTransaction();
+        transaction.setUserId(refundRecord.getUserId());
+        transaction.setTransType(TransTypeEnum.REFUND.getCode());
+        transaction.setAmount(refundRecord.getAmount());
+        transaction.setRelatedId(refundRecord.getPayRecordId());
+        transaction.setTransactionId(refundRecord.getTransactionId());
+        transaction.setRemark(remark);
+
+        transaction.setMerchantId(refundRecord.getMerchantId());
+        transaction.setTenantId(refundRecord.getTenantId());
+
         return baseMapper.insert(transaction) > 0;
     }
 }

@@ -1,5 +1,7 @@
 package org.dromara.billiards.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import org.dromara.billiards.domain.entity.BlsMemberPointsRecord;
 import org.dromara.billiards.domain.vo.BlsMemberPointsRecordVo;
 import org.dromara.billiards.domain.bo.BlsMemberPointsRecordBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -14,7 +16,7 @@ import java.util.List;
  * @author banyue
  * @date 2025-06-17
  */
-public interface IBlsMemberPointsRecordService {
+public interface IBlsMemberPointsRecordService extends IService<BlsMemberPointsRecord> {
 
     /**
      * 查询会员积分记录

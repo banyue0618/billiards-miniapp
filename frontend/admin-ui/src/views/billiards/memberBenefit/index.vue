@@ -7,14 +7,10 @@
             <el-form-item label="权益名称" prop="name">
               <el-input v-model="queryParams.name" placeholder="请输入权益名称" clearable @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="适用等级编码，多个用逗号分隔" prop="applicableLevels">
-              <el-input v-model="queryParams.applicableLevels" placeholder="请输入适用等级编码，多个用逗号分隔" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="权益值" prop="benefitValue">
-              <el-input v-model="queryParams.benefitValue" placeholder="请输入权益值" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="权益规则" prop="benefitRules">
-              <el-input v-model="queryParams.benefitRules" placeholder="请输入权益规则" clearable @keyup.enter="handleQuery" />
+            <el-form-item label="权益类型" prop="type">
+              <el-select v-model="queryParams.type" placeholder="请选择权益类型" clearable >
+                <el-option v-for="dict in member_benefit_type" :key="dict.value" :label="dict.label" :value="dict.value"/>
+              </el-select>
             </el-form-item>
             <el-form-item label="生效时间" prop="effectiveTime">
               <el-date-picker clearable
@@ -31,27 +27,6 @@
                 value-format="YYYY-MM-DD"
                 placeholder="请选择失效时间"
               />
-            </el-form-item>
-            <el-form-item label="权益图标" prop="icon">
-              <el-input v-model="queryParams.icon" placeholder="请输入权益图标" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="权益描述" prop="description">
-              <el-input v-model="queryParams.description" placeholder="请输入权益描述" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="使用说明" prop="instructions">
-              <el-input v-model="queryParams.instructions" placeholder="请输入使用说明" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="排序号" prop="sortOrder">
-              <el-input v-model="queryParams.sortOrder" placeholder="请输入排序号" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="是否限时权益：0-永久 1-限时" prop="isLimited">
-              <el-input v-model="queryParams.isLimited" placeholder="请输入是否限时权益：0-永久 1-限时" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="是否节日特权：0-否 1-是" prop="isHoliday">
-              <el-input v-model="queryParams.isHoliday" placeholder="请输入是否节日特权：0-否 1-是" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="权益标签，多个用逗号分隔" prop="tags">
-              <el-input v-model="queryParams.tags" placeholder="请输入权益标签，多个用逗号分隔" clearable @keyup.enter="handleQuery" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -83,12 +58,13 @@
 
       <el-table v-loading="loading" :data="memberBenefitList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="权益ID" align="center" prop="id" v-if="true" />
+        <el-table-column label="权益ID" align="center" prop="id" v-if="false" />
         <el-table-column label="权益名称" align="center" prop="name" />
-        <el-table-column label="权益类型：1-折扣 2-赠送 3-积分 4-特权" align="center" prop="type" />
-        <el-table-column label="适用等级编码，多个用逗号分隔" align="center" prop="applicableLevels" />
-        <el-table-column label="权益值" align="center" prop="benefitValue" />
-        <el-table-column label="权益规则" align="center" prop="benefitRules" />
+        <el-table-column label="权益类型" align="center" prop="type">
+          <template #default="scope">
+            <dict-tag :options="member_benefit_type" :value="scope.row.type"/>
+          </template>
+        </el-table-column>
         <el-table-column label="生效时间" align="center" prop="effectiveTime" width="180">
           <template #default="scope">
             <span>{{ parseTime(scope.row.effectiveTime, '{y}-{m}-{d}') }}</span>
@@ -100,13 +76,11 @@
           </template>
         </el-table-column>
         <el-table-column label="权益图标" align="center" prop="icon" />
-        <el-table-column label="权益描述" align="center" prop="description" />
-        <el-table-column label="使用说明" align="center" prop="instructions" />
-        <el-table-column label="状态：0-启用 1-禁用" align="center" prop="status" />
-        <el-table-column label="排序号" align="center" prop="sortOrder" />
-        <el-table-column label="是否限时权益：0-永久 1-限时" align="center" prop="isLimited" />
-        <el-table-column label="是否节日特权：0-否 1-是" align="center" prop="isHoliday" />
-        <el-table-column label="权益标签，多个用逗号分隔" align="center" prop="tags" />
+        <el-table-column label="状态" align="center" prop="status">
+          <template #default="scope">
+            <dict-tag :options="enable_status" :value="scope.row.status"/>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
@@ -126,6 +100,16 @@
       <el-form ref="memberBenefitFormRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="权益名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入权益名称" />
+        </el-form-item>
+        <el-form-item label="权益类型" prop="type">
+          <el-select v-model="form.type" placeholder="请选择权益类型">
+            <el-option
+                v-for="dict in member_benefit_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="parseInt(dict.value)"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="适用等级编码，多个用逗号分隔" prop="applicableLevels">
           <el-input v-model="form.applicableLevels" placeholder="请输入适用等级编码，多个用逗号分隔" />
@@ -161,17 +145,41 @@
         <el-form-item label="使用说明" prop="instructions">
             <el-input v-model="form.instructions" type="textarea" placeholder="请输入内容" />
         </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status" placeholder="请选择状态">
+            <el-option
+                v-for="dict in enable_status"
+                :key="dict.value"
+                :label="dict.label"
+                :value="parseInt(dict.value)"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="排序号" prop="sortOrder">
           <el-input v-model="form.sortOrder" placeholder="请输入排序号" />
         </el-form-item>
-        <el-form-item label="是否限时权益：0-永久 1-限时" prop="isLimited">
-          <el-input v-model="form.isLimited" placeholder="请输入是否限时权益：0-永久 1-限时" />
+        <el-form-item label="是否限时" prop="isLimited">
+          <el-select v-model="form.isLimited" placeholder="请选择是否限时">
+            <el-option
+                v-for="dict in sys_yes_no"
+                :key="dict.value"
+                :label="dict.label"
+                :value="parseInt(dict.value)"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="是否节日特权：0-否 1-是" prop="isHoliday">
-          <el-input v-model="form.isHoliday" placeholder="请输入是否节日特权：0-否 1-是" />
+        <el-form-item label="是否节日特权" prop="isHoliday">
+          <el-select v-model="form.isHoliday" placeholder="请选择是否节日特权">
+            <el-option
+                v-for="dict in sys_yes_no"
+                :key="dict.value"
+                :label="dict.label"
+                :value="parseInt(dict.value)"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="权益标签，多个用逗号分隔" prop="tags">
-          <el-input v-model="form.tags" placeholder="请输入权益标签，多个用逗号分隔" />
+        <el-form-item label="权益标签" prop="tags">
+          <el-input v-model="form.tags" placeholder="请输入权益标签" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -189,6 +197,7 @@ import { listMemberBenefit, getMemberBenefit, delMemberBenefit, addMemberBenefit
 import { MemberBenefitVO, MemberBenefitQuery, MemberBenefitForm } from '@/api/billiards/memberBenefit/types';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { sys_yes_no, enable_status, member_benefit_type } = toRefs<any>(proxy?.useDict('sys_yes_no', 'enable_status', 'member_benefit_type'));
 
 const memberBenefitList = ref<MemberBenefitVO[]>([]);
 const buttonLoading = ref(false);
@@ -232,19 +241,8 @@ const data = reactive<PageData<MemberBenefitForm, MemberBenefitQuery>>({
     pageSize: 10,
     name: undefined,
     type: undefined,
-    applicableLevels: undefined,
-    benefitValue: undefined,
-    benefitRules: undefined,
     effectiveTime: undefined,
     expireTime: undefined,
-    icon: undefined,
-    description: undefined,
-    instructions: undefined,
-    status: undefined,
-    sortOrder: undefined,
-    isLimited: undefined,
-    isHoliday: undefined,
-    tags: undefined,
     params: {
     }
   },
@@ -256,7 +254,7 @@ const data = reactive<PageData<MemberBenefitForm, MemberBenefitQuery>>({
       { required: true, message: "权益名称不能为空", trigger: "blur" }
     ],
     type: [
-      { required: true, message: "权益类型：1-折扣 2-赠送 3-积分 4-特权不能为空", trigger: "change" }
+      { required: true, message: "权益类型不能为空", trigger: "change" }
     ],
     applicableLevels: [
       { required: true, message: "适用等级编码，多个用逗号分隔不能为空", trigger: "blur" }
@@ -265,16 +263,16 @@ const data = reactive<PageData<MemberBenefitForm, MemberBenefitQuery>>({
       { required: true, message: "权益值不能为空", trigger: "blur" }
     ],
     status: [
-      { required: true, message: "状态：0-启用 1-禁用不能为空", trigger: "change" }
+      { required: true, message: "状态不能为空", trigger: "change" }
     ],
     sortOrder: [
       { required: true, message: "排序号不能为空", trigger: "blur" }
     ],
     isLimited: [
-      { required: true, message: "是否限时权益：0-永久 1-限时不能为空", trigger: "blur" }
+      { required: true, message: "是否限时不能为空", trigger: "change" }
     ],
     isHoliday: [
-      { required: true, message: "是否节日特权：0-否 1-是不能为空", trigger: "blur" }
+      { required: true, message: "是否节日特权不能为空", trigger: "change" }
     ],
   }
 });

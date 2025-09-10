@@ -1,7 +1,7 @@
 package org.dromara.billiards.domain.vo;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -69,7 +69,7 @@ public class BlsRefundRecordVo implements Serializable {
      * 回调通知时间
      */
     @ExcelProperty(value = "回调通知时间")
-    private Date notifyTime;
+    private LocalDateTime notifyTime;
 
     /**
      * 回调原始数据

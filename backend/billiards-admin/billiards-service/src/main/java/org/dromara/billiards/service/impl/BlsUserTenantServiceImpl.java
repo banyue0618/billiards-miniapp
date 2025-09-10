@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
@@ -159,8 +160,8 @@ public class BlsUserTenantServiceImpl implements IBlsUserTenantService {
         newRecord.setRole("USER"); // 默认角色为USER
         newRecord.setIsMember(0L); // 默认非会员
         newRecord.setStatus(0L); // 默认状态为正常
-        newRecord.setFirstTime(new java.util.Date());
-        newRecord.setLastTime(new java.util.Date());
+        newRecord.setFirstTime(LocalDateTime.now());
+        newRecord.setLastTime(LocalDateTime.now());
         return this.insertByBo(newRecord);
     }
 }

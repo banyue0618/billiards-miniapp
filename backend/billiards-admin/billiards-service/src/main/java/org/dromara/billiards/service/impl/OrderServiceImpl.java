@@ -10,6 +10,11 @@ import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.common.utils.OrderNumberGenerator;
 import org.dromara.billiards.convert.OrderConvert;
 import org.dromara.billiards.domain.bo.OrderUpdateDto;
+import org.dromara.billiards.domain.event.OrderCompletedEvent;
+import org.dromara.billiards.domain.bo.BlsEventOutboxBo;
+import org.dromara.billiards.common.constant.AggregateTypeEnum;
+import org.dromara.billiards.common.constant.OutboxEventTypeEnum;
+import org.dromara.billiards.domain.event.RefundRequestedEvent;
 import org.dromara.billiards.mapper.OrderMapper;
 import org.dromara.billiards.domain.entity.*;
 import org.dromara.billiards.domain.vo.OrderVO;
@@ -31,6 +36,10 @@ import org.dromara.billiards.security.MerchantWriteGuard;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.context.ApplicationEventPublisher;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -54,6 +63,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
     private final TableService tableService;
     private final IBlsWalletAccountService walletAccountService;
     private final IBlsTableUsageService blsTableUsageService;
+    private final IBlsMemberUserService memberUserService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final IBlsEventOutboxService eventOutboxService;
+    private final ObjectMapper objectMapper;
     private final OrderConvert orderConvert = OrderConvert.INSTANCE;
 
     @Override
@@ -352,6 +365,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
             BigDecimal balanceDifference = userBalance.subtract(result.getActualAmount());
 
             // 判断是否达到临界点，如果已经在临界点范围之内，则发出提醒。 如果差值为0，表示用户余额使用完毕
+            // 自动结束订单是否使用积分
             if (balanceDifference.compareTo(BigDecimal.ZERO) <= 0) {
                 // 用户余额不足，结束订单
                 blsOrder.setRemark("用户余额不足，定时任务自动结束订单");
@@ -422,6 +436,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
         // todo 获取用户会员标识
         // 计算消费额
         PricingResult result = calculateAmount(blsOrder.getStartTime(), null, blsOrder.getPriceRuleId(), false);
+
+        //默认按照100积分抵扣一元自动抵扣。
+        Long pointsToDeduct = result.getActualAmount().multiply(BigDecimal.valueOf(100)).setScale(0, BigDecimal.ROUND_FLOOR).longValue();
+        BigDecimal deducted = memberUserService.deductPointsFifo(blsOrder.getUserId(), blsOrder.getMerchantId(), blsOrder.getId(), pointsToDeduct, 1L, blsOrder.getPriceRuleId(), null);
+        if(deducted.compareTo(BigDecimal.ZERO) > 0){
+            // 如果抵扣成功，更新实际支付金额
+            result.setDiscountAmount(result.getDiscountAmount().add(deducted));
+            result.setActualAmount(result.getActualAmount().subtract(deducted).max(BigDecimal.ZERO));
+        }
+
         // 更新订单信息
         fillOrderResult(blsOrder, result);
         blsOrder.setStatus(1); // 1 for completed
@@ -439,22 +463,68 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
         // 扣费操作，返回退款金额
         final BigDecimal refundAmount = walletAccountService.deductBalance(blsOrder.getUserId(), result.getActualAmount());
 
-        // 如果退款金额大于0，发起微信退款(以后考虑异步，以防止微信调用失败导致无法结束订单)
+        // 标记支付状态（退款中或已支付）
         if(refundAmount.compareTo(BigDecimal.ZERO) > 0){
-            // 更新订单支付状态为退款中
-            blsOrder.setPaymentStatus(2);
-            this.updateById(blsOrder);
-            // 获取系统中该用户已支付的最新记录，
-            BlsPayRecord lastBlsPayRecord = payRecordService.getLastPayRecord(LoginHelper.getUserId());
-
-            // 发起退款
-            refundRecordService.refund(blsOrder.getId(), lastBlsPayRecord, refundAmount);
-            return blsOrder;
+            blsOrder.setPaymentStatus(2); // 退款中
+        } else {
+            blsOrder.setPaymentStatus(1); // 已支付
         }
-        // 无需退款，直接更新记录为 已支付
-        blsOrder.setPaymentStatus(1); // 已支付
         this.updateById(blsOrder);
-        // 发起微信退款
+
+        // 事务内写 Outbox，定时任务将负责投递（也可同时 afterCommit 发布一次、双通道兜底）
+        try {
+            BlsEventOutboxBo completed = new BlsEventOutboxBo();
+            completed.setMerchantId(blsOrder.getMerchantId());
+            completed.setAggregateType(AggregateTypeEnum.ORDER.name());
+            completed.setAggregateId(blsOrder.getId());
+            completed.setEventType(OutboxEventTypeEnum.ORDER_COMPLETED.name());
+            java.util.Map<String,Object> completedPayload = new java.util.HashMap<>();
+            completedPayload.put("orderId", blsOrder.getId());
+            completedPayload.put("userId", blsOrder.getUserId());
+            completedPayload.put("merchantId", blsOrder.getMerchantId());
+            completedPayload.put("actualAmount", blsOrder.getActualAmount());
+            completed.setPayload(objectMapper.writeValueAsString(completedPayload));
+            completed.setStatus(0L);
+            completed.setRetryCount(0L);
+            eventOutboxService.insertByBo(completed);
+
+            if (refundAmount.compareTo(BigDecimal.ZERO) > 0) {
+                BlsPayRecord lastPay = payRecordService.getLastPayRecord(blsOrder.getUserId());
+                BlsEventOutboxBo refund = new BlsEventOutboxBo();
+                refund.setMerchantId(blsOrder.getMerchantId());
+                refund.setAggregateType(AggregateTypeEnum.ORDER.name());
+                refund.setAggregateId(blsOrder.getId());
+                refund.setEventType(OutboxEventTypeEnum.REFUND_REQUESTED.name());
+                java.util.Map<String,Object> refundPayload = new java.util.HashMap<>();
+                refundPayload.put("orderId", blsOrder.getId());
+                refundPayload.put("refundAmount", refundAmount);
+                refundPayload.put("lastPayRecordId", lastPay.getId());
+                refund.setPayload(objectMapper.writeValueAsString(refundPayload));
+                refund.setStatus(0L);
+                refund.setRetryCount(0L);
+                eventOutboxService.insertByBo(refund);
+            }
+        } catch (Exception e) {
+            log.error("write outbox failed orderId={}, err=", blsOrder.getId(), e);
+        }
+
+        // 提交后即时事件发布，缩短时延；监听器成功后可将 Outbox 标记为 SENT
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    eventPublisher.publishEvent(new OrderCompletedEvent(this, blsOrder));
+                    if (refundAmount.compareTo(BigDecimal.ZERO) > 0) {
+                        BlsPayRecord lastPay = payRecordService.getLastPayRecord(blsOrder.getUserId());
+                        eventPublisher.publishEvent(new RefundRequestedEvent(this, blsOrder, refundAmount, lastPay.getId()));
+                    }
+                } catch (Exception e) {
+                    log.error("publish async events failed orderId={}, err=", blsOrder.getId(), e);
+                }
+            }
+        });
+
+
         return blsOrder;
     }
 

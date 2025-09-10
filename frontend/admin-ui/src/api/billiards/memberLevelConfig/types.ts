@@ -73,7 +73,6 @@ export interface MemberLevelConfigVO {
    * 状态 0-启用 1-禁用
    */
   status: number;
-
 }
 
 export interface MemberLevelConfigForm extends BaseEntity {
@@ -151,11 +150,9 @@ export interface MemberLevelConfigForm extends BaseEntity {
    * 状态 0-启用 1-禁用
    */
   status?: number;
-
 }
 
 export interface MemberLevelConfigQuery extends PageQuery {
-
   /**
    * 等级编码
    */
@@ -226,11 +223,8 @@ export interface MemberLevelConfigQuery extends PageQuery {
    */
   status?: number;
 
-    /**
-     * 日期范围参数
-     */
-    params?: any;
+  /**
+   * 日期范围参数
+   */
+  params?: any;
 }
-
-
-
