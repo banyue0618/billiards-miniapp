@@ -111,3 +111,5 @@ bin/
 !**/src/test/**/bin/
 
 uploads/
+
+application-prod.yml
