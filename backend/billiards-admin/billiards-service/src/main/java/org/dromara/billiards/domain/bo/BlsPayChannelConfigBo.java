@@ -1,5 +1,6 @@
 package org.dromara.billiards.domain.bo;
 
+import org.dromara.billiards.domain.entity.BilliardsBaseEntity;
 import org.dromara.billiards.domain.entity.BlsPayChannelConfig;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
@@ -18,18 +19,13 @@ import jakarta.validation.constraints.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsPayChannelConfig.class, reverseConvertGenerate = false)
-public class BlsPayChannelConfigBo extends BaseEntity {
+public class BlsPayChannelConfigBo extends BilliardsBaseEntity {
 
     /**
      * ID
      */
     @NotBlank(message = "ID不能为空", groups = { EditGroup.class })
     private String id;
-
-    /**
-     * 商家ID(可空=租户级)
-     */
-    private String merchantId;
 
     /**
      * 门店ID(可空=商户/租户级)
@@ -53,11 +49,4 @@ public class BlsPayChannelConfigBo extends BaseEntity {
      */
     @NotNull(message = "0启用 1停用不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long status;
-
-    /**
-     * 删除标志（0代表存在 1代表删除）
-     */
-    private Long isDelete;
-
-
 }

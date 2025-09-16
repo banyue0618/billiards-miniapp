@@ -15,11 +15,6 @@ import java.util.List;
 public interface PriceRuleMapper extends BaseMapper<BlsPriceRule> {
 
     /**
-     * 根据商家ID查询计费规则列表
-     */
-    List<BlsPriceRule> selectByMerchantId(@Param("merchantId") String merchantId);
-
-    /**
      * 根据ID查询计费规则详情
      */
     BlsPriceRule selectRuleById(@Param("id") String id);
@@ -27,7 +22,7 @@ public interface PriceRuleMapper extends BaseMapper<BlsPriceRule> {
     /**
      * 根据桌台类型查询默认计费规则
      */
-    BlsPriceRule selectDefaultByTableType(@Param("merchantId") String merchantId, @Param("tableType") Integer tableType);
+    BlsPriceRule selectDefaultByTableType(@Param("tableType") Integer tableType);
 
     /**
      * 查询指定门店下所有桌台中，标准计费规则（rule_type=1, status=0）的最低price_unit (元/分钟)

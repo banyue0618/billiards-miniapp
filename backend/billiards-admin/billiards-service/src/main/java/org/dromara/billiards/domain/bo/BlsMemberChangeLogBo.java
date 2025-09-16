@@ -1,5 +1,6 @@
 package org.dromara.billiards.domain.bo;
 
+import org.dromara.billiards.domain.entity.BilliardsBaseEntity;
 import org.dromara.billiards.domain.entity.BlsMemberChangeLog;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
@@ -20,18 +21,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsMemberChangeLog.class, reverseConvertGenerate = false)
-public class BlsMemberChangeLogBo extends BaseEntity {
+public class BlsMemberChangeLogBo extends BilliardsBaseEntity {
 
     /**
      * 记录ID
      */
     @NotBlank(message = "记录ID不能为空", groups = { EditGroup.class })
     private String id;
-
-    /**
-     * 商家ID
-     */
-    private String merchantId;
 
     /**
      * 用户ID

@@ -5,8 +5,6 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.BlsStore">
         <id column="id" property="id"/>
-        <result column="tenant_id" property="tenantId"/>
-        <result column="merchant_id" property="merchantId"/>
         <result column="name" property="name"/>
         <result column="cover_image" property="coverImage"/>
         <result column="province" property="province"/>

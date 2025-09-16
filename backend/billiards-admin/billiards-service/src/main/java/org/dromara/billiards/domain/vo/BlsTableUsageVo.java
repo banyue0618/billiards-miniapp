@@ -33,12 +33,6 @@ public class BlsTableUsageVo implements Serializable {
     private String id;
 
     /**
-     * 商家ID
-     */
-    @ExcelProperty(value = "商家ID")
-    private String merchantId;
-
-    /**
      * 门店ID
      */
     @ExcelProperty(value = "门店ID")

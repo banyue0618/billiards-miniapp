@@ -192,8 +192,6 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         refundRecord.setAmount(refundAmount);
         refundRecord.setRefundStatus(0); // 0 for refunding
         refundRecord.setTransactionId(lastBlsPayRecord.getTransactionId());
-        refundRecord.setMerchantId(lastBlsPayRecord.getMerchantId());
-        refundRecord.setTenantId(lastBlsPayRecord.getTenantId());
         baseMapper.insert(refundRecord);
         if (mockPaymentEnabled) {
             log.info("模拟退款模式已启用，自动完成微信退款回调步骤！");

@@ -28,10 +28,10 @@ public class OrderCompletedListener {
         BlsOrder order = event.getOrder();
         try {
             memberUserService.accrueOnPaidOrder(order);
-            outboxHelper.markOutbox(order.getMerchantId(), AggregateTypeEnum.ORDER.name(), order.getId(), OutboxEventTypeEnum.ORDER_COMPLETED.name(), true, null);
+            outboxHelper.markOutbox(AggregateTypeEnum.ORDER.name(), order.getId(), OutboxEventTypeEnum.ORDER_COMPLETED.name(), true, null);
         } catch (Exception e) {
             log.error("accrueOnPaidOrder async failed orderId={}, err=", order.getId(), e);
-            outboxHelper.markOutbox(order.getMerchantId(), AggregateTypeEnum.ORDER.name(), order.getId(), OutboxEventTypeEnum.ORDER_COMPLETED.name(), false, e.getMessage());
+            outboxHelper.markOutbox(AggregateTypeEnum.ORDER.name(), order.getId(), OutboxEventTypeEnum.ORDER_COMPLETED.name(), false, e.getMessage());
         }
     }
 }

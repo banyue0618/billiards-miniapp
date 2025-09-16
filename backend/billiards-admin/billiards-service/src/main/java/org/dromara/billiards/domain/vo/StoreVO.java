@@ -15,9 +15,6 @@ public class StoreVO {
     @Schema(description = "门店ID")
     private String id;
 
-    @Schema(description = "所属商家ID")
-    private String merchantId;
-
     @Schema(description = "门店名称")
     private String name;
 

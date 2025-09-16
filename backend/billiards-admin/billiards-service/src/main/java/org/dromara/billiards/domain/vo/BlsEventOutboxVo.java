@@ -37,12 +37,6 @@ public class BlsEventOutboxVo implements Serializable {
     private String id;
 
     /**
-     * 商家ID
-     */
-    @ExcelProperty(value = "商家ID")
-    private String merchantId;
-
-    /**
      * 聚合根类型，如 ORDER
      */
     @ExcelProperty(value = "聚合根类型，如 ORDER")

@@ -23,9 +23,9 @@ public class BlsPriceRule extends BilliardsBaseEntity {
     private String id;
 
     /**
-     * 所属商家ID
+     * 所属门店ID
      */
-    private String merchantId;
+    private String storeId;
 
     /**
      * 规则名称

@@ -16,7 +16,7 @@ import java.io.Serial;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_member_change_log")
-public class BlsMemberChangeLog extends BlsTenantMchEntity {
+public class BlsMemberChangeLog extends BilliardsBaseEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -26,11 +26,6 @@ public class BlsMemberChangeLog extends BlsTenantMchEntity {
      */
     @TableId(value = "id")
     private String id;
-
-    /**
-     * 商家ID
-     */
-    private String merchantId;
 
     /**
      * 用户ID

@@ -430,7 +430,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
 
         //默认按照100积分抵扣一元自动抵扣。
         Long pointsToDeduct = result.getActualAmount().multiply(BigDecimal.valueOf(100)).setScale(0, BigDecimal.ROUND_FLOOR).longValue();
-        BigDecimal deducted = memberUserService.deductPointsFifo(blsOrder.getUserId(), blsOrder.getMerchantId(), blsOrder.getId(), pointsToDeduct, 1L, blsOrder.getPriceRuleId(), null);
+        BigDecimal deducted = memberUserService.deductPointsFifo(blsOrder.getUserId(), blsOrder.getId(), pointsToDeduct, 1L, blsOrder.getPriceRuleId(), null);
         if(deducted.compareTo(BigDecimal.ZERO) > 0){
             // 如果抵扣成功，更新实际支付金额
             result.setDiscountAmount(result.getDiscountAmount().add(deducted));
@@ -465,14 +465,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
         // 事务内写 Outbox，定时任务将负责投递（也可同时 afterCommit 发布一次、双通道兜底）
         try {
             BlsEventOutboxBo completed = new BlsEventOutboxBo();
-            completed.setMerchantId(blsOrder.getMerchantId());
             completed.setAggregateType(AggregateTypeEnum.ORDER.name());
             completed.setAggregateId(blsOrder.getId());
             completed.setEventType(OutboxEventTypeEnum.ORDER_COMPLETED.name());
             java.util.Map<String,Object> completedPayload = new java.util.HashMap<>();
             completedPayload.put("orderId", blsOrder.getId());
             completedPayload.put("userId", blsOrder.getUserId());
-            completedPayload.put("merchantId", blsOrder.getMerchantId());
             completedPayload.put("actualAmount", blsOrder.getActualAmount());
             completed.setPayload(objectMapper.writeValueAsString(completedPayload));
             completed.setStatus(0L);
@@ -482,7 +480,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
             if (refundAmount.compareTo(BigDecimal.ZERO) > 0) {
                 BlsPayRecord lastPay = payRecordService.getLastPayRecord(blsOrder.getUserId());
                 BlsEventOutboxBo refund = new BlsEventOutboxBo();
-                refund.setMerchantId(blsOrder.getMerchantId());
                 refund.setAggregateType(AggregateTypeEnum.ORDER.name());
                 refund.setAggregateId(blsOrder.getId());
                 refund.setEventType(OutboxEventTypeEnum.REFUND_REQUESTED.name());

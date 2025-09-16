@@ -73,7 +73,6 @@ public class BlsEventOutboxServiceImpl extends ServiceImpl<BlsEventOutboxMapper,
     private LambdaQueryWrapper<BlsEventOutbox> buildQueryWrapper(BlsEventOutboxBo bo) {
         LambdaQueryWrapper<BlsEventOutbox> lqw = Wrappers.lambdaQuery();
         lqw.orderByAsc(BlsEventOutbox::getId);
-        lqw.eq(StringUtils.isNotBlank(bo.getMerchantId()), BlsEventOutbox::getMerchantId, bo.getMerchantId());
         lqw.eq(StringUtils.isNotBlank(bo.getAggregateType()), BlsEventOutbox::getAggregateType, bo.getAggregateType());
         lqw.eq(StringUtils.isNotBlank(bo.getAggregateId()), BlsEventOutbox::getAggregateId, bo.getAggregateId());
         lqw.eq(StringUtils.isNotBlank(bo.getEventType()), BlsEventOutbox::getEventType, bo.getEventType());

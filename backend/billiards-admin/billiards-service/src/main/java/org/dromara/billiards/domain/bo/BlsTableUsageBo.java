@@ -1,5 +1,6 @@
 package org.dromara.billiards.domain.bo;
 
+import org.dromara.billiards.domain.entity.BilliardsBaseEntity;
 import org.dromara.billiards.domain.entity.BlsTableUsage;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
@@ -20,19 +21,13 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsTableUsage.class, reverseConvertGenerate = false)
-public class BlsTableUsageBo extends BaseEntity {
+public class BlsTableUsageBo extends BilliardsBaseEntity {
 
     /**
      * 记录ID
      */
     @NotBlank(message = "记录ID不能为空", groups = { EditGroup.class })
     private String id;
-
-    /**
-     * 商家ID
-     */
-    @NotBlank(message = "商家ID不能为空", groups = { AddGroup.class, EditGroup.class })
-    private String merchantId;
 
     /**
      * 门店ID

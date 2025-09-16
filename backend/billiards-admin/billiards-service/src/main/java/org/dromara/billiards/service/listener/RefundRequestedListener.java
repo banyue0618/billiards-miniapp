@@ -32,10 +32,10 @@ public class RefundRequestedListener {
             // 幂等由 refundRecordService 内部保障（按订单ID查询未完成的退款记录/或唯一索引）
             BlsPayRecord lastPay = payRecordService.getById(event.getLastPayRecordId());
             refundRecordService.refund(order.getId(), lastPay, event.getRefundAmount());
-            outboxHelper.markOutbox(order.getMerchantId(), AggregateTypeEnum.ORDER.name(), order.getId(), OutboxEventTypeEnum.REFUND_REQUESTED.name(), true, null);
+            outboxHelper.markOutbox(AggregateTypeEnum.ORDER.name(), order.getId(), OutboxEventTypeEnum.REFUND_REQUESTED.name(), true, null);
         } catch (Exception e) {
             log.error("RefundRequested async failed orderId={}, err=", order.getId(), e);
-            outboxHelper.markOutbox(order.getMerchantId(), AggregateTypeEnum.ORDER.name(), order.getId(), OutboxEventTypeEnum.REFUND_REQUESTED.name(), false, e.getMessage());
+            outboxHelper.markOutbox(AggregateTypeEnum.ORDER.name(), order.getId(), OutboxEventTypeEnum.REFUND_REQUESTED.name(), false, e.getMessage());
         }
     }
 }

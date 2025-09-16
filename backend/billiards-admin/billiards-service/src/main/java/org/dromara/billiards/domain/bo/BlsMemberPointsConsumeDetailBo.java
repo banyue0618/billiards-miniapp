@@ -1,9 +1,7 @@
 package org.dromara.billiards.domain.bo;
 
+import org.dromara.billiards.domain.entity.BilliardsBaseEntity;
 import org.dromara.billiards.domain.entity.BlsMemberPointsConsumeDetail;
-import org.dromara.billiards.domain.entity.BlsTenantMchEntity;
-import org.dromara.common.mybatis.core.domain.BaseEntity;
-import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
@@ -19,7 +17,7 @@ import jakarta.validation.constraints.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsMemberPointsConsumeDetail.class, reverseConvertGenerate = false)
-public class BlsMemberPointsConsumeDetailBo extends BlsTenantMchEntity {
+public class BlsMemberPointsConsumeDetailBo extends BilliardsBaseEntity {
 
     /**
      * 记录ID

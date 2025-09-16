@@ -161,9 +161,6 @@ public class BlsWalletTransactionServiceImpl implements IBlsWalletTransactionSer
         transaction.setTransactionId(refundRecord.getTransactionId());
         transaction.setRemark(remark);
 
-        transaction.setMerchantId(refundRecord.getMerchantId());
-        transaction.setTenantId(refundRecord.getTenantId());
-
         return baseMapper.insert(transaction) > 0;
     }
 }

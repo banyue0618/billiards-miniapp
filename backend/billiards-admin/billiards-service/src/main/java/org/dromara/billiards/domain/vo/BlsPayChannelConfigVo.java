@@ -35,12 +35,6 @@ public class BlsPayChannelConfigVo implements Serializable {
     private String id;
 
     /**
-     * 商家ID(可空=租户级)
-     */
-    @ExcelProperty(value = "商家ID(可空=租户级)")
-    private String merchantId;
-
-    /**
      * 门店ID(可空=商户/租户级)
      */
     @ExcelProperty(value = "门店ID(可空=商户/租户级)")

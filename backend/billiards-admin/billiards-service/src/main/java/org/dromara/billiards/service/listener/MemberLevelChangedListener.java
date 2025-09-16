@@ -16,8 +16,8 @@ public class MemberLevelChangedListener {
     @EventListener
     public void onMemberLevelChanged(MemberLevelChangedEvent event) {
         // TODO: 调用推送服务（小程序订阅消息/短信/站内通知）
-        log.info("Member level changed, userId={}, merchantId={}, {} -> {}, orderId={}",
-            event.getUserId(), event.getMerchantId(), event.getBeforeLevel(), event.getAfterLevel(), event.getOrderId());
+        log.info("Member level changed, userId={}, {} -> {}, orderId={}",
+            event.getUserId(), event.getBeforeLevel(), event.getAfterLevel(), event.getOrderId());
     }
 }
 

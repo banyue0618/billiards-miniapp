@@ -85,7 +85,6 @@ public interface IBlsMemberUserService extends IService<BlsMemberUser> {
      * 2) 可选地校验单次上限（传入 maxPointsAllowed 不为 null 时生效）
      *
      * @param userId           用户ID
-     * @param merchantId       商户ID
      * @param businessId       业务ID（如订单ID）
      * @param pointsToDeduct   需要扣减的积分（正数）
      * @param scene            场景（与积分规则一致，消费抵扣例如 1）
@@ -93,15 +92,14 @@ public interface IBlsMemberUserService extends IService<BlsMemberUser> {
      * @param maxPointsAllowed 单次最多可扣积分（可为 null）
      * @return 本地抵扣的金额
      */
-    BigDecimal deductPointsFifo(Long userId, String merchantId, String businessId, long pointsToDeduct, Long scene, String ruleId, Long maxPointsAllowed);
+    BigDecimal deductPointsFifo(Long userId, String businessId, long pointsToDeduct, Long scene, String ruleId, Long maxPointsAllowed);
 
     /**
      * 根据累计消费金额检查并更新用户等级（支持升级/降级）。
      * @param userId     用户ID
-     * @param merchantId 商户ID
      */
-    void checkAndUpdateLevel(Long userId, String merchantId);
+    void checkAndUpdateLevel(Long userId);
 
 
-    BlsMemberUser queryUserMember(Long userId, String merchantId);
+    BlsMemberUser queryUserMember(Long userId);
 }

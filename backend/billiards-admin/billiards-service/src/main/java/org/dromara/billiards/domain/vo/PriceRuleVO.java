@@ -14,9 +14,6 @@ public class PriceRuleVO {
     @Schema(description = "规则ID")
     private String id;
 
-    @Schema(description = "所属商家ID")
-    private String merchantId;
-
     @Schema(description = "所属门店ID")
     private String storeId;
 

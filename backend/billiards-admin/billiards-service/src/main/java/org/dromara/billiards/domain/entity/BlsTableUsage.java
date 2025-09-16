@@ -29,11 +29,6 @@ public class BlsTableUsage extends BilliardsBaseEntity {
     private String id;
 
     /**
-     * 商家ID
-     */
-    private String merchantId;
-
-    /**
      * 门店ID
      */
     private String storeId;

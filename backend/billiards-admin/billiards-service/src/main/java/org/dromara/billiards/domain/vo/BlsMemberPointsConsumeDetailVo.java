@@ -35,18 +35,6 @@ public class BlsMemberPointsConsumeDetailVo implements Serializable {
     private String id;
 
     /**
-     * 租户编号
-     */
-    @ExcelProperty(value = "租户编号")
-    private String tenantId;
-
-    /**
-     * 商家ID
-     */
-    @ExcelProperty(value = "商家ID")
-    private String merchantId;
-
-    /**
      * 用户ID
      */
     @ExcelProperty(value = "用户ID")

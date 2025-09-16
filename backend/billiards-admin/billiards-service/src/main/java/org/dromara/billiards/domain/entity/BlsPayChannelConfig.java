@@ -27,11 +27,6 @@ public class BlsPayChannelConfig extends BilliardsBaseEntity {
     private String id;
 
     /**
-     * 商家ID(可空=租户级)
-     */
-    private String merchantId;
-
-    /**
      * 门店ID(可空=商户/租户级)
      */
     private String storeId;

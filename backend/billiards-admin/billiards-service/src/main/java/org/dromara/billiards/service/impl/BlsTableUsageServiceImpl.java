@@ -76,7 +76,6 @@ public class BlsTableUsageServiceImpl implements IBlsTableUsageService {
     private LambdaQueryWrapper<BlsTableUsage> buildQueryWrapper(BlsTableUsageBo bo) {
         LambdaQueryWrapper<BlsTableUsage> lqw = Wrappers.lambdaQuery();
         lqw.orderByAsc(BlsTableUsage::getId);
-        lqw.eq(StringUtils.isNotBlank(bo.getMerchantId()), BlsTableUsage::getMerchantId, bo.getMerchantId());
         lqw.eq(StringUtils.isNotBlank(bo.getStoreId()), BlsTableUsage::getStoreId, bo.getStoreId());
         lqw.eq(StringUtils.isNotBlank(bo.getTableId()), BlsTableUsage::getTableId, bo.getTableId());
         lqw.eq(StringUtils.isNotBlank(bo.getOrderId()), BlsTableUsage::getOrderId, bo.getOrderId());

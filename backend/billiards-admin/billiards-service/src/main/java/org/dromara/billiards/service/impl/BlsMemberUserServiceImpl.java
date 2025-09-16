@@ -7,9 +7,7 @@ import org.dromara.billiards.common.constant.MemberChangeTypeEnum;
 import org.dromara.billiards.common.constant.PointsSceneEnum;
 import org.dromara.billiards.domain.entity.*;
 import org.dromara.billiards.notify.event.MemberLevelChangedEvent;
-import org.dromara.billiards.security.MerchantQueryHelper;
 import org.dromara.common.core.utils.MapstructUtils;
-import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -29,10 +27,8 @@ import org.dromara.billiards.service.IBlsMemberPointsValidityService;
 import org.dromara.billiards.service.IBlsPointsRuleService;
 import org.dromara.billiards.domain.bo.BlsMemberPointsRecordBo;
 import org.dromara.billiards.domain.bo.BlsMemberPointsValidityBo;
-import org.dromara.billiards.domain.bo.BlsMemberPointsConsumeDetailBo;
 import org.dromara.billiards.service.IBlsMemberPointsConsumeDetailService;
 import org.dromara.billiards.service.IBlsMemberChangeLogService;
-import org.dromara.billiards.domain.bo.BlsMemberChangeLogBo;
 import org.dromara.billiards.domain.bo.BlsPointsRuleBo;
 
 import java.util.List;
@@ -109,8 +105,6 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
         lqw.eq(bo.getLevelExpireTime() != null, BlsMemberUser::getLevelExpireTime, bo.getLevelExpireTime());
         lqw.eq(bo.getLastConsumeTime() != null, BlsMemberUser::getLastConsumeTime, bo.getLastConsumeTime());
         lqw.eq(bo.getStatus() != null, BlsMemberUser::getStatus, bo.getStatus());
-        // 可选商户范围过滤
-        MerchantQueryHelper.apply(lqw, BlsMemberUser::getMerchantId);
         return lqw;
     }
 
@@ -178,16 +172,13 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
             return;
         }
 
-        // 1) 获取或创建会员用户行（按租户上下文+merchantId+userId）
+        // 1) 获取或创建会员用户行
         BlsMemberUser member = baseMapper.selectOne(Wrappers.<BlsMemberUser>lambdaQuery()
-            .eq(StringUtils.isNotEmpty(order.getMerchantId()), BlsMemberUser::getMerchantId, order.getMerchantId())
             .eq(BlsMemberUser::getUserId, order.getUserId())
             .last("LIMIT 1"));
         if (member == null) {
             member = new BlsMemberUser();
             member.setUserId(order.getUserId());
-            member.setMerchantId(order.getMerchantId());
-            member.setTenantId(order.getTenantId());
             member.setTotalAmount(BigDecimal.ZERO);
             member.setPoints(0L);
             member.setStatus(0L);
@@ -205,8 +196,6 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
         if (bestLevel != null && (beforeLevel == null || !bestLevel.equals(beforeLevel))) {
             member.setLevelCode(bestLevel);
             BlsMemberChangeLog changeBo = new BlsMemberChangeLog();
-            changeBo.setMerchantId(order.getMerchantId());
-            changeBo.setTenantId(order.getTenantId());
             changeBo.setUserId(order.getUserId());
             changeBo.setChangeType(MemberChangeTypeEnum.UPGRADE.getCode());
             changeBo.setBeforeLevel(beforeLevel);
@@ -218,7 +207,7 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
             memberChangeLogService.save(changeBo);
             // 异步事件：会员升级
             eventPublisher.publishEvent(new MemberLevelChangedEvent(this,
-                member.getUserId(), member.getMerchantId(), beforeLevel, bestLevel, order.getId()));
+                member.getUserId(), beforeLevel, bestLevel, order.getId()));
         }
 
         // 4) 计算积分（基础积分 × 等级倍率）
@@ -260,8 +249,6 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
         // 5) 记积分记录（增加）
         if (finalPoints > 0) {
             BlsMemberPointsRecord recordBo = new BlsMemberPointsRecord();
-            recordBo.setMerchantId(order.getMerchantId());
-            recordBo.setTenantId(order.getTenantId());
             recordBo.setUserId(order.getUserId());
             recordBo.setPoints(finalPoints);
             recordBo.setType(1L); // 获取
@@ -281,8 +268,6 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
             // 6) 生成有效期批次
             BlsMemberPointsValidity validityBo = new BlsMemberPointsValidity();
             validityBo.setUserId(order.getUserId());
-            validityBo.setMerchantId(order.getMerchantId());
-            validityBo.setTenantId(order.getTenantId());
             validityBo.setPoints(finalPoints);
             validityBo.setRemainingPoints(finalPoints);
             validityBo.setExpireTime(recordBo.getExpireTime());
@@ -298,10 +283,9 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
     }
 
     @Override
-    public void checkAndUpdateLevel(Long userId, String merchantId) {
+    public void checkAndUpdateLevel(Long userId) {
         if (userId == null) return;
         BlsMemberUser member = baseMapper.selectOne(Wrappers.<BlsMemberUser>lambdaQuery()
-            .eq(StringUtils.isNotEmpty(merchantId), BlsMemberUser::getMerchantId, merchantId)
             .eq(BlsMemberUser::getUserId, userId)
             .last("LIMIT 1"));
         if (member == null) return;
@@ -311,7 +295,6 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
         if (bestLevel != null && (beforeLevel == null || !bestLevel.equals(beforeLevel))) {
             member.setLevelCode(bestLevel);
             BlsMemberChangeLog changeBo = new BlsMemberChangeLog();
-            changeBo.setMerchantId(member.getMerchantId());
             changeBo.setUserId(userId);
             changeBo.setChangeType(MemberChangeTypeEnum.UPGRADE.getCode());
             changeBo.setBeforeLevel(beforeLevel);
@@ -322,15 +305,14 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
             memberChangeLogService.save(changeBo);
             // 异步事件：会员升级
             eventPublisher.publishEvent(new MemberLevelChangedEvent(this,
-                member.getUserId(), member.getMerchantId(), beforeLevel, bestLevel, null));
+                member.getUserId(), beforeLevel, bestLevel, null));
         }
         baseMapper.updateById(member);
     }
 
     @Override
-    public BlsMemberUser queryUserMember(Long userId, String merchantId) {
+    public BlsMemberUser queryUserMember(Long userId) {
         return baseMapper.selectOne(Wrappers.<BlsMemberUser>lambdaQuery()
-            .eq(StringUtils.isNotEmpty(merchantId), BlsMemberUser::getMerchantId, merchantId)
             .eq(BlsMemberUser::getUserId, userId)
             .last("LIMIT 1"));
     }
@@ -352,7 +334,7 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BigDecimal deductPointsFifo(Long userId, String merchantId, String businessId, long pointsToDeduct, Long scene, String ruleId, Long maxPointsAllowed) {
+    public BigDecimal deductPointsFifo(Long userId, String businessId, long pointsToDeduct, Long scene, String ruleId, Long maxPointsAllowed) {
         if (userId == null || pointsToDeduct <= 0) {
             return BigDecimal.ZERO;
         }
@@ -361,7 +343,6 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
         List<BlsMemberPointsValidity> buckets = memberPointsValidityService.queryList(new BlsMemberPointsValidityBo()).stream()
             .map(v -> MapstructUtils.convert(v, BlsMemberPointsValidity.class))
             .filter(v -> v.getUserId() != null && v.getUserId().equals(userId))
-            .filter(v -> v.getMerchantId() != null && v.getMerchantId().equals(merchantId))
             .filter(v -> v.getExpireTime() == null || v.getExpireTime().isAfter(now))
             .sorted((a, b) -> a.getExpireTime().compareTo(b.getExpireTime()))
             .toList();
@@ -400,7 +381,6 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
             // 写明细
             BlsMemberPointsConsumeDetail detailBo = new BlsMemberPointsConsumeDetail();
             detailBo.setUserId(userId);
-            detailBo.setMerchantId(merchantId);
             detailBo.setRecordId(recordBo.getId());
             detailBo.setValidityId(bucket.getId());
             detailBo.setPoints(used);
@@ -416,7 +396,7 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
         }
 
         // 4) 回写会员积分汇总
-        BlsMemberUser member = queryUserMember(userId, merchantId);
+        BlsMemberUser member = queryUserMember(userId);
         if (member != null) {
             long current = member.getPoints() == null ? 0L : member.getPoints();
             member.setPoints(current - pointsToDeduct);

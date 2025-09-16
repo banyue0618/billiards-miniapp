@@ -24,11 +24,6 @@ public class BlsStore extends BilliardsBaseEntity {
     private String id;
 
     /**
-     * 所属商家ID
-     */
-    private String merchantId = "1";
-
-    /**
      * 门店名称
      */
     private String name;

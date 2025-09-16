@@ -5,7 +5,6 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="org.dromara.billiards.domain.entity.BlsPriceRule">
         <id column="id" property="id"/>
-        <result column="merchant_id" property="merchantId"/>
         <result column="name" property="name"/>
         <result column="rule_type" property="ruleType"/>
         <result column="price_unit" property="priceUnit"/>
@@ -20,11 +19,6 @@
         <result column="update_by" property="updateBy"/>
     </resultMap>
 
-    <!-- 根据商家ID查询计费规则列表 -->
-    <select id="selectByMerchantId" resultMap="BaseResultMap">
-        SELECT * FROM bls_price_rule WHERE merchant_id = #{merchantId} ORDER BY create_time DESC
-    </select>
-
     <!-- 根据ID查询计费规则详情 -->
     <select id="selectRuleById" resultMap="BaseResultMap">
         SELECT * FROM bls_price_rule WHERE id = #{id}
@@ -32,7 +26,7 @@
 
     <!-- 根据桌台类型查询默认计费规则 -->
     <select id="selectDefaultByTableType" resultMap="BaseResultMap">
-        SELECT * FROM bls_price_rule WHERE merchant_id = #{merchantId} AND default_type = #{tableType} LIMIT 1
+        SELECT * FROM bls_price_rule WHERE rule_type = #{tableType}
     </select>
 
     <select id="findMinStandardPriceUnitForStore" resultType="java.math.BigDecimal">

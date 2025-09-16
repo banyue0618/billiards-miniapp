@@ -37,12 +37,6 @@ public class BlsMemberChangeLogVo implements Serializable {
     private String id;
 
     /**
-     * 商家ID
-     */
-    @ExcelProperty(value = "商家ID")
-    private String merchantId;
-
-    /**
      * 用户ID
      */
     @ExcelProperty(value = "用户ID")

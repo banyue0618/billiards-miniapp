@@ -22,7 +22,6 @@ public interface PriceRuleConvert {
     List<PriceRuleVO> toVoList(List<BlsPriceRule> entityList);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "merchantId", ignore = true) // Usually not changed via general update
     @Mapping(target = "createTime", ignore = true)
     void updateEntityFromDto(PriceRuleDto dto, @MappingTarget BlsPriceRule entity);
 }

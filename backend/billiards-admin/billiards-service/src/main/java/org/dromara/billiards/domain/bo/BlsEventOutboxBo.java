@@ -1,7 +1,7 @@
 package org.dromara.billiards.domain.bo;
 
+import org.dromara.billiards.domain.entity.BilliardsBaseEntity;
 import org.dromara.billiards.domain.entity.BlsEventOutbox;
-import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import io.github.linpeilie.annotations.AutoMapper;
@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 本地消息(Outbox)业务对象 bls_event_outbox
@@ -20,19 +19,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsEventOutbox.class, reverseConvertGenerate = false)
-public class BlsEventOutboxBo extends BaseEntity {
+public class BlsEventOutboxBo extends BilliardsBaseEntity {
 
     /**
      * 事件ID
      */
     @NotBlank(message = "事件ID不能为空", groups = { EditGroup.class })
     private String id;
-
-    /**
-     * 商家ID
-     */
-    @NotBlank(message = "商家ID不能为空", groups = { AddGroup.class, EditGroup.class })
-    private String merchantId;
 
     /**
      * 聚合根类型，如 ORDER
@@ -78,11 +71,4 @@ public class BlsEventOutboxBo extends BaseEntity {
      * 最后一次错误信息
      */
     private String lastError;
-
-    /**
-     * 删除标志（0存在 1删除）
-     */
-    private Long isDelete;
-
-
 }

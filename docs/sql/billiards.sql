@@ -35,7 +35,6 @@ CREATE TABLE `bls_user` (
 -- 创建门店表
 CREATE TABLE `bls_store` (
                          `id` varchar(36) NOT NULL COMMENT '门店ID',
-                         `merchant_id` varchar(36) NOT NULL COMMENT '所属商家ID',
                          `name` varchar(100) NOT NULL COMMENT '门店名称',
                          `cover_image` varchar(255) DEFAULT NULL COMMENT '门店封面图URL',
                          `province` varchar(50) DEFAULT NULL COMMENT '省份',
@@ -53,14 +52,13 @@ CREATE TABLE `bls_store` (
                          `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
                          `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
                          `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
-                         PRIMARY KEY (`id`),
-                         KEY `idx_merchant_id` (`merchant_id`)
+                         PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='门店表';
 
 -- 创建价格规则表
 CREATE TABLE `bls_price_rule` (
                               `id` varchar(36) NOT NULL COMMENT '规则ID',
-                              `merchant_id` varchar(36) NOT NULL COMMENT '所属商家ID',
+                              `store_id` varchar(36) NOT NULL COMMENT '所属门店ID',
                               `name` varchar(100) NOT NULL COMMENT '规则名称',
                               `rule_type` tinyint NOT NULL COMMENT '规则类型 1-标准计费 2-阶梯计费',
                               `price_unit` decimal(10,2) DEFAULT NULL COMMENT '单价(元/分钟)',
@@ -76,8 +74,7 @@ CREATE TABLE `bls_price_rule` (
                               `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
                               `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
                               `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
-                              PRIMARY KEY (`id`),
-                              KEY `idx_merchant_id` (`merchant_id`)
+                              PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='价格规则表';
 
 -- 创建桌台表
@@ -425,8 +422,6 @@ CREATE TABLE `bls_member_points_validity` (
 -- 会员积分消费详情表
 CREATE TABLE bls_member_points_consume_detail (
                                                   id              varchar(32) PRIMARY KEY COMMENT '记录ID',
-                                                  tenant_id       varchar(20) NOT NULL COMMENT '租户编号',
-                                                  merchant_id     varchar(36) NOT NULL COMMENT '商家ID',
                                                   user_id         bigint(20) NOT NULL COMMENT '用户ID',
                                                   record_id       varchar(32) NOT NULL COMMENT '指向消费类 bls_member_points_record.id',
                                                   validity_id     varchar(32) NOT NULL COMMENT '指向被扣的批次 bls_member_points_validity.id',
@@ -438,7 +433,6 @@ CREATE TABLE bls_member_points_consume_detail (
                                                   is_delete       tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
                                                   KEY idx_record (record_id),
                                                   KEY idx_validity (validity_id),
-                                                  KEY idx_user (tenant_id, merchant_id, user_id),
                                                   KEY idx_create_time (create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员积分消费详情表';
 
@@ -632,8 +626,6 @@ values(30065, '会员权益导出', 3006, '5',  '#', '', 1, 0, 'F', '0', '0', 'b
 -- 支付服务商配置（门店 > 商户 > 租户 覆盖）（目前未使用，以后需求扩展使用,TenantResolver）
 CREATE TABLE `bls_pay_channel_config` (
   `id` varchar(36) NOT NULL COMMENT 'ID',
-  `tenant_id` varchar(20) NOT NULL COMMENT '租户编号',
-  `merchant_id` varchar(36) DEFAULT NULL COMMENT '商家ID(可空=租户级)',
   `store_id` varchar(36) DEFAULT NULL COMMENT '门店ID(可空=商户/租户级)',
   `app_id` varchar(64) NOT NULL COMMENT 'AppId',
   `sub_mch_id` varchar(32) NOT NULL COMMENT '子商户号',
@@ -644,10 +636,7 @@ CREATE TABLE `bls_pay_channel_config` (
   `update_by` varchar(36) DEFAULT NULL,
   `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_tenant_store_app` (`tenant_id`, `store_id`, `app_id`),
-  UNIQUE KEY `uk_tenant_merchant_app` (`tenant_id`, `merchant_id`, `app_id`),
-  UNIQUE KEY `uk_tenant_app` (`tenant_id`, `app_id`),
-  KEY `idx_tenant` (`tenant_id`)
+  UNIQUE KEY `uk_pay_store` (`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付服务商配置(门店>商户>租户)';
 
 insert into billiards_admin.sys_dict_type values(15, '000000', '启停状态', 'enable_status',    103, 1, sysdate(), null, null, '启停用列表');
@@ -802,5 +791,4 @@ CREATE TABLE `bls_event_outbox` (
                                     `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
                                     PRIMARY KEY (`id`),
                                     KEY `idx_agg` (`aggregate_type`, `aggregate_id`),
-                                    KEY `idx_merchant_time` (`merchant_id`, `create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='本地消息表(Outbox)';

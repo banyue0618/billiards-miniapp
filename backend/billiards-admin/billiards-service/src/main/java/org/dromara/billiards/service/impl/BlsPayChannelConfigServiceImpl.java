@@ -74,7 +74,6 @@ public class BlsPayChannelConfigServiceImpl implements IBlsPayChannelConfigServi
     private LambdaQueryWrapper<BlsPayChannelConfig> buildQueryWrapper(BlsPayChannelConfigBo bo) {
         LambdaQueryWrapper<BlsPayChannelConfig> lqw = Wrappers.lambdaQuery();
         lqw.orderByAsc(BlsPayChannelConfig::getId);
-        lqw.eq(StringUtils.isNotBlank(bo.getMerchantId()), BlsPayChannelConfig::getMerchantId, bo.getMerchantId());
         lqw.eq(StringUtils.isNotBlank(bo.getStoreId()), BlsPayChannelConfig::getStoreId, bo.getStoreId());
         lqw.eq(StringUtils.isNotBlank(bo.getAppId()), BlsPayChannelConfig::getAppId, bo.getAppId());
         lqw.eq(StringUtils.isNotBlank(bo.getSubMchId()), BlsPayChannelConfig::getSubMchId, bo.getSubMchId());

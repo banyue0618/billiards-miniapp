@@ -73,7 +73,6 @@ public class BlsMemberChangeLogServiceImpl extends ServiceImpl<BlsMemberChangeLo
     private LambdaQueryWrapper<BlsMemberChangeLog> buildQueryWrapper(BlsMemberChangeLogBo bo) {
         LambdaQueryWrapper<BlsMemberChangeLog> lqw = Wrappers.lambdaQuery();
         lqw.orderByAsc(BlsMemberChangeLog::getId);
-        lqw.eq(StringUtils.isNotBlank(bo.getMerchantId()), BlsMemberChangeLog::getMerchantId, bo.getMerchantId());
         lqw.eq(bo.getUserId() != null, BlsMemberChangeLog::getUserId, bo.getUserId());
         lqw.eq(StringUtils.isNotBlank(bo.getChangeType()), BlsMemberChangeLog::getChangeType, bo.getChangeType());
         lqw.eq(StringUtils.isNotBlank(bo.getBeforeLevel()), BlsMemberChangeLog::getBeforeLevel, bo.getBeforeLevel());

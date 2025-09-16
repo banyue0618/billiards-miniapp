@@ -53,9 +53,6 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
     @Resource
     private IBlsWalletAccountService walletAccountService;
 
-    @Resource
-    private IBlsUserTenantService userTenantService;
-
     /**
      * 是否启用模拟支付（开发环境使用）
      */
@@ -82,10 +79,6 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
         if (!saved) {
             throw BilliardsException.of("创建支付记录失败");
         }
-
-        // 保存用户所属租户记录
-        userTenantService.saveUserTenantRecord(blsUser);
-
         // 如果启用了模拟支付，则直接更新用户余额并返回成功
         if (mockPaymentEnabled) {
             log.info("模拟支付模式已启用，直接更新用户余额");

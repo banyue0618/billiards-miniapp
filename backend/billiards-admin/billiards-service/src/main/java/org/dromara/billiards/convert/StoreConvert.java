@@ -25,8 +25,6 @@ public interface StoreConvert {
      *    如果StoreService的save方法不处理传入的id（即总是新生成id），则没问题。
      *    如果save方法会复用id，而我们希望创建时总是新id，则可能需要针对创建场景单独写一个方法或用@Mapping忽略id。
      *    对于更新场景，这个id是需要的。
-     * 2. merchantId 和 status 字段在 StoreDto 中没有，它们通常在 Service 层设置。
-     *    Store 实体中的 merchantId 有默认值 "1"。
      *    Store 实体中的 status (Integer类型) 在创建时 Service 层应该设置一个初始值。
      * 3. BaseEntity 中的字段 (createTime, updateTime 等) 由 MyBatis-Plus 自动填充。
      */
@@ -37,7 +35,6 @@ public interface StoreConvert {
         // @Mapping(target = "coverImage", ignore = true) // 或者用 defaultExpression
         // 这里假设大部分字段名一致，MapStruct会自动映射
         @Mapping(target = "id", source = "id") // 明确映射id，用于更新场景
-        // merchantId 会使用Entity的默认值或Service层设置
         // status 将由Service层设置
         // createTime, updateTime 等BaseEntity字段由MP自动处理
     })
@@ -50,8 +47,6 @@ public interface StoreConvert {
      */
     @Mappings({
         @Mapping(target = "id", ignore = true),
-        // merchantId 一般不允许在此处修改，或者有特定权限控制
-        @Mapping(target = "merchantId", ignore = true), // 示例：通常不通过常规更新修改商户ID
         // createTime 字段不应该被更新
         @Mapping(target = "createTime", ignore = true),
         // createBy 字段不应该被更新 (如果存在)

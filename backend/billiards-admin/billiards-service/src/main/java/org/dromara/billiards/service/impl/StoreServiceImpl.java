@@ -32,7 +32,6 @@ import org.dromara.billiards.domain.bo.StatusRequest;
 import org.dromara.system.domain.vo.SysDictDataVo;
 import org.dromara.system.service.ISysDictTypeService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.dromara.billiards.common.result.ResultCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -114,7 +113,7 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, BlsStore> impleme
         // 使用提取的通用方法构建VO
         NearbyStoreVO nearbyStoreVO = buildNearbyStoreVO(blsStore, distanceKm, null, null, null);
         // 标准计费
-        List<BlsPriceRule> blsPriceRuleList = priceRuleService.listPriceRulesByMerchantId(blsStore.getMerchantId(), 1);
+        List<BlsPriceRule> blsPriceRuleList = priceRuleService.listPriceRulesByType( 1);
         List<NearbyStoreVO.PriceVO> priceList = blsPriceRuleList.stream().map(priceRule -> {
             NearbyStoreVO.PriceVO priceVO = new NearbyStoreVO.PriceVO();
             priceVO.setType(priceRule.getName());
@@ -240,32 +239,20 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, BlsStore> impleme
             }
         }
 
-        // 以商户维度预取标准计费最低单价
-        Map<String, BigDecimal> merchantMinPriceUnitPerMinute = new HashMap<>();
-        Set<String> merchantIds = candidateBlsStores.stream()
-            .map(BlsStore::getMerchantId)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
-        for (String merchantId : merchantIds) {
-            List<BlsPriceRule> blsPriceRules = priceRuleService.listPriceRulesByMerchantId(merchantId, 1);
-            if (blsPriceRules == null || blsPriceRules.isEmpty()) continue;
-//            BigDecimal minUnit = priceRules.stream()
-//                .map(PriceRule::getPriceUnit)
-//                .filter(Objects::nonNull)
-//                .min(Comparator.naturalOrder())
-//                .orElse(null);
-            BigDecimal minUnit = blsPriceRules.stream()
-                .filter(r -> r.getPriceUnit() != null)
-                .min(Comparator.comparing(BlsPriceRule::getPriceUnit))
-                .map(r -> {
-                    BigDecimal discount = r.getMemberDiscount() != null ? r.getMemberDiscount() : BigDecimal.ONE;
-                    return r.getPriceUnit().multiply(discount);
-                })
-                .orElse(null);
-            if (minUnit != null) {
-                merchantMinPriceUnitPerMinute.put(merchantId, minUnit);
+        Map<String, BigDecimal> storeMinPriceUnitPerMinute = new HashMap<>();
+
+        List<BlsPriceRule> blsPriceRules = priceRuleService.listPriceRulesByType(1);
+
+        // 计算出每个门店的最低价 以门店id分组计算
+        blsPriceRules.stream().collect(Collectors.groupingBy(BlsPriceRule::getStoreId)).forEach((storeId, rules) -> {
+            BigDecimal minPriceUnit = rules.stream().min(Comparator.comparing(BlsPriceRule::getPriceUnit)).map(r -> {
+                BigDecimal discount = r.getMemberDiscount() != null ? r.getMemberDiscount() : BigDecimal.ONE;
+                return r.getPriceUnit().multiply(discount);
+            }).orElse(null);
+            if (minPriceUnit != null) {
+                storeMinPriceUnitPerMinute.put(storeId, minPriceUnit);
             }
-        }
+        });
 
         // 计算距离、过滤、装配 VO
         List<NearbyStoreVO> result = candidateBlsStores.stream()
@@ -282,7 +269,7 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, BlsStore> impleme
 
                 NearbyStoreVO vo = buildNearbyStoreVO(store, distanceKm, dictDataMap, total, available);
 
-                BigDecimal minPriceUnit = merchantMinPriceUnitPerMinute.get(store.getMerchantId());
+                BigDecimal minPriceUnit = storeMinPriceUnitPerMinute.get(store.getId());
                 if (minPriceUnit != null) {
                     vo.setMinPrice(minPriceUnit.multiply(BilliardsConstants.MINUTES_PER_HOUR).intValue());
                 }

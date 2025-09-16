@@ -16,7 +16,7 @@ import java.io.Serial;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_event_outbox")
-public class BlsEventOutbox extends BlsTenantMchEntity {
+public class BlsEventOutbox extends BilliardsBaseEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;

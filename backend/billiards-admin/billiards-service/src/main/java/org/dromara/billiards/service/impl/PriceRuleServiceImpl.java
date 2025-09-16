@@ -194,13 +194,8 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, BlsPriceR
     }
 
     @Override
-    public List<BlsPriceRule> listPriceRulesByMerchantId(String merchantId, int ruleType) {
-        // 现根据门店找到商家，再根据商家获取计费规则
-        if (StringUtils.isEmpty(merchantId)) {
-            throw BilliardsException.of(ResultCode.PARAM_ERROR, "商户ID不能为空");
-        }
+    public List<BlsPriceRule> listPriceRulesByType(int ruleType) {
         LambdaQueryWrapper<BlsPriceRule> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BlsPriceRule::getMerchantId, merchantId);
         if (ruleType > 0) {
             queryWrapper.eq(BlsPriceRule::getRuleType, ruleType);
         }

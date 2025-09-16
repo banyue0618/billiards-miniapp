@@ -59,10 +59,10 @@ public interface PriceRuleService extends IService<BlsPriceRule> {
 
     /**
      * 获取商家计费规则
-     * @param merchantId 商户id
+     * @param ruleType 计费规则类型
      * @return 计费规则列表
      */
-    List<BlsPriceRule> listPriceRulesByMerchantId(String merchantId, int ruleType);
+    List<BlsPriceRule> listPriceRulesByType(int ruleType);
 
     /**
      * 计算费用

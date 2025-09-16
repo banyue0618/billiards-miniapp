@@ -40,7 +40,6 @@ public class EventOutboxDispatcher {
                     BlsOrder order = new BlsOrder();
                     order.setId(payload.getOrderId());
                     order.setUserId(payload.getUserId());
-                    order.setMerchantId(payload.getMerchantId());
                     order.setActualAmount(payload.getActualAmount());
                     publisher.publishEvent(new OrderCompletedEvent(this, order));
                 } else if (OutboxEventTypeEnum.REFUND_REQUESTED.name().equals(type)) {
@@ -69,7 +68,6 @@ public class EventOutboxDispatcher {
     public static class OrderCompletedPayload {
         private String orderId;
         private Long userId;
-        private String merchantId;
         private java.math.BigDecimal actualAmount;
 
         public String getOrderId() {
@@ -86,14 +84,6 @@ public class EventOutboxDispatcher {
 
         public void setUserId(Long userId) {
             this.userId = userId;
-        }
-
-        public String getMerchantId() {
-            return merchantId;
-        }
-
-        public void setMerchantId(String merchantId) {
-            this.merchantId = merchantId;
         }
 
         public java.math.BigDecimal getActualAmount() {

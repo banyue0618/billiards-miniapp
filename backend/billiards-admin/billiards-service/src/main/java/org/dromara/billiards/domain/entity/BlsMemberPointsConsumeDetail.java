@@ -28,11 +28,6 @@ public class BlsMemberPointsConsumeDetail extends TenantEntity {
     private String id;
 
     /**
-     * 商家ID
-     */
-    private String merchantId;
-
-    /**
      * 用户ID
      */
     private Long userId;
