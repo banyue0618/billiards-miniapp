@@ -76,4 +76,13 @@ public class TableController {
         IPage<BlsTable> page = tableService.getTablePage(queryRequest);
         return ApiResult.success(tableConvert.toVoPage(page));
     }
+
+
+    /**
+     * 随机返回一个tableId 调试使用
+     */
+    @GetMapping("/randomTableId")
+    public R<String> randomTableId() {
+        return ApiResult.success("获取成功", tableService.randomTableId());
+    }
 }

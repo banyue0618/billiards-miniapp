@@ -139,11 +139,10 @@ Page({
     }
 
     // 测试使用，当作扫描二维码得到的结果
-    let result = "0c373653787400de978a11a3d51860e3";
-    this.handleScanResult(result);
-
-
+    // let result = "0c373653787400de978a11a3d51860e3";
+    let result = await apiService.randomTableId();
     
+    this.handleScanResult(result);
     // 只有在登录状态下才执行扫码，扫码动作暂时注释
     // wx.scanCode({
     //   scanType: ['qrCode'],

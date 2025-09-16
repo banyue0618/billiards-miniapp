@@ -60,32 +60,6 @@ public class BlsUser extends BilliardsBaseEntity {
     private String phone;
 
     /**
-     * 是否是会员 0-否 1-是
-     */
-    private Integer isMember;
-
-    /**
-     * 会员等级
-     */
-    private Integer memberLevel;
-
-    /**
-     * 会员过期时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime memberExpire;
-
-    /**
-     * 积分
-     */
-    private Integer points;
-
-    /**
-     * 余额
-     */
-    private BigDecimal balance;
-
-    /**
      * 最后登录时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

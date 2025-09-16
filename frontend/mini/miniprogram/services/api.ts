@@ -186,6 +186,13 @@ class ApiService {
     return http.get<TableInfo>(`/api/miniapp/tables/qrcode/${tableId}`)
   }
 
+   /**
+   * 随机获取一个桌台id
+   */
+  randomTableId() {
+    return http.get<string>(`/api/miniapp/tables/randomTableId`)
+  }
+
   /**
    * 创建开台订单
    * @param channel 渠道

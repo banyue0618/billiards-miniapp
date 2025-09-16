@@ -87,15 +87,12 @@ public class XcxAuthStrategy implements IAuthStrategy {
             blsUser.setUserName(loginBody.getNickname());
             blsUser.setAvatarUrl(loginBody.getAvatarUrl());
             blsUser.setGender(loginBody.getGender());
-            blsUser.setIsMember(0);
-            blsUser.setMemberLevel(0);
-            blsUser.setPoints(0);
             blsUser.setStatus(0);
-            blsUser.setLastLoginTime(LocalDateTime.now());
-            if (!billiardsUserService.save(blsUser)) {
-                throw BilliardsException.of(ResultCode.ERROR, "创建用户失败");
-            }
             isNewUser = true;
+        }
+        blsUser.setLastLoginTime(LocalDateTime.now());
+        if (!billiardsUserService.saveOrUpdate(blsUser)) {
+            throw BilliardsException.of(ResultCode.ERROR, "登录失败!请稍后重试");
         }
         // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了
         XcxLoginUser loginUser = new XcxLoginUser();
@@ -126,8 +123,6 @@ public class XcxAuthStrategy implements IAuthStrategy {
         loginVo.setAvatarUrl(blsUser.getAvatarUrl());
         loginVo.setToken(StpUtil.getTokenValue());
         loginVo.setIsNewUser(isNewUser);
-        loginVo.setIsMember(blsUser.getIsMember() != null && blsUser.getIsMember() == 1);
-        loginVo.setMemberLevel(blsUser.getMemberLevel());
         loginVo.setIsPhoneBound(StringUtils.isNotBlank(blsUser.getPhone()));
         return loginVo;
     }
