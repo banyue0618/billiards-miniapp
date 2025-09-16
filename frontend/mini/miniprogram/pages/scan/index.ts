@@ -139,7 +139,7 @@ Page({
     }
 
     // 测试使用，当作扫描二维码得到的结果
-    let result = "e79af5032d1e659c4738b50a6397d2be";
+    let result = "01c79174aaa7ddcfc51b882e2d9ca332";
     this.handleScanResult(result);
 
 

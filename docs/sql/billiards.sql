@@ -58,7 +58,7 @@ CREATE TABLE `bls_store` (
 -- 创建价格规则表
 CREATE TABLE `bls_price_rule` (
                               `id` varchar(36) NOT NULL COMMENT '规则ID',
-                              `store_id` varchar(36) NOT NULL COMMENT '所属门店ID',
+                              `store_id` varchar(36) NULL COMMENT '所属门店ID',
                               `name` varchar(100) NOT NULL COMMENT '规则名称',
                               `rule_type` tinyint NOT NULL COMMENT '规则类型 1-标准计费 2-阶梯计费',
                               `price_unit` decimal(10,2) DEFAULT NULL COMMENT '单价(元/分钟)',
@@ -157,7 +157,7 @@ CREATE TABLE `bls_table_usage` (
     KEY `idx_table_id` (`table_id`),
     KEY `idx_order_id` (`order_id`),
     KEY `idx_user_id` (`user_id`),
-    KEY `idx_start_time` (`start_time`),
+    KEY `idx_start_time` (`start_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='桌台使用记录表';
 
 CREATE TABLE `bls_pay_record` (
@@ -790,5 +790,5 @@ CREATE TABLE `bls_event_outbox` (
                                     `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
                                     `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
                                     PRIMARY KEY (`id`),
-                                    KEY `idx_agg` (`aggregate_type`, `aggregate_id`),
+                                    KEY `idx_agg` (`aggregate_type`, `aggregate_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='本地消息表(Outbox)';

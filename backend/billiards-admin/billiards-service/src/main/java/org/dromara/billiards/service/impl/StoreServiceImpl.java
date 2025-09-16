@@ -239,20 +239,25 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, BlsStore> impleme
             }
         }
 
-        Map<String, BigDecimal> storeMinPriceUnitPerMinute = new HashMap<>();
-
         List<BlsPriceRule> blsPriceRules = priceRuleService.listPriceRulesByType(1);
 
+        // 简化版：直接计算所有门店的统一最低价
+        BigDecimal minPriceUnit = blsPriceRules.stream().min(Comparator.comparing(BlsPriceRule::getPriceUnit)).map(r -> {
+            BigDecimal discount = r.getMemberDiscount() != null ? r.getMemberDiscount() : BigDecimal.ONE;
+            return r.getPriceUnit().multiply(discount);
+        }).orElse(null);
+
         // 计算出每个门店的最低价 以门店id分组计算
-        blsPriceRules.stream().collect(Collectors.groupingBy(BlsPriceRule::getStoreId)).forEach((storeId, rules) -> {
-            BigDecimal minPriceUnit = rules.stream().min(Comparator.comparing(BlsPriceRule::getPriceUnit)).map(r -> {
-                BigDecimal discount = r.getMemberDiscount() != null ? r.getMemberDiscount() : BigDecimal.ONE;
-                return r.getPriceUnit().multiply(discount);
-            }).orElse(null);
-            if (minPriceUnit != null) {
-                storeMinPriceUnitPerMinute.put(storeId, minPriceUnit);
-            }
-        });
+//        Map<String, BigDecimal> storeMinPriceUnitPerMinute = new HashMap<>();
+//        blsPriceRules.stream().collect(Collectors.groupingBy(BlsPriceRule::getStoreId)).forEach((storeId, rules) -> {
+//            BigDecimal minPriceUnit = rules.stream().min(Comparator.comparing(BlsPriceRule::getPriceUnit)).map(r -> {
+//                BigDecimal discount = r.getMemberDiscount() != null ? r.getMemberDiscount() : BigDecimal.ONE;
+//                return r.getPriceUnit().multiply(discount);
+//            }).orElse(null);
+//            if (minPriceUnit != null) {
+//                storeMinPriceUnitPerMinute.put(storeId, minPriceUnit);
+//            }
+//        });
 
         // 计算距离、过滤、装配 VO
         List<NearbyStoreVO> result = candidateBlsStores.stream()
@@ -269,7 +274,7 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, BlsStore> impleme
 
                 NearbyStoreVO vo = buildNearbyStoreVO(store, distanceKm, dictDataMap, total, available);
 
-                BigDecimal minPriceUnit = storeMinPriceUnitPerMinute.get(store.getId());
+//                BigDecimal minPriceUnit = storeMinPriceUnitPerMinute.get(store.getId());
                 if (minPriceUnit != null) {
                     vo.setMinPrice(minPriceUnit.multiply(BilliardsConstants.MINUTES_PER_HOUR).intValue());
                 }
