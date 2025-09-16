@@ -78,19 +78,13 @@ https://www.banyue.xin/billiards/
 - ✅ 在线支付结算
 - ✅ 订单查询与统计
 
-### 5. 会员系统（进行中）
-- ✅ 会员等级管理
-- ✅ 会员权益配置
-- ✅ 积分系统
-
-### 6. 营收统计（已完成）
+### 5. 营收统计（已完成）
 - ✅ 实时营收监控
 - ✅ 营收报表统计
 - ✅ 桌台使用率分析
-- ✅ 区域收入对比
 - ✅ 数据可视化展示
 
-### 7. 系统管理（已完成）
+### 6. 系统管理（已完成）
 - ✅ 商家账户管理
 - ✅ 角色权限控制
 - ✅ 操作日志记录
@@ -106,7 +100,9 @@ https://www.banyue.xin/billiards/
    ```sql
    CREATE DATABASE billiards DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
    ```
-3. 导入 `docs/sql/billiards.sql` 文件
+3. 导入数据库脚本（根据模式选择）：
+   - 多租户（SaaS）：`docs/sql/billiards-saas.sql`
+   - 单体（无租户）：`docs/sql/billiards.sql`
 4. 配置数据库连接信息（application-dev.yml）
 5. 构建与运行：
    ```bash
@@ -177,6 +173,26 @@ docker-compose up -d
 ![我的](imgs/img_13.png)
 ![我的订单](imgs/img_14.png)
 ![我的订单2](imgs/img_15.png)
+
+## 管理页面截图
+![登录](imgs/img_16.png)
+![首页](imgs/img_17.png)
+![门店管理](imgs/img_18.png)
+![门店管理](imgs/img_24.png)
+![桌台管理](imgs/img_19.png)
+![桌台管理](imgs/img_22.png)
+![计费规则](imgs/img_20.png)
+![订单管理](imgs/img_21.png)
+![订单管理](imgs/img_23.png)
+
+
+
+
+
+## 下阶段目标
+- [未来功能规划](docs/未来功能规划.md)
+
+
 
 ## 贡献指南
 1. Fork 本仓库

@@ -11,10 +11,6 @@
         <result column="avatar_url" property="avatarUrl"/>
         <result column="gender" property="gender"/>
         <result column="phone" property="phone"/>
-        <result column="is_member" property="isMember"/>
-        <result column="member_level" property="memberLevel"/>
-        <result column="member_expire" property="memberExpire"/>
-        <result column="points" property="points"/>
         <result column="last_login_time" property="lastLoginTime"/>
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>

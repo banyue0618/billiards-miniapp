@@ -118,4 +118,10 @@ public interface TableService extends IService<BlsTable> {
      * @return
      */
     BlsTable lockTable(String tableId);
+
+    /**
+     * 随机返回一个空闲的桌台id
+     * @return
+     */
+    String randomTableId();
 }

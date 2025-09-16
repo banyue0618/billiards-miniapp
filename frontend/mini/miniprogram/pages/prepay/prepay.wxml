@@ -1,19 +1,21 @@
 <!--pages/prepay/prepay.wxml-->
 <view class="container prepay-container">
   <view class="page-header">
-    <text class="page-title">账户充值</text>
+    <text class="page-title">获取学习币</text>
   </view>
 
   <view class="info-card amount-selection-card">
     <view class="section-title-wrapper">
-      <text class="section-title">选择充值金额</text>
+      <text class="section-title">选择获取方式</text>
     </view>
     <view class="amount-options">
       <view class="amount-option {{selectedAmount === 50 ? 'selected' : ''}}" bindtap="selectAmount" data-amount="{{50}}">
-        <text class="amount-value">¥50</text>
+        <text class="amount-value">50学习币</text>
+        <text class="amount-desc">每日签到可获得</text>
       </view>
       <view class="amount-option {{selectedAmount === 100 ? 'selected' : ''}}" bindtap="selectAmount" data-amount="{{100}}">
-        <text class="amount-value">¥100</text>
+        <text class="amount-value">100学习币</text>
+        <text class="amount-desc">完成学习任务可获得</text>
       </view>
     </view>
   </view>
@@ -25,16 +27,16 @@
     <view class="tip-item">
       <!-- 使用iconfont或图片图标更佳，此处用文本代替 -->
       <text class="tip-icon">i</text> 
-      <text class="tip-text">充值金额用于开台使用，开台结束后将根据实际消费情况自动退还差额至您的账户余额。</text>
+      <text class="tip-text">学习币用于解锁高级内容，提升学习体验。</text>
     </view>
      <view class="tip-item">
       <text class="tip-icon">i</text>
-      <text class="tip-text">请确保账户有足够余额以便顺利开台和持续使用。</text>
+      <text class="tip-text">通过每日签到和完成任务可以获取更多学习币。</text>
     </view>
   </view>
 
   <button class="primary-button confirm-button" bindtap="recharge" disabled="{{!selectedAmount}}">
-    确认充值 {{selectedAmount ? '¥' + selectedAmount : ''}}
+    确认签到 {{selectedAmount ? '学习币' + selectedAmount : ''}}
   </button>
 
   <view class="safe-area-bottom"></view>
