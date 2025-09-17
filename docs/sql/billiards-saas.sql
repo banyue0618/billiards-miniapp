@@ -720,7 +720,7 @@ insert into billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, 
 
 
 INSERT INTO billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, `path`, component, query_param, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark) 
-VALUES(3000, '会员管理', 0, 6, 'star', NULL, NULL, 1, 0, 'M', '0', '0', NULL, 'billiards', NULL, 1, '2025-04-27 16:37:19', NULL, NULL, '会员管理目录');
+VALUES(3000, '会员管理', 0, 6, 'star', NULL, NULL, 1, 0, 'M', '0', '0', NULL, 'example', NULL, 1, '2025-04-27 16:37:19', NULL, NULL, '会员管理目录');
 
 insert into billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
 values(3001, '积分规则配置', '3000', '1', 'pointsRule', 'billiards/pointsRule/index', 1, 0, 'C', '0', '0', 'billiards:pointsRule:list', '#', 103, 1, sysdate(), null, null, '积分规则菜单');
