@@ -8,6 +8,20 @@ FROM maven:3.8-openjdk-17-slim AS builder
 # 设置工作目录
 WORKDIR /app
 
+# 配置Maven使用阿里云镜像，加速依赖下载
+RUN mkdir -p /root/.m2 && \
+    echo '<?xml version="1.0" encoding="UTF-8"?>' > /root/.m2/settings.xml && \
+    echo '<settings>' >> /root/.m2/settings.xml && \
+    echo '  <mirrors>' >> /root/.m2/settings.xml && \
+    echo '    <mirror>' >> /root/.m2/settings.xml && \
+    echo '      <id>aliyun</id>' >> /root/.m2/settings.xml && \
+    echo '      <name>aliyun Maven</name>' >> /root/.m2/settings.xml && \
+    echo '      <mirrorOf>central</mirrorOf>' >> /root/.m2/settings.xml && \
+    echo '      <url>https://maven.aliyun.com/repository/public</url>' >> /root/.m2/settings.xml && \
+    echo '    </mirror>' >> /root/.m2/settings.xml && \
+    echo '  </mirrors>' >> /root/.m2/settings.xml && \
+    echo '</settings>' >> /root/.m2/settings.xml
+
 # ========================================
 # 第一步：仅复制pom文件并下载依赖
 # 这一层会被Docker缓存，只有pom文件变化时才重新执行
@@ -58,7 +72,12 @@ COPY billiards-service/pom.xml ./billiards-service/
 # 下载所有依赖（这一步会被缓存）
 # 只有pom文件变化时才会重新下载
 # ========================================
-RUN mvn dependency:go-offline -B
+RUN echo "🚀 开始下载Maven依赖..." && \
+    echo "⏰ 开始时间: $(date)" && \
+    mvn dependency:go-offline -B && \
+    echo "✅ 依赖下载完成: $(date)" && \
+    echo "📦 本地仓库大小: $(du -sh /root/.m2/repository 2>/dev/null || echo '计算失败')" && \
+    echo "📁 依赖jar包数量: $(find /root/.m2/repository -name "*.jar" | wc -l 2>/dev/null || echo '计算失败')"
 
 # ========================================
 # 第二步：复制源代码并编译
@@ -68,11 +87,17 @@ RUN mvn dependency:go-offline -B
 # 复制所有源代码
 COPY . .
 
-# 先安装common模块到本地仓库，解决模块间依赖问题
-RUN mvn clean install -pl ruoyi-common -am -DskipTests -Dmaven.compile.fork=true
+# 显示缓存状态用于调试
+RUN echo "=== Maven本地仓库状态 ===" && \
+    ls -la /root/.m2/repository/ 2>/dev/null | head -10 || echo "本地仓库为空，这是首次构建"
 
-# 执行Maven编译打包（模块依赖已安装到本地仓库）
-RUN mvn clean package -DskipTests -Dmaven.compile.fork=true
+# 先安装common模块到本地仓库，解决模块间依赖问题（使用离线模式）
+RUN mvn clean install -pl ruoyi-common -am -DskipTests -Dmaven.compile.fork=true -o || \
+    mvn clean install -pl ruoyi-common -am -DskipTests -Dmaven.compile.fork=true
+
+# 执行Maven编译打包（模块依赖已安装到本地仓库，尝试离线模式）
+RUN mvn clean package -DskipTests -Dmaven.compile.fork=true -o || \
+    mvn clean package -DskipTests -Dmaven.compile.fork=true
 
 # =====================================
 # 运行阶段 - 使用包含常用工具的镜像
