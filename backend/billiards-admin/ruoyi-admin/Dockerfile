@@ -68,7 +68,10 @@ RUN mvn dependency:go-offline -B
 # 复制所有源代码
 COPY . .
 
-# 执行Maven编译打包（依赖已在缓存中，编译速度很快）
+# 先安装common模块到本地仓库，解决模块间依赖问题
+RUN mvn clean install -pl ruoyi-common -am -DskipTests -Dmaven.compile.fork=true
+
+# 执行Maven编译打包（模块依赖已安装到本地仓库）
 RUN mvn clean package -DskipTests -Dmaven.compile.fork=true
 
 # =====================================
