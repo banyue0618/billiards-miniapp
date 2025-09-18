@@ -69,36 +69,35 @@ COPY ruoyi-modules/ruoyi-workflow/pom.xml ./ruoyi-modules/ruoyi-workflow/
 COPY billiards-service/pom.xml ./billiards-service/
 
 # ========================================
+# 复制源代码
+# ========================================
+COPY . .
+
+# ========================================
 # 关键修复：在单个RUN命令中完成所有Maven操作
-# 确保依赖下载和编译在同一层中，保持.m2仓库连续性
+# 按正确顺序：先下载依赖，再分阶段构建模块
 # ========================================
 RUN echo "🚀 开始完整的Maven构建流程..." && \
     echo "⏰ 开始时间: $(date)" && \
-    echo "第1步: 下载所有依赖..." && \
-    mvn dependency:go-offline -B && \
+    echo "第1步: 下载外部依赖..." && \
+    (mvn dependency:go-offline -B -q || echo "部分依赖下载失败，继续构建") && \
     echo "📦 依赖下载完成，仓库大小: $(du -sh /root/.m2/repository 2>/dev/null || echo '计算失败')" && \
-    echo "📁 jar包数量: $(find /root/.m2/repository -name "*.jar" | wc -l 2>/dev/null || echo '计算失败')"
-
-# ========================================
-# 第二步：复制源代码并在同一RUN中编译
-# ========================================
-
-# 复制所有源代码
-COPY . .
-
-# 在单个RUN命令中完成编译，按依赖顺序分阶段构建
-RUN echo "第2步: 分阶段编译项目（解决模块依赖）..." && \
-    echo "=== Maven本地仓库状态验证 ===" && \
-    echo "仓库目录: $(ls /root/.m2/repository 2>/dev/null | wc -l)个顶级目录" && \
-    echo "步骤2.1: 构建BOM模块..." && \
+    echo "" && \
+    echo "第2步: 分阶段编译项目（解决模块依赖）..." && \
+    echo "步骤2.1: 构建BOM模块（依赖管理）..." && \
     mvn clean install -pl ruoyi-common/ruoyi-common-bom -DskipTests -Dmaven.compile.fork=true && \
-    echo "步骤2.2: 构建core模块..." && \
+    echo "步骤2.2: 构建core模块（基础模块）..." && \
     mvn clean install -pl ruoyi-common/ruoyi-common-core -DskipTests -Dmaven.compile.fork=true && \
-    echo "步骤2.3: 构建common模块..." && \
+    echo "步骤2.3: 验证core模块安装..." && \
+    (ls -la /root/.m2/repository/org/dromara/ruoyi-common-core/*/ruoyi-common-core-*.jar || echo "core模块验证失败") && \
+    echo "步骤2.4: 构建整个common模块..." && \
     mvn clean install -pl ruoyi-common -am -DskipTests -Dmaven.compile.fork=true && \
-    echo "Common模块编译完成: $(date)" && \
-    echo "步骤2.4: 打包整个项目..." && \
+    echo "步骤2.5: 打包整个项目..." && \
     mvn clean package -DskipTests -Dmaven.compile.fork=true && \
+    echo "" && \
+    echo "=== 构建统计 ===" && \
+    echo "Maven仓库大小: $(du -sh /root/.m2/repository 2>/dev/null | cut -f1 || echo '未知')" && \
+    echo "依赖jar数量: $(find /root/.m2/repository -name '*.jar' 2>/dev/null | wc -l)" && \
     echo "✅ 项目构建完成: $(date)"
 
 # =====================================
@@ -116,8 +115,8 @@ WORKDIR /app
 
 # 创建必要目录
 RUN mkdir -p /app/logs \
-             /app/temp \
-             /app/uploads/files
+    /app/temp \
+    /app/uploads/files
 
 # 设置时区
 ENV TZ=Asia/Shanghai
