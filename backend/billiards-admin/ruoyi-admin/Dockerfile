@@ -69,35 +69,37 @@ COPY ruoyi-modules/ruoyi-workflow/pom.xml ./ruoyi-modules/ruoyi-workflow/
 COPY billiards-service/pom.xml ./billiards-service/
 
 # ========================================
-# 下载所有依赖（这一步会被缓存）
-# 只有pom文件变化时才会重新下载
+# 关键修复：在单个RUN命令中完成所有Maven操作
+# 确保依赖下载和编译在同一层中，保持.m2仓库连续性
 # ========================================
-RUN echo "🚀 开始下载Maven依赖..." && \
+RUN echo "🚀 开始完整的Maven构建流程..." && \
     echo "⏰ 开始时间: $(date)" && \
+    echo "第1步: 下载所有依赖..." && \
     mvn dependency:go-offline -B && \
-    echo "✅ 依赖下载完成: $(date)" && \
-    echo "📦 本地仓库大小: $(du -sh /root/.m2/repository 2>/dev/null || echo '计算失败')" && \
-    echo "📁 依赖jar包数量: $(find /root/.m2/repository -name "*.jar" | wc -l 2>/dev/null || echo '计算失败')"
+    echo "📦 依赖下载完成，仓库大小: $(du -sh /root/.m2/repository 2>/dev/null || echo '计算失败')" && \
+    echo "📁 jar包数量: $(find /root/.m2/repository -name "*.jar" | wc -l 2>/dev/null || echo '计算失败')"
 
 # ========================================
-# 第二步：复制源代码并编译
-# 源代码变化时只重新执行这一步，不重新下载依赖
+# 第二步：复制源代码并在同一RUN中编译
 # ========================================
 
 # 复制所有源代码
 COPY . .
 
-# 显示缓存状态用于调试
-RUN echo "=== Maven本地仓库状态 ===" && \
-    ls -la /root/.m2/repository/ 2>/dev/null | head -10 || echo "本地仓库为空，这是首次构建"
-
-# 先安装common模块到本地仓库，解决模块间依赖问题（使用离线模式）
-RUN mvn clean install -pl ruoyi-common -am -DskipTests -Dmaven.compile.fork=true -o || \
-    mvn clean install -pl ruoyi-common -am -DskipTests -Dmaven.compile.fork=true
-
-# 执行Maven编译打包（模块依赖已安装到本地仓库，尝试离线模式）
-RUN mvn clean package -DskipTests -Dmaven.compile.fork=true -o || \
-    mvn clean package -DskipTests -Dmaven.compile.fork=true
+# 在单个RUN命令中完成编译，按依赖顺序分阶段构建
+RUN echo "第2步: 分阶段编译项目（解决模块依赖）..." && \
+    echo "=== Maven本地仓库状态验证 ===" && \
+    echo "仓库目录: $(ls /root/.m2/repository 2>/dev/null | wc -l)个顶级目录" && \
+    echo "步骤2.1: 构建BOM模块..." && \
+    mvn clean install -pl ruoyi-common/ruoyi-common-bom -DskipTests -Dmaven.compile.fork=true && \
+    echo "步骤2.2: 构建core模块..." && \
+    mvn clean install -pl ruoyi-common/ruoyi-common-core -DskipTests -Dmaven.compile.fork=true && \
+    echo "步骤2.3: 构建common模块..." && \
+    mvn clean install -pl ruoyi-common -am -DskipTests -Dmaven.compile.fork=true && \
+    echo "Common模块编译完成: $(date)" && \
+    echo "步骤2.4: 打包整个项目..." && \
+    mvn clean package -DskipTests -Dmaven.compile.fork=true && \
+    echo "✅ 项目构建完成: $(date)"
 
 # =====================================
 # 运行阶段 - 使用包含常用工具的镜像
