@@ -1,83 +1,242 @@
+# =========================================
+# 台球厅SaaS系统 Docker Compose 配置文件
+# =========================================
+# 此文件定义了整个系统的所有服务容器
+# 包括：前端UI、后端应用、MySQL数据库、Redis缓存
+
 version: '3.8'
 
+# =========================================
+# 服务定义
+# =========================================
 services:
-  # 应用服务
+
+  # =====================================
+  # 后端应用服务
+  # =====================================
   billiards-admin:
+    # 使用本地Dockerfile构建镜像
     build:
-      context: .
-      dockerfile: ruoyi-admin/Dockerfile
-    container_name: billiards-admin
-    restart: always
+      context: .                              # 构建上下文为当前目录
+      dockerfile: ruoyi-admin/Dockerfile      # 指定Dockerfile路径
+    
+    container_name: billiards-admin           # 容器名称
+    restart: always                           # 容器自动重启策略
+    
+    # 端口映射：宿主机端口:容器端口
     ports:
-      - "8080:8080"
+      - "8080:8080"                          # Spring Boot应用端口
+    
+    # 环境变量配置
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/billiards?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=password
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - SPRING_REDIS_PASSWORD=password
+      # Spring Boot 配置
+      - SPRING_PROFILES_ACTIVE=prod          # 使用生产环境配置
+      
+      # Redis连接配置（使用容器服务名）
+      - SPRING_REDIS_HOST=redis              # Redis主机名（容器服务名）
+      - SPRING_REDIS_PORT=6379               # Redis端口
+      - SPRING_REDIS_PASSWORD=password       # Redis密码
+      
+      # 文件上传配置
+      - UPLOAD_URL_PREFIX=http://localhost:8080/uploads/files  # 文件访问URL前缀
+      
+      # JVM调优参数
+      - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC
+    
+    # 数据卷挂载：宿主机路径:容器路径
     volumes:
-      - ./logs:/app/logs
-      - ./upload:/app/upload
+      - ./logs:/app/logs                     # 应用日志挂载
+      - ./uploads:/app/uploads               # 文件上传目录挂载
+    
+    # 服务依赖：确保依赖服务健康后再启动
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy           # 等待MySQL健康检查通过
+      redis:
+        condition: service_healthy           # 等待Redis健康检查通过
+    
+    # 加入自定义网络
     networks:
       - billiards-network
+    
+    # 健康检查配置
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s                          # 检查间隔
+      timeout: 10s                           # 超时时间
+      retries: 3                             # 重试次数
+      start_period: 90s                      # 启动等待时间
 
-  # MySQL服务
+  # =====================================
+  # MySQL 数据库服务
+  # =====================================
   mysql:
-    image: mysql:8.0
-    container_name: billiards-mysql
-    restart: always
+    image: mysql:5.7                         # 使用MySQL 5.7镜像
+    container_name: billiards-mysql          # 容器名称
+    restart: always                          # 自动重启
+    
+    # 端口映射
     ports:
-      - "3306:3306"
+      - "3306:3306"                         # MySQL端口
+    
+    # 环境变量配置
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=billiards
-      - TZ=Asia/Shanghai
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --lower_case_table_names=1
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}  # root用户密码
+      - MYSQL_DATABASE=billiards_admin       # 默认创建的数据库
+      - TZ=Asia/Shanghai                     # 时区设置
+    
+    # MySQL启动参数配置
+    command: 
+      - --character-set-server=utf8mb4       # 字符集设置
+      - --collation-server=utf8mb4_unicode_ci # 排序规则
+      - --lower_case_table_names=1           # 表名不区分大小写
+      - --max_connections=200                # 最大连接数
+      - --innodb-buffer-pool-size=256M       # InnoDB缓冲池大小
+      - --query-cache-size=32M               # 查询缓存大小
+      - --slow-query-log=1                   # 开启慢查询日志
+      - --slow-query-log-file=/var/lib/mysql/slow.log  # 慢查询日志文件
+      - --long_query_time=2                  # 慢查询时间阈值（秒）
+    
+    # 数据卷挂载
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./script/sql/:/docker-entrypoint-initdb.d/
+      - mysql-data:/var/lib/mysql            # 数据持久化
+      - mysql-logs:/var/log/mysql            # 日志持久化
+      - ./script/sql/:/docker-entrypoint-initdb.d/  # SQL初始化脚本
+      - ./mysql-config/:/etc/mysql/conf.d/   # MySQL配置文件
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD:-password}"]
+      interval: 10s                          # 检查间隔
+      timeout: 5s                            # 超时时间
+      retries: 5                             # 重试次数
+      start_period: 30s                      # 启动等待时间
+    
+    # 加入自定义网络
     networks:
       - billiards-network
 
-  # Redis服务
+  # =====================================
+  # Redis 缓存服务
+  # =====================================
   redis:
-    image: redis:7.0
-    container_name: billiards-redis
-    restart: always
+    image: redis:5.0.14-alpine              # 使用Alpine版本（更小体积）
+    container_name: billiards-redis         # 容器名称
+    restart: always                          # 自动重启
+    
+    # 端口映射
     ports:
-      - "6379:6379"
-    command: redis-server --requirepass password
+      - "6379:6379"                         # Redis端口
+    
+    # Redis启动命令（配置密码和持久化）
+    command: >
+      redis-server 
+      --requirepass ${REDIS_PASSWORD:-password}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    
+    # 数据卷挂载
     volumes:
-      - redis-data:/data
+      - redis-data:/data                     # Redis数据持久化
+      - redis-logs:/var/log/redis            # Redis日志
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-password}", "ping"]
+      interval: 10s                          # 检查间隔
+      timeout: 3s                            # 超时时间
+      retries: 5                             # 重试次数
+      start_period: 10s                      # 启动等待时间
+    
+    # 加入自定义网络
     networks:
       - billiards-network
 
-  # 前端应用（可选）
-  # billiards-ui:
-  #   build:
-  #     context: ../frontend/admin-ui
-  #     dockerfile: Dockerfile
-  #   container_name: billiards-ui
-  #   restart: always
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - billiards-admin
-  #   networks:
-  #     - billiards-network
+  # =====================================
+  # 前端UI服务
+  # =====================================
+  billiards-ui:
+    # 使用前端项目的Dockerfile构建
+    build:
+      context: ../../frontend/admin-ui       # 前端项目路径
+      dockerfile: Dockerfile                 # 前端Dockerfile
+    
+    container_name: billiards-ui             # 容器名称
+    restart: always                          # 自动重启
+    
+    # 端口映射
+    ports:
+      - "80:80"                             # Nginx端口映射
+    
+    # 服务依赖
+    depends_on:
+      - billiards-admin                      # 依赖后端服务
+    
+    # 加入自定义网络
+    networks:
+      - billiards-network
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
+# =========================================
 # 网络配置
+# =========================================
 networks:
   billiards-network:
-    driver: bridge
+    driver: bridge                           # 使用桥接网络驱动
+    ipam:                                    # IP地址管理
+      config:
+        - subnet: 172.20.0.0/16             # 自定义子网
 
+# =========================================
 # 数据卷配置
+# =========================================
 volumes:
-  mysql-data:
-  redis-data: 
+  # MySQL相关数据卷
+  mysql-data:                                # MySQL数据持久化
+    driver: local
+  mysql-logs:                                # MySQL日志持久化
+    driver: local
+  
+  # Redis相关数据卷
+  redis-data:                                # Redis数据持久化
+    driver: local
+  redis-logs:                                # Redis日志持久化
+    driver: local
+
+# =========================================
+# 使用说明
+# =========================================
+# 
+# 启动所有服务：
+#   docker-compose up -d
+# 
+# 查看服务状态：
+#   docker-compose ps
+# 
+# 查看服务日志：
+#   docker-compose logs -f billiards-admin
+#   docker-compose logs -f mysql
+#   docker-compose logs -f redis
+# 
+# 停止所有服务：
+#   docker-compose down
+# 
+# 重新构建并启动：
+#   docker-compose up -d --build
+# 
+# 进入容器：
+#   docker-compose exec billiards-admin bash
+#   docker-compose exec mysql mysql -u root -ppassword
+#   docker-compose exec redis redis-cli -a password
+# 
+# 清理数据卷（谨慎使用）：
+#   docker-compose down -v
