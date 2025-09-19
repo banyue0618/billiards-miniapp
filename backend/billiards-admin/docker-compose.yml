@@ -32,10 +32,16 @@ services:
       # Spring Boot 配置
       - SPRING_PROFILES_ACTIVE=prod          # 使用生产环境配置
       
+      # 数据库连接配置（使用专用用户）
+      - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_ADMIN_USERNAME=billiards_admin
+      - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_ADMIN_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_PLATFORM_USERNAME=billiards_admin
+      - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_PLATFORM_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      
       # Redis连接配置（使用容器服务名）
       - SPRING_REDIS_HOST=redis              # Redis主机名（容器服务名）
       - SPRING_REDIS_PORT=6379               # Redis端口
-      - SPRING_REDIS_PASSWORD=password       # Redis密码
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-password}  # Redis密码
       
       # 文件上传配置
       - UPLOAD_URL_PREFIX=http://localhost:8080/uploads/files  # 文件访问URL前缀
@@ -83,6 +89,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}  # root用户密码
       - MYSQL_DATABASE=billiards_admin       # 默认创建的数据库
+      - MYSQL_USER=billiards_admin           # 应用用户
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}  # 应用用户密码
+      - MYSQL_ROOT_HOST=%                    # 允许root远程连接
       - TZ=Asia/Shanghai                     # 时区设置
     
     # MySQL启动参数配置
@@ -96,6 +105,8 @@ services:
       - --slow-query-log=1                   # 开启慢查询日志
       - --slow-query-log-file=/var/lib/mysql/slow.log  # 慢查询日志文件
       - --long_query_time=2                  # 慢查询时间阈值（秒）
+      - --default-authentication-plugin=mysql_native_password  # 认证插件
+      - --bind-address=0.0.0.0               # 允许所有IP连接
     
     # 数据卷挂载
     volumes:

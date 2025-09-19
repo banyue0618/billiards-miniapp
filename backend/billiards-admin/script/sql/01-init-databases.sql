@@ -36,6 +36,17 @@ GRANT ALL PRIVILEGES ON billiards_admin.* TO 'billiards_admin'@'%';
 -- 授权SaaS平台数据库权限
 GRANT ALL PRIVILEGES ON billiards_saas.* TO 'billiards_admin'@'%';
 
+-- ==========================================
+-- 配置root用户远程访问权限（Docker环境需要）
+-- ==========================================
+
+-- 允许root用户从任何地址连接（Docker容器网络需要）
+-- 注意：生产环境建议限制特定IP范围或使用专用用户
+UPDATE mysql.user SET Host='%' WHERE User='root' AND Host='localhost';
+
+-- 为root用户添加远程访问权限
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+
 -- 刷新权限
 FLUSH PRIVILEGES;
 
