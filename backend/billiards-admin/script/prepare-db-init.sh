@@ -45,24 +45,24 @@ generate_password() {
 generate_db_credentials() {
     print_info "生成数据库凭据..."
     
-    # 生成随机密码
+    # 统一使用一个密码：只生成Root密码，应用也使用相同密码
     ROOT_PASSWORD=$(generate_password 20)
-    BILLIARDS_DB_PASSWORD=$(generate_password 18)
     
     print_success "数据库凭据生成完成"
-    print_info "Root密码: $ROOT_PASSWORD"
-    print_info "应用数据库密码: $BILLIARDS_DB_PASSWORD"
+    print_info "统一密码: $ROOT_PASSWORD"
+    print_info "Root用户和应用用户将使用相同密码"
     
     # 导出环境变量
     export MYSQL_ROOT_PASSWORD="$ROOT_PASSWORD"
-    export BILLIARDS_DB_PASSWORD="$BILLIARDS_DB_PASSWORD"
+    export BILLIARDS_DB_PASSWORD="$ROOT_PASSWORD"  # 应用密码与Root密码相同
     
     # 保存到环境变量文件（供Docker Compose使用）
     cat > "$SCRIPT_DIR/../.env.db" << EOF
 # 数据库凭据（自动生成）
 # 生成时间: $(date)
+# 注意：Root用户和应用用户使用相同密码以避免混乱
 MYSQL_ROOT_PASSWORD=$ROOT_PASSWORD
-BILLIARDS_DB_PASSWORD=$BILLIARDS_DB_PASSWORD
+BILLIARDS_DB_PASSWORD=$ROOT_PASSWORD
 EOF
     
     print_success "数据库凭据已保存到 .env.db"
@@ -87,7 +87,7 @@ prepare_sql_scripts() {
     
     # 复制并处理SQL脚本（按执行顺序命名）
     print_info "处理数据库创建脚本..."
-    sed "s/\${BILLIARDS_DB_PASSWORD}/$BILLIARDS_DB_PASSWORD/g" \
+    sed "s/\${BILLIARDS_DB_PASSWORD}/$ROOT_PASSWORD/g" \
         "$SQL_DIR/01-init-databases.sql" > "$TEMP_SQL_DIR/01-init-databases.sql"
     
     print_info "复制管理端数据库脚本..."
@@ -99,46 +99,6 @@ prepare_sql_scripts() {
     print_success "SQL脚本准备完成 ($(ls -1 "$TEMP_SQL_DIR"/*.sql | wc -l) 个文件)"
 }
 
-# 生成应用配置文件模板
-generate_app_config() {
-    print_info "生成应用配置文件模板..."
-    
-    cat > "$SCRIPT_DIR/../application-db.yml" << EOF
-# 数据库配置（自动生成）
-# 生成时间: $(date)
-
-spring:
-  datasource:
-    # 主数据源（管理端）
-    master:
-      url: jdbc:mysql://mysql:3306/billiards_admin?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-      username: billiards_admin
-      password: ${BILLIARDS_DB_PASSWORD}
-      driver-class-name: com.mysql.cj.jdbc.Driver
-    
-    # 从数据源（SaaS平台）
-    slave:
-      url: jdbc:mysql://mysql:3306/billiards_saas?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-      username: billiards_admin
-      password: ${BILLIARDS_DB_PASSWORD}
-      driver-class-name: com.mysql.cj.jdbc.Driver
-
-# Redis配置
-redis:
-  host: redis
-  port: 6379
-  password: \${REDIS_PASSWORD:password}
-  timeout: 10s
-  lettuce:
-    pool:
-      min-idle: 0
-      max-idle: 8
-      max-active: 8
-      max-wait: -1ms
-EOF
-    
-    print_success "应用配置模板已生成: application-db.yml"
-}
 
 # 显示数据库连接信息
 show_connection_info() {
@@ -156,14 +116,14 @@ show_connection_info() {
     echo "========================================"
     echo "主机: localhost:3306"
     echo "用户: billiards_admin"
-    echo "密码: $BILLIARDS_DB_PASSWORD"
+    echo "密码: $ROOT_PASSWORD"
     echo "数据库: billiards_admin, billiards_saas"
     echo ""
     echo "========================================"
     echo "📝 连接命令示例"
     echo "========================================"
     echo "mysql -h localhost -P 3306 -u billiards_admin -p"
-    echo "输入密码: $BILLIARDS_DB_PASSWORD"
+    echo "输入密码: $ROOT_PASSWORD"
     echo ""
 }
 
@@ -179,9 +139,6 @@ main() {
     
     # 准备SQL脚本
     prepare_sql_scripts
-    
-    # 生成配置文件
-    generate_app_config
     
     # 显示连接信息
     show_connection_info

@@ -13,16 +13,14 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ==========================================
 
 -- 创建管理端数据库
-CREATE DATABASE IF NOT EXISTS `billiards_admin` 
-CHARACTER SET utf8mb4 
-COLLATE utf8mb4_unicode_ci 
-COMMENT '台球厅SaaS系统-管理端数据库';
+CREATE DATABASE IF NOT EXISTS `billiards_admin`
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
 
 -- 创建SaaS平台数据库
-CREATE DATABASE IF NOT EXISTS `billiards_saas` 
-CHARACTER SET utf8mb4 
-COLLATE utf8mb4_unicode_ci 
-COMMENT '台球厅SaaS系统-平台数据库';
+CREATE DATABASE IF NOT EXISTS `billiards_saas`
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
 
 -- ==========================================
 -- 创建用户并授权
