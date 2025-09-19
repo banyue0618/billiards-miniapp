@@ -55,14 +55,24 @@ generate_db_credentials() {
     # 导出环境变量
     export MYSQL_ROOT_PASSWORD="$ROOT_PASSWORD"
     export BILLIARDS_DB_PASSWORD="$ROOT_PASSWORD"  # 应用密码与Root密码相同
+    export REDIS_PASSWORD="$REDIS_PASSWORD"
     
+    # 生成Redis密码（如果没有设置的话）
+    if [[ -z "$REDIS_PASSWORD" ]]; then
+        REDIS_PASSWORD=$(generate_password 16)
+        print_info "自动生成Redis密码: ${REDIS_PASSWORD:0:4}***"
+    else
+        print_info "使用传入的Redis密码: ${REDIS_PASSWORD:0:4}***"
+    fi
+
     # 保存到环境变量文件（供Docker Compose使用）
     cat > "$SCRIPT_DIR/../.env.db" << EOF
-# 数据库凭据（自动生成）
+# 数据库和缓存凭据（自动生成）
 # 生成时间: $(date)
 # 注意：Root用户和应用用户使用相同密码以避免混乱
 MYSQL_ROOT_PASSWORD=$ROOT_PASSWORD
 BILLIARDS_DB_PASSWORD=$ROOT_PASSWORD
+REDIS_PASSWORD=$REDIS_PASSWORD
 EOF
     
     print_success "数据库凭据已保存到 .env.db"
