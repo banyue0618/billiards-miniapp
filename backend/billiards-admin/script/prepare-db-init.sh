@@ -76,35 +76,27 @@ prepare_sql_scripts() {
     rm -rf "$TEMP_SQL_DIR"
     mkdir -p "$TEMP_SQL_DIR"
     
-    # 1. 复制并处理01-init-databases.sql（确保最先执行）
-    print_info "处理数据库创建脚本..."
-    sed "s/\${BILLIARDS_DB_PASSWORD}/$BILLIARDS_DB_PASSWORD/g" \
-        "$SQL_DIR/01-init-databases.sql" > "$TEMP_SQL_DIR/01-init-databases.sql"
-    
-    # 2. 复制管理端数据库脚本（第二执行）
-    print_info "准备管理端数据库脚本..."
-    cp "$SQL_DIR/ry_vue_5.X.sql" "$TEMP_SQL_DIR/02-admin-schema.sql"
-    
-    # 3. 复制SaaS平台数据库脚本（第三执行）
-    print_info "准备SaaS平台数据库脚本..."
-    cp "$SQL_DIR/billiards-saas.sql" "$TEMP_SQL_DIR/03-saas-schema.sql"
-    
-    # 4. 验证脚本文件
-    for script in "$TEMP_SQL_DIR"/*.sql; do
-        if [[ -f "$script" ]]; then
-            print_success "✓ $(basename "$script") 准备完成"
-        else
-            print_error "✗ $(basename "$script") 准备失败"
+    # 检查必要的SQL文件是否存在
+    local required_files=("$SQL_DIR/01-init-databases.sql" "$SQL_DIR/ry_vue_5.X.sql" "$SQL_DIR/billiards-saas.sql")
+    for file in "${required_files[@]}"; do
+        if [[ ! -f "$file" ]]; then
+            print_error "缺少必要的SQL文件: $file"
             exit 1
         fi
     done
     
-    print_success "所有SQL脚本准备完成"
-    print_info "脚本目录: $TEMP_SQL_DIR"
-    print_info "执行顺序:"
-    print_info "  1. 01-init-databases.sql  (创建数据库和用户)"
-    print_info "  2. 02-admin-schema.sql    (管理端表结构和数据)"
-    print_info "  3. 03-saas-schema.sql     (SaaS平台表结构和数据)"
+    # 复制并处理SQL脚本（按执行顺序命名）
+    print_info "处理数据库创建脚本..."
+    sed "s/\${BILLIARDS_DB_PASSWORD}/$BILLIARDS_DB_PASSWORD/g" \
+        "$SQL_DIR/01-init-databases.sql" > "$TEMP_SQL_DIR/01-init-databases.sql"
+    
+    print_info "复制管理端数据库脚本..."
+    cp "$SQL_DIR/ry_vue_5.X.sql" "$TEMP_SQL_DIR/02-admin-schema.sql"
+    
+    print_info "复制SaaS平台数据库脚本..."
+    cp "$SQL_DIR/billiards-saas.sql" "$TEMP_SQL_DIR/03-saas-schema.sql"
+    
+    print_success "SQL脚本准备完成 ($(ls -1 "$TEMP_SQL_DIR"/*.sql | wc -l) 个文件)"
 }
 
 # 生成应用配置文件模板
