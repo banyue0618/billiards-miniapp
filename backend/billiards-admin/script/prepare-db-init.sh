@@ -43,30 +43,38 @@ generate_password() {
 
 # 生成数据库凭据
 generate_db_credentials() {
-    print_info "生成数据库凭据..."
-    
-    # 统一使用一个密码：只生成Root密码，应用也使用相同密码
-    ROOT_PASSWORD=$(generate_password 20)
-    
-    print_success "数据库凭据生成完成"
-    print_info "统一密码: $ROOT_PASSWORD"
-    print_info "Root用户和应用用户将使用相同密码"
-    
-    # 导出环境变量
-    export MYSQL_ROOT_PASSWORD="$ROOT_PASSWORD"
-    export BILLIARDS_DB_PASSWORD="$ROOT_PASSWORD"  # 应用密码与Root密码相同
-    export REDIS_PASSWORD="$REDIS_PASSWORD"
-    
-    # 生成Redis密码（如果没有设置的话）
-    if [[ -z "$REDIS_PASSWORD" ]]; then
-        REDIS_PASSWORD=$(generate_password 16)
-        print_info "自动生成Redis密码: ${REDIS_PASSWORD:0:4}***"
-    else
-        print_info "使用传入的Redis密码: ${REDIS_PASSWORD:0:4}***"
-    fi
+    print_info "生成/复用数据库凭据..."
 
-    # 保存到环境变量文件（供Docker Compose使用）
-    cat > "$SCRIPT_DIR/../.env.db" << EOF
+    local ENV_FILE="$SCRIPT_DIR/../.env.db"
+
+    if [[ -f "$ENV_FILE" ]] && grep -q "MYSQL_ROOT_PASSWORD=" "$ENV_FILE"; then
+        # 复用已有凭据，避免与已初始化数据库密码不一致
+        print_info "检测到已存在的 .env.db，复用其中的凭据"
+        # shellcheck source=/dev/null
+        source "$ENV_FILE"
+        ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD"
+        if [[ -z "$REDIS_PASSWORD" ]]; then
+            REDIS_PASSWORD=$(generate_password 16)
+            print_info "自动生成Redis密码: ${REDIS_PASSWORD:0:4}***"
+        fi
+        print_success "已复用现有凭据"
+    else
+        # 统一使用一个密码：只生成Root密码，应用也使用相同密码
+        ROOT_PASSWORD=$(generate_password 20)
+        print_success "数据库凭据生成完成"
+        print_info "统一密码: $ROOT_PASSWORD"
+        print_info "Root用户和应用用户将使用相同密码"
+
+        # 生成Redis密码（如果没有设置的话）
+        if [[ -z "$REDIS_PASSWORD" ]]; then
+            REDIS_PASSWORD=$(generate_password 16)
+            print_info "自动生成Redis密码: ${REDIS_PASSWORD:0:4}***"
+        else
+            print_info "使用传入的Redis密码: ${REDIS_PASSWORD:0:4}***"
+        fi
+
+        # 保存到环境变量文件（供Docker Compose使用）
+        cat > "$ENV_FILE" << EOF
 # 数据库和缓存凭据（自动生成）
 # 生成时间: $(date)
 # 注意：Root用户和应用用户使用相同密码以避免混乱
@@ -74,8 +82,13 @@ MYSQL_ROOT_PASSWORD=$ROOT_PASSWORD
 BILLIARDS_DB_PASSWORD=$ROOT_PASSWORD
 REDIS_PASSWORD=$REDIS_PASSWORD
 EOF
-    
-    print_success "数据库凭据已保存到 .env.db"
+        print_success "数据库凭据已保存到 .env.db"
+    fi
+
+    # 导出环境变量（无论复用还是新生成都导出）
+    export MYSQL_ROOT_PASSWORD="$ROOT_PASSWORD"
+    export BILLIARDS_DB_PASSWORD="$ROOT_PASSWORD"
+    export REDIS_PASSWORD="$REDIS_PASSWORD"
 }
 
 # 准备SQL脚本
