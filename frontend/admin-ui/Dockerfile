@@ -12,7 +12,8 @@ RUN npm install
 COPY . .
 
 # 构建项目
-RUN npm run build
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm install
 
 # 交付阶段：仅用于把构建产物复制到宿主机挂载的 /opt/${PROJECT_NAME}/web
 FROM alpine:3.19
