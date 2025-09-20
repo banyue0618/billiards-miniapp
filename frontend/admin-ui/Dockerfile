@@ -6,14 +6,14 @@ WORKDIR /app
 COPY package*.json ./
 
 # 安装依赖（更稳定，可复现）
-RUN npm install
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm install
 
 # 复制项目文件
 COPY . .
 
 # 构建项目
-RUN npm config set registry https://registry.npmmirror.com \
-    && npm install
+RUN npm run build
 
 # 交付阶段：仅用于把构建产物复制到宿主机挂载的 /opt/${PROJECT_NAME}/web
 FROM alpine:3.19
