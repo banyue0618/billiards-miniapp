@@ -45,6 +45,8 @@ generate_password() {
 generate_db_credentials() {
     print_info "生成/复用数据库凭据..."
 
+    print_info "脚本dir: $SCRIPT_DIR"
+
     local ENV_FILE="$SCRIPT_DIR/../.env.db"
 
     if [[ -f "$ENV_FILE" ]] && grep -q "MYSQL_ROOT_PASSWORD=" "$ENV_FILE"; then
@@ -94,11 +96,11 @@ EOF
 # 准备SQL脚本
 prepare_sql_scripts() {
     print_info "准备SQL初始化脚本..."
-    
+
     # 清理并创建临时目录
     rm -rf "$TEMP_SQL_DIR"
     mkdir -p "$TEMP_SQL_DIR"
-    
+
     # 检查必要的SQL文件是否存在
     local required_files=("$SQL_DIR/01-init-databases.sql" "$SQL_DIR/ry_vue_5.X.sql" "$SQL_DIR/billiards-saas.sql")
     for file in "${required_files[@]}"; do
@@ -107,18 +109,18 @@ prepare_sql_scripts() {
             exit 1
         fi
     done
-    
+
     # 复制并处理SQL脚本（按执行顺序命名）
     print_info "处理数据库创建脚本..."
     sed "s/\${BILLIARDS_DB_PASSWORD}/$ROOT_PASSWORD/g" \
         "$SQL_DIR/01-init-databases.sql" > "$TEMP_SQL_DIR/01-init-databases.sql"
-    
+
     print_info "复制管理端数据库脚本..."
     cp "$SQL_DIR/ry_vue_5.X.sql" "$TEMP_SQL_DIR/02-admin-schema.sql"
-    
+
     print_info "复制SaaS平台数据库脚本..."
     cp "$SQL_DIR/billiards-saas.sql" "$TEMP_SQL_DIR/03-saas-schema.sql"
-    
+
     print_success "SQL脚本准备完成 ($(ls -1 "$TEMP_SQL_DIR"/*.sql | wc -l) 个文件)"
 }
 
@@ -153,19 +155,19 @@ show_connection_info() {
 # 主函数
 main() {
     print_info "开始准备数据库初始化..."
-    
+
     # 检查必要的命令
     command -v openssl >/dev/null 2>&1 || { print_error "需要安装 openssl"; exit 1; }
-    
+
     # 生成凭据
     generate_db_credentials
-    
+
     # 准备SQL脚本
     prepare_sql_scripts
-    
+
     # 显示连接信息
     show_connection_info
-    
+
     print_success "数据库初始化准备完成！"
     print_warning "请将 temp_sql 目录挂载到 MySQL 容器的 /docker-entrypoint-initdb.d/"
     print_warning "请将 .env.db 中的环境变量加载到 Docker Compose"
