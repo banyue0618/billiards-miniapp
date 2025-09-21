@@ -116,6 +116,7 @@ security:
     - /*/api-docs
     - /*/api-docs/**
     - /warm-flow-ui/token-name
+    - /actuator/health
     - /*.html
     - /api/miniapp/stores/nearby
     - /api/miniapp/user/auth/login
