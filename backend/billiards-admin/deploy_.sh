@@ -439,7 +439,7 @@ server {
     }
 
     location /billiards/ {
-        # 前端静态资源目录（宿主机: /opt/${PROJECT_NAME}/web 挂载到容器: /var/www/web）
+        # 前端静态资源目录（宿主机: /opt/web 挂载到容器: /var/www/web）
         alias /var/www/web/;
         index  index.html;
         try_files \$uri \$uri/ /index.html;
@@ -609,15 +609,16 @@ services:
       $APP_PORTS
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD}
       - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_ADMIN_USERNAME=billiards_admin
       - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_ADMIN_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_PLATFORM_USERNAME=billiards_admin
       - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_PLATFORM_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - RESOURCE_STORAGE_LOCAL_BASE-URL=${UPLOAD_PREFIX}
+      - RESOURCE_STORAGE_LOCAL_BASE_URL=${UPLOAD_PREFIX}
       - SSE_ENABLED=false
-      - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC
+      - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom
     volumes:
       - ./logs:/app/logs
       - /opt/uploads:/app/uploads
@@ -850,23 +851,20 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # 复制jar包
 COPY ruoyi-admin/target/billiards-admin.jar /app/app.jar
 
-# 设置环境变量
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -Djava.security.egd=file:/dev/./urandom"
-ENV SERVER_PORT=8080
-ENV SPRING_PROFILES_ACTIVE=prod
-
 # 声明数据卷
 VOLUME ["/app/logs", "/app/uploads"]
 
 # 暴露端口
-EXPOSE ${SERVER_PORT}
+EXPOSE $SERVER_PORT
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
     CMD netstat -an | grep ${SERVER_PORT} | grep LISTEN > /dev/null || exit 1
 
 # 启动命令
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE} \
+    --resource.storage.local.base-url=${RESOURCE_STORAGE_LOCAL_BASE_URL} \
+    --sse.enabled=${SSE_ENABLED}"]
 EOF
 
     # 构建运行时镜像

@@ -5,7 +5,7 @@ import { showError } from '../utils/util'
 import type { IAppOptionExtended } from '../app'
 
 // API 基础地址 - 开发环境
-const BASE_URL = 'http://127.0.0.1:8080'
+const BASE_URL = 'https://banyue.xin'
 
 // 请求队列
 const requestQueue: Set<string> = new Set()
