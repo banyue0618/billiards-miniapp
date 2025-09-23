@@ -83,6 +83,6 @@ public class TableController {
      */
     @GetMapping("/randomTableId")
     public R<String> randomTableId() {
-        return ApiResult.success(tableService.randomTableId());
+        return ApiResult.success("获取成功", tableService.randomTableId());
     }
 }
