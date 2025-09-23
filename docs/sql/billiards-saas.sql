@@ -14,7 +14,6 @@ CREATE TABLE `bls_user` (
                             `avatar_url` varchar(255) DEFAULT NULL COMMENT '用户头像URL',
                             `gender` tinyint DEFAULT 0 COMMENT '性别 0-未知 1-男 2-女',
                             `phone` varchar(20) DEFAULT NULL COMMENT '手机号码',
-                            `is_member` tinyint DEFAULT 0 COMMENT '是否是会员 0-否 1-是',
                             `last_login_time` datetime DEFAULT NULL COMMENT '最后登录时间',
                             `status` tinyint DEFAULT 0 COMMENT '状态 0-正常 1-禁用',
                             `create_time` datetime NOT NULL COMMENT '创建时间',

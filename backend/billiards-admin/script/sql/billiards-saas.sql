@@ -14,7 +14,6 @@ CREATE TABLE `bls_user` (
                             `avatar_url` varchar(255) DEFAULT NULL COMMENT '用户头像URL',
                             `gender` tinyint DEFAULT 0 COMMENT '性别 0-未知 1-男 2-女',
                             `phone` varchar(20) DEFAULT NULL COMMENT '手机号码',
-                            `is_member` tinyint DEFAULT 0 COMMENT '是否是会员 0-否 1-是',
                             `last_login_time` datetime DEFAULT NULL COMMENT '最后登录时间',
                             `status` tinyint DEFAULT 0 COMMENT '状态 0-正常 1-禁用',
                             `create_time` datetime NOT NULL COMMENT '创建时间',
@@ -673,7 +672,7 @@ insert into billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, 
 
 
 
-INSERT INTO billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, `path`, component, query_param, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark) 
+INSERT INTO billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, `path`, component, query_param, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
 VALUES(3000, '会员管理', 0, 6, 'star', NULL, NULL, 1, 0, 'M', '0', '0', NULL, 'example', NULL, 1, '2025-04-27 16:37:19', NULL, NULL, '会员管理目录');
 
 insert into billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
