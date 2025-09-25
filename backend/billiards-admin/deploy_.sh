@@ -400,8 +400,8 @@ server {
     server_name ${DOMAIN_NAME};
 
     # SSL配置
-    ssl_certificate      /etc/nginx/cert/banyue.xin.pem;
-	ssl_certificate_key  /etc/nginx/cert/banyue.xin.key;
+    ssl_certificate      /etc/nginx/cert/${DOMAIN_NAME}.pem;
+	ssl_certificate_key  /etc/nginx/cert/${DOMAIN_NAME}.key;
     ssl_session_timeout 1d;
     ssl_session_cache shared:MozTLS:10m;
     ssl_session_tickets off;
@@ -413,6 +413,11 @@ server {
     add_header Strict-Transport-Security "max-age=63072000" always;
 
     client_max_body_size 10M;
+
+    location / {
+        root /var/www/web/index/;
+        index  index.html;
+    }
 
     location /health {
         access_log off;
@@ -618,6 +623,8 @@ services:
       - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_PLATFORM_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - RESOURCE_STORAGE_LOCAL_BASE_URL=${UPLOAD_PREFIX}
       - SSE_ENABLED=false
+      - BILLIARDS_WECHAT_APPID=wxc19e090025acf679
+      - BILLIARDS_WECHAT_SECRET=d65e15a2751c60697a7bfddf2c56ce58
       - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom
     volumes:
       - ./logs:/app/logs
@@ -864,7 +871,9 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 # 启动命令
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE} \
     --resource.storage.local.base-url=${RESOURCE_STORAGE_LOCAL_BASE_URL} \
-    --sse.enabled=${SSE_ENABLED}"]
+    --sse.enabled=${SSE_ENABLED}" \
+    --billiards.wechat.appid=${BILLIARDS_WECHAT_APPID} \
+    --billiards.wechat.secret=${BILLIARDS_WECHAT_SECRET}]
 EOF
 
     # 构建运行时镜像
@@ -982,40 +991,13 @@ detect_mysql_password() {
         esac
     else
         print_info "未检测到现有MySQL容器，将生成新密码"
+        prepare_database_initialization
     fi
     return 0
 }
 
 # 检查数据库是否已初始化
 check_database_initialized() {
-#    print_info "检查数据库初始化状态..."
-#
-#    # 检查容器是否存在且运行中
-#    if ! docker ps --filter "name=${PROJECT_NAME}-mysql" --format "{{.Names}}" | grep -q "${PROJECT_NAME}-mysql"; then
-#        print_info "MySQL容器不存在或未运行，需要初始化"
-#        return 1
-#    fi
-#
-#    # 等待MySQL容器就绪
-#    print_info "等待MySQL容器就绪..."
-#    local attempt=1
-#    local max_attempts=30
-#
-#    while [[ $attempt -le $max_attempts ]]; do
-#        if docker exec ${PROJECT_NAME}-mysql mysqladmin ping -h localhost --silent >/dev/null 2>&1; then
-#            print_success "MySQL容器已就绪"
-#            break
-#        fi
-#        print_info "等待MySQL启动... ($attempt/$max_attempts)"
-#        sleep 3
-#        ((attempt++))
-#    done
-#
-#    if [[ $attempt -gt $max_attempts ]]; then
-#        print_error "MySQL容器启动超时"
-#        return 1
-#    fi
-
     # 检查认证并判断是否存在任一业务数据库
     print_info "检查业务数据库是否存在..."
     local check_user="root"
@@ -1138,6 +1120,7 @@ detect_redis_password() {
         return 1
     else
         print_info "未检测到现有Redis容器，将生成新密码"
+        print_info "生成的密码: ${REDIS_PASSWORD}"
     fi
     return 0
 }
@@ -1167,8 +1150,6 @@ ensure_component_containers() {
         fi
     else
         print_info "MySQL容器不存在，将创建新容器"
-        # 检查是否需要初始化数据库
-        prepare_database_initialization
 
         # 删除可能存在的旧数据卷以确保干净的初始化
         docker volume rm ${PROJECT_NAME}-mysql-data >/dev/null 2>&1 || true
@@ -1238,8 +1219,8 @@ prepare_environment_variables() {
         fi
     else
         # 如果没有凭据文件，使用检测到的密码或默认值
-        MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-password}"
-        REDIS_PASSWORD="${REDIS_PASSWORD:-password}"
+        MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+        REDIS_PASSWORD="${REDIS_PASSWORD}"
 
         # 创建新的凭据文件
         cat > .env.db << EOF

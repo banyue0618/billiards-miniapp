@@ -74,7 +74,7 @@ generate_db_credentials() {
         else
             print_info "使用传入的Redis密码: ${REDIS_PASSWORD:0:4}***"
         fi
-
+        echo "环境目录是: $ENV_FILE"
         # 保存到环境变量文件（供Docker Compose使用）
         cat > "$ENV_FILE" << EOF
 # 数据库和缓存凭据（自动生成）
