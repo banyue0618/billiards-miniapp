@@ -623,8 +623,8 @@ services:
       - SPRING_DATASOURCE_DYNAMIC_DATASOURCE_PLATFORM_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - RESOURCE_STORAGE_LOCAL_BASE_URL=${UPLOAD_PREFIX}
       - SSE_ENABLED=false
-      - BILLIARDS_WECHAT_APPID=wxc19e090025acf679
-      - BILLIARDS_WECHAT_SECRET=d65e15a2751c60697a7bfddf2c56ce58
+      - BILLIARDS_WECHAT_APPID=ownerappid
+      - BILLIARDS_WECHAT_SECRET=ownerappidsecret
       - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom
     volumes:
       - ./logs:/app/logs
