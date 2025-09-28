@@ -9,7 +9,7 @@ set -e  # 遇到错误时退出
 
 clear
 echo "==========================================="
-echo "🎱 台球厅SaaS系统 完整部署脚本"
+echo " 台球厅SaaS系统 完整部署脚本"
 echo "==========================================="
 echo
 
@@ -627,7 +627,7 @@ services:
       - BILLIARDS_WECHAT_SECRET=ownerappidsecret
       - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom
     volumes:
-      - ./logs:/app/logs
+      - /opt/logs:/app/logs
       - /opt/uploads:/app/uploads
     depends_on:
       mysql:
