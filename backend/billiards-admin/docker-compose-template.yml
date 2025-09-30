@@ -71,7 +71,7 @@ services:
 
     # 健康检查配置
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "-u", "ruoyi:123456", "http://localhost:8080/actuator/health"]
       interval: 30s                          # 检查间隔
       timeout: 10s                           # 超时时间
       retries: 3                             # 重试次数
