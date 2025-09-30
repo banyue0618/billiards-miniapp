@@ -118,7 +118,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql            # 数据持久化
       - mysql-logs:/var/log/mysql            # 日志持久化
-      - ${INIT_SQL_DIR}:/docker-entrypoint-initdb.d/  # SQL初始化脚本
+      - ./script/temp_sql/:/docker-entrypoint-initdb.d/  # SQL初始化脚本
       - ./mysql-config/:/etc/mysql/conf.d/   # MySQL配置文件
 
     # 健康检查

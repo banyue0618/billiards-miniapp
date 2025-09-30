@@ -259,6 +259,7 @@ setup_directories() {
 
     sudo mkdir -p $PROJECT_DIR > /dev/null 2>&1
     sudo mkdir -p $PROJECT_DIR/web > /dev/null 2>&1
+    sudo mkdir -p $PROJECT_DIR/nginx/conf/conf.d > /dev/null 2>&1
     sudo mkdir -p /var/log/${PROJECT_NAME} > /dev/null 2>&1
 
     # 设置权限
@@ -337,19 +338,18 @@ prepare_code() {
 configure_nginx() {
     print_step "配置Nginx"
 
-    cd ${PROJECT_ROOT_DIR}
-    mkdir -p nginx/conf/conf.d
+    cd $PROJECT_DIR/backend/billiards-admin
 
     # 生成Nginx主配置
-    envsubst < ./config.conf.template > nginx/conf/nginx.conf
+    envsubst < nginx.conf.template > $PROJECT_ROOT_DIR/nginx/conf/nginx.conf
 
     # 生成站点配置
     if [[ "$SETUP_SSL" = "y" ]]; then
         # HTTPS配置
-        envsubst < ./billiards.conf.https.template > nginx/conf/conf.d/billiards.conf
+        envsubst < billiards.conf.https.template > $PROJECT_ROOT_DIR/nginx/conf/conf.d/billiards.conf
     else
         # HTTP配置
-        envsubst < ./billiards.conf.template > nginx/conf/conf.d/billiards.conf
+        envsubst < billiards.conf.template > $PROJECT_ROOT_DIR/nginx/conf/conf.d/billiards.conf
     fi
 
     print_success "Nginx配置完成"
@@ -413,8 +413,7 @@ generate_docker_config() {
     fi
 
     # 生成配置文件
-    cat > $CONFIG_FILE
-    envsubst < ./docker.compose.template > $CONFIG_FILE
+    envsubst < docker-compose-template.yml > $CONFIG_FILE
 
     # 更新应用配置文件中的密码
     if [[ -f "ruoyi-admin/src/main/resources/application-prod.yml" ]]; then
@@ -483,8 +482,26 @@ EOF
             ls -la /root/.m2/repository 2>/dev/null | head -3 || echo 'Maven仓库为空，首次构建';
             echo '';
 
+            start_time=\$(date +%s)
+
+            # 启动计时器（后台，每5秒打印一次）
+            (
+              while true; do
+                now=\$(date +%s)
+                elapsed=\$((now - start_time))
+                mins=\$((elapsed / 60))
+                secs=\$((elapsed % 60))
+                echo \"⌛ 构建中...已用时: \${mins}分\${secs}秒 ...\"
+                sleep 5
+              done
+            ) &
+            timer_pid=\$!
+
             echo '步骤: 一次性构建（clean + package，跳过测试）...';
-            mvn clean package -DskipTests -T 1C -q;
+            mvn clean package -DskipTests -T 1C -B;
+
+            # 构建完成，关掉计时器
+            kill \$timer_pid >/dev/null 2>&1
 
             echo '';
             echo '====== 构建统计 ======';
@@ -540,7 +557,7 @@ EOF
     # 清理临时文件
     rm -f Dockerfile.runtime
 
-    print_success "Docker镜像构建完成"
+    print_success "Docker应用镜像构建完成"
 }
 
 # 检查并启动组件容器（MySQL、Redis、Nginx）
@@ -889,6 +906,15 @@ deploy_application() {
     # 使用Maven缓存优化构建
     print_info "Docker构建应用容器..."
     build_with_maven_cache
+
+    if [[ ! -f "$COMPOSE_FILE" ]]; then
+        # 准备环境变量（包括Redis和MySQL密码）
+        prepare_environment_variables
+
+        # 生成docker配置文件
+        generate_docker_config
+    fi
+
     # 启动应用服务（使用已构建的镜像）
     docker-compose -f $COMPOSE_FILE up -d billiards-admin
 
