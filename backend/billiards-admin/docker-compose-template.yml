@@ -213,6 +213,8 @@ networks:
 volumes:
   mysql-data:
     name: ${PROJECT_NAME}-mysql-data
+  mysql-logs:
+    name: ${PROJECT_NAME}-mysql-log
   redis-data:
     name: ${PROJECT_NAME}-redis-data
 
