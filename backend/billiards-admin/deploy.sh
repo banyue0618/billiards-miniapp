@@ -208,7 +208,7 @@ install_docker() {
     print_step "安装Docker环境"
 
     if command -v docker &> /dev/null; then
-        print_success "Docker已安装: $(docker --version | cut -d' ' -f3 | cut -d',' -f1)"
+        print_success "Docker已安装: $(docker --version | awk '{print $3}')"
     else
         print_info "正在安装Docker..."
         curl -fsSL https://get.docker.com | sh > /dev/null 2>&1
@@ -219,7 +219,7 @@ install_docker() {
     fi
 
     if command -v docker-compose &> /dev/null; then
-        print_success "Docker Compose已安装: $(docker-compose --version | cut -d' ' -f3 | cut -d',' -f1)"
+        print_success "Docker Compose已安装: $(docker-compose version | awk '{print $4}')"
     else
         print_info "正在安装Docker Compose..."
         sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose > /dev/null 2>&1
@@ -395,22 +395,28 @@ generate_docker_config() {
         exit 1
     fi
 
+    BILLIARDS_WECHAT_APPID=XXXXX
+    BILLIARDS_WECHAT_SECRET=XXXXXXX
     # 根据部署模式生成不同配置
     if [[ "$DEPLOY_MODE" = "2" ]]; then
         # 生产模式：包含Nginx
         CONFIG_FILE="docker-compose.prod.yml"
-        APP_PORTS="- \"127.0.0.1:8080:8080\"  # 仅本地访问，通过Nginx代理"
-        MYSQL_PORTS="- \"3306:3306\""
-        REDIS_PORTS="- \"127.0.0.1:6379:6379\"  # 仅本地访问"
         UPLOAD_PREFIX="https://${DOMAIN_NAME}/uploads/files"
     else
         # 简单模式：直接暴露端口
         CONFIG_FILE="docker-compose.simple.yml"
-        APP_PORTS="- \"8080:8080\""
-        MYSQL_PORTS="- \"3306:3306\""
-        REDIS_PORTS="- \"6379:6379\""
         UPLOAD_PREFIX="http://${DOMAIN_NAME}:8080/uploads/files"
     fi
+
+    # 端口映射变量 ${APP_HOST_PORT}:${APP_CONTAINER_PORT}
+    APP_HOST_PORT=8080
+    APP_CONTAINER_PORT=8080
+    # ${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}
+    MYSQL_HOST_PORT=3306
+    MYSQL_CONTAINER_PORT=3306
+    # ${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}
+    REDIS_HOST_PORT=6379
+    REDIS_CONTAINER_PORT=6379
 
     # 生成配置文件
     envsubst < docker-compose-template.yml > $CONFIG_FILE

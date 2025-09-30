@@ -25,7 +25,7 @@ services:
 
     # 端口映射：宿主机端口:容器端口
     ports:
-      - ${APP_PORTS}                          # Spring Boot应用端口
+      - ${APP_HOST_PORT}:${APP_CONTAINER_PORT}  # Spring Boot应用端口
 
     # 环境变量配置
     environment:
@@ -89,7 +89,7 @@ services:
 
     # 端口映射
     ports:
-      - ${MYSQL_PORTS}                        # MySQL端口
+      - ${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}                        # MySQL端口
 
     # 环境变量配置
     environment:
@@ -143,7 +143,7 @@ services:
 
     # 端口映射
     ports:
-      - "6379:6379"                         # Redis端口
+      - ${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}                         # Redis端口
 
     # Redis启动命令（配置密码和持久化）
     command: >
