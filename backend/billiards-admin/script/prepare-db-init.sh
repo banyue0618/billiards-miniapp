@@ -34,13 +34,6 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# 生成随机密码
-generate_password() {
-    local length=${1:-16}
-    # 生成包含大小写字母、数字和特殊字符的密码
-    openssl rand -base64 32 | tr -d "=+/" | cut -c1-${length}
-}
-
 # 生成数据库凭据
 generate_db_credentials() {
     print_info "生成/复用数据库凭据..."

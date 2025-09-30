@@ -54,7 +54,7 @@ spring:
           # rewriteBatchedStatements=true 批处理优化 大幅提升批量插入更新删除性能(对数据库有性能损耗 使用批量操作应考虑性能问题)
           url: jdbc:mysql://mysql:3306/billiards_admin?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
           username: root
-          password: password
+          password: mysqlpassword
 
         # 主库数据源
         platform:
@@ -64,7 +64,7 @@ spring:
           # rewriteBatchedStatements=true 批处理优化 大幅提升批量插入更新删除性能(对数据库有性能损耗 使用批量操作应考虑性能问题)
           url: jdbc:mysql://mysql:3306/billiards_saas?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
           username: root
-          password: password
+          password: mysqlpassword
 
 #        # 从库数据源
 #        slave:
@@ -118,7 +118,7 @@ spring.data:
     # 数据库索引
     database: 0
     # redis 密码必须配置
-    password: password
+    password: redispassword
     # 连接超时时间
     timeout: 10s
     # 是否开启ssl
