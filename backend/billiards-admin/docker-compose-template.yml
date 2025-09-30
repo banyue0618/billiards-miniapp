@@ -52,8 +52,8 @@ services:
 
       # 其他自定义配置
       - SSE_ENABLED=false
-      - BILLIARDS_WECHAT_APPID=ownerappid
-      - BILLIARDS_WECHAT_SECRET=ownerappidsecret
+      - BILLIARDS_WECHAT_APPID=${BILLIARDS_WECHAT_APPID}
+      - BILLIARDS_WECHAT_SECRET=${BILLIARDS_WECHAT_SECRET}
 
     # 数据卷挂载：宿主机路径:容器路径
     volumes:
