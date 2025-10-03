@@ -115,7 +115,6 @@ services:
     # 数据卷挂载
     volumes:
       - mysql-data:/var/lib/mysql            # 数据持久化
-      - mysql-logs:/var/log/mysql            # 日志持久化
       - ./script/temp_sql/:/docker-entrypoint-initdb.d/  # SQL初始化脚本
       - ./mysql-config/:/etc/mysql/conf.d/   # MySQL配置文件
 
@@ -208,8 +207,6 @@ networks:
 volumes:
   mysql-data:
     name: ${PROJECT_NAME}-mysql-data
-  mysql-logs:
-    name: ${PROJECT_NAME}-mysql-log
   redis-data:
     name: ${PROJECT_NAME}-redis-data
   redis-logs:
