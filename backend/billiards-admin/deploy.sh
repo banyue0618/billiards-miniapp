@@ -23,10 +23,13 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # 配置变量
-PROJECT_ROOT_DIR="/opt"
-PROJECT_NAME="billiards-saas"
-PROJECT_DIR="${PROJECT_ROOT_DIR}/${PROJECT_NAME}"
-DOMAIN_NAME="localhost"
+export PROJECT_ROOT_DIR="/opt"
+export PROJECT_NAME="billiards-saas"
+export PROJECT_DIR="${PROJECT_ROOT_DIR}/${PROJECT_NAME}"
+export DOMAIN_NAME="localhost"
+
+export BILLIARDS_WECHAT_APPID=wxc19e090025acf679
+export BILLIARDS_WECHAT_SECRET=d65e15a2751c60697a7bfddf2c56ce58
 
 # 打印函数
 print_info() {
@@ -259,6 +262,7 @@ setup_directories() {
 
     sudo mkdir -p $PROJECT_DIR > /dev/null 2>&1
     sudo mkdir -p $PROJECT_DIR/web > /dev/null 2>&1
+
     sudo mkdir -p $PROJECT_DIR/nginx/conf/conf.d > /dev/null 2>&1
     sudo mkdir -p /var/log/${PROJECT_NAME} > /dev/null 2>&1
 
@@ -395,28 +399,26 @@ generate_docker_config() {
         exit 1
     fi
 
-    BILLIARDS_WECHAT_APPID=XXXXX
-    BILLIARDS_WECHAT_SECRET=XXXXXXX
     # 根据部署模式生成不同配置
     if [[ "$DEPLOY_MODE" = "2" ]]; then
         # 生产模式：包含Nginx
         CONFIG_FILE="docker-compose.prod.yml"
-        UPLOAD_PREFIX="https://${DOMAIN_NAME}/uploads/files"
+        export UPLOAD_PREFIX="https://${DOMAIN_NAME}/uploads/files"
     else
         # 简单模式：直接暴露端口
         CONFIG_FILE="docker-compose.simple.yml"
-        UPLOAD_PREFIX="http://${DOMAIN_NAME}:8080/uploads/files"
+        export UPLOAD_PREFIX="http://${DOMAIN_NAME}:8080/uploads/files"
     fi
 
     # 端口映射变量 ${APP_HOST_PORT}:${APP_CONTAINER_PORT}
-    APP_HOST_PORT=8080
-    APP_CONTAINER_PORT=8080
+    export APP_HOST_PORT=8080
+    export APP_CONTAINER_PORT=8080
     # ${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}
-    MYSQL_HOST_PORT=3306
-    MYSQL_CONTAINER_PORT=3306
+    export MYSQL_HOST_PORT=3306
+    export MYSQL_CONTAINER_PORT=3306
     # ${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}
-    REDIS_HOST_PORT=6379
-    REDIS_CONTAINER_PORT=6379
+    export REDIS_HOST_PORT=6379
+    export REDIS_CONTAINER_PORT=6379
 
     # 生成配置文件
     envsubst < docker-compose-template.yml > $CONFIG_FILE
