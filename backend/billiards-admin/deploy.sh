@@ -350,10 +350,10 @@ configure_nginx() {
     # 生成站点配置
     if [[ "$SETUP_SSL" = "y" ]]; then
         # HTTPS配置
-        envsubst < billiards.conf.https.template > $PROJECT_ROOT_DIR/nginx/conf/conf.d/billiards.conf
+        envsubst '${DOMAIN_NAME}' < billiards.conf.https.template > $PROJECT_ROOT_DIR/nginx/conf/conf.d/billiards.conf
     else
         # HTTP配置
-        envsubst < billiards.conf.template > $PROJECT_ROOT_DIR/nginx/conf/conf.d/billiards.conf
+        envsubst '${DOMAIN_NAME}' < billiards.conf.template > $PROJECT_ROOT_DIR/nginx/conf/conf.d/billiards.conf
     fi
 
     print_success "Nginx配置完成"
