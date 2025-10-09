@@ -13,10 +13,11 @@ services:
   # 后端应用服务
   # =====================================
   billiards-admin:
+    image: billiards-admin:latest
     # 使用本地Dockerfile构建镜像
-    build:
-      context: .                              # 构建上下文为当前目录
-      dockerfile: ruoyi-admin/Dockerfile      # 指定Dockerfile路径
+    # build:
+      # context: .                              # 构建上下文为当前目录
+      # dockerfile: ruoyi-admin/Dockerfile      # 指定Dockerfile路径
 
     container_name: ${PROJECT_NAME}-admin     # 容器名称
     restart: always                           # 容器自动重启策略
