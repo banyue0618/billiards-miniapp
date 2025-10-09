@@ -177,6 +177,9 @@ cd backend/billiards-admin/script/docker
 docker-compose up -d
 ```
 
+### 脚本一键部署
+- [脚本一键部署](docs/一键部署使用说明.md)
+
 ## 系统截图
 
 ![首页](imgs/img.png)
