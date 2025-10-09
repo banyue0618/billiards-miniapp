@@ -5,8 +5,10 @@ import { showError } from '../utils/util'
 import type { IAppOptionExtended } from '../app'
 
 // API 基础地址 - 开发环境
-const BASE_URL = 'https://banyue.xin'
-
+// const BASE_URL = 'http://127.0.0.1:8080'
+// const BASE_URL = 'https://8.148.145.140/api'
+// const BASE_URL = 'https://119.29.106.172/api'
+const BASE_URL = 'https://banyue.xin/api'
 // 请求队列
 const requestQueue: Set<string> = new Set()
 
@@ -36,7 +38,7 @@ class Http {
   request<T = any>(config: RequestConfig): Promise<T> {
     // 默认配置
     const defaultConfig: Omit<RequestConfig, 'url'> = {
-      timeout: 10000,
+      timeout: 100000,
       showLoading: true,
       loadingText: '加载中...',
       showError: true,
@@ -111,8 +113,8 @@ class Http {
           if (response.code !== 200) {
             // 业务错误
             this.handleBusinessError(response, mergedConfig)
-            console.log("业务异常：{}", response.msg);
-            reject(new Error(response.msg || '请求失败'))
+            console.log("业务异常：{}", response.message);
+            reject(new Error(response.message || '请求失败'))
             return
           }
           
