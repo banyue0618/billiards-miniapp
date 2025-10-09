@@ -804,3 +804,24 @@ CREATE TABLE `bls_event_outbox` (
                                     KEY `idx_agg` (`aggregate_type`, `aggregate_id`),
                                     KEY `idx_merchant_time` (`merchant_id`, `create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='本地消息表(Outbox)';
+
+-- 门店状态 0-营业中 1-休息中 2-已满 3-停业
+insert into billiards_admin.sys_dict_type values(26, '000000', '门店状态', 'store_business_status',    103, 1, sysdate(), null, null, '门店状态');
+insert into billiards_admin.sys_dict_data values(87, '000000', 0,  '营业中',     '0',       'store_business_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '门店状态');
+insert into billiards_admin.sys_dict_data values(88, '000000', 1,  '休息中',     '1',       'store_business_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '门店状态');
+insert into billiards_admin.sys_dict_data values(89, '000000', 2,  '已满',     '2',       'store_business_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '门店状态');
+insert into billiards_admin.sys_dict_data values(90, '000000', 3,  '停业',     '3',       'store_business_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '门店状态');
+
+-- 桌台状态 table_status 0-空闲 1-使用中 2-维修中 3-锁定
+insert into billiards_admin.sys_dict_type values(27, '000000', '桌台状态', 'table_status',    103, 1, sysdate(), null, null, '桌台状态');
+insert into billiards_admin.sys_dict_data values(91, '000000', 0,  '空闲',     '0',       'table_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '桌台状态');
+insert into billiards_admin.sys_dict_data values(92, '000000', 1,  '使用中',     '1',       'table_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '桌台状态');
+insert into billiards_admin.sys_dict_data values(93, '000000', 2,  '维修中',     '2',       'table_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '桌台状态');
+insert into billiards_admin.sys_dict_data values(94, '000000', 3,  '锁定',     '3',       'table_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '桌台状态');
+
+-- 订单状态 order_status 0-进行中 1-已完成 2-已取消
+insert into billiards_admin.sys_dict_type values(28, '000000', '订单状态', 'order_status',    103, 1, sysdate(), null, null, '订单状态');
+insert into billiards_admin.sys_dict_data values(95, '000000', 0,  '进行中',     '0',       'order_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '订单状态');
+insert into billiards_admin.sys_dict_data values(96, '000000', 1,  '已完成',     '1',       'order_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '订单状态');
+insert into billiards_admin.sys_dict_data values(97, '000000', 2,  '已取消',     '2',       'order_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '订单状态');
+
