@@ -22,6 +22,7 @@ import org.dromara.billiards.domain.bo.PaymentRequest;
 import org.dromara.billiards.domain.entity.BlsPayRecord;
 import org.dromara.billiards.domain.entity.BlsUser;
 import org.dromara.billiards.service.*;
+import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.pay.service.PayService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -56,11 +57,17 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
     @Resource
     private IBlsUserTenantService userTenantService;
 
+    @Resource
+    private IBlsPayChannelConfigService payChannelConfigService;
+
     /**
      * 是否启用模拟支付（开发环境使用）
      */
     @Value("${billiards.payment.mock-enabled:false}")
     private boolean mockPaymentEnabled;
+
+    @Value("${billiards.wechat.appid}")
+    private String appid;
 
     @Override
     public String createPayment(PaymentRequest request, String channel) {
@@ -89,7 +96,7 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
         // 如果启用了模拟支付，则直接更新用户余额并返回成功
         if (mockPaymentEnabled) {
             log.info("模拟支付模式已启用，直接更新用户余额");
-            BlsWalletAccount walletAccount = walletAccountService.updateWalletBalance(blsUser.getId(), request.getAmount());
+            walletAccountService.updateWalletBalance(blsUser.getId(), request.getAmount());
             // 更新支付记录状态为支付成功
             blsPayRecord.setPaymentStatus(PaymentStatus.PAID.getCode());
             blsPayRecord.setRemark("模拟支付成功");
@@ -102,8 +109,13 @@ public class BlsPayRecordServiceImpl extends ServiceImpl<PayRecordMapper, BlsPay
 
         // 调用微信支付接口创建预支付订单
         try {
-            // 调用微信支付服务创建jsapi预支付订单，返回支付参数 todo
-            String payParams = payService.jsApiPay(blsUser.getOpenid(), blsPayRecord.getAmount(), blsPayRecord.getId(), "");
+            // 查询商户id
+            String merchantId = payChannelConfigService.selectMerchantIdByStoreId(request.getStoreId());
+            if(StringUtils.isEmpty(merchantId)){
+                throw BilliardsException.of(ResultCode.ERROR, "未配置有效的支付渠道");
+            }
+            // 调用微信支付服务创建jsapi预支付订单，返回支付参数 prepay_id
+            String payParams = payService.jsApiPay(appid, blsUser.getOpenid(), blsPayRecord.getAmount(), blsPayRecord.getId(), merchantId);
             log.info("创建预支付订单成功，支付参数: {}", payParams);
             return payParams;
         } catch (Exception e) {

@@ -24,4 +24,11 @@ public class PaymentRequest {
     @Min(value = 1, message = "充值金额必须大于0")
     @Schema(description = "充值金额（单位：元）", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal amount;
+
+    /**
+     * 门店id
+     */
+    @NotNull(message = "门店不能为空")
+    @Schema(description = "所属门店", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String storeId;
 }

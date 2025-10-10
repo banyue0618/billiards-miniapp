@@ -1,6 +1,7 @@
 package org.dromara.billiards.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.domain.bo.BlsPayChannelConfigBo;
 import org.dromara.billiards.domain.entity.BlsPayChannelConfig;
@@ -15,6 +16,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.tenant.helper.TenantHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.dromara.billiards.security.MerchantQueryHelper;
 import org.dromara.billiards.security.MerchantWriteGuard;
@@ -32,9 +35,10 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Service
 @DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
-public class BlsPayChannelConfigServiceImpl implements IBlsPayChannelConfigService {
+public class BlsPayChannelConfigServiceImpl extends ServiceImpl<BlsPayChannelConfigMapper, BlsPayChannelConfig> implements IBlsPayChannelConfigService {
 
-    private final BlsPayChannelConfigMapper baseMapper;
+    @Value("${billiards.wechat.appid}")
+    private String appid;
 
     /**
      * 查询支付服务商配置(门店>商户>租户)
@@ -143,5 +147,10 @@ public class BlsPayChannelConfigServiceImpl implements IBlsPayChannelConfigServi
             MerchantWriteGuard.assertWritable(e.getMerchantId());
         }
         return baseMapper.deleteByIds(ids) > 0;
+    }
+
+    @Override
+    public String selectMerchantIdByStoreId(String storeId) {
+        return baseMapper.selectMerchantIdByStoreId(storeId, appid, TenantHelper.getTenantId());
     }
 }

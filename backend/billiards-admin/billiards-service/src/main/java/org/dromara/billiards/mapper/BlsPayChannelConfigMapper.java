@@ -1,5 +1,6 @@
 package org.dromara.billiards.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.dromara.billiards.domain.entity.BlsPayChannelConfig;
 import org.dromara.billiards.domain.vo.BlsPayChannelConfigVo;
 import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
@@ -12,4 +13,5 @@ import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
  */
 public interface BlsPayChannelConfigMapper extends BaseMapperPlus<BlsPayChannelConfig, BlsPayChannelConfigVo> {
 
+    String selectMerchantIdByStoreId(@Param("storeId") String storeId, @Param("appId") String appid, @Param("tenantId") String tenantId);
 }

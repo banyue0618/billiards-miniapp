@@ -65,4 +65,9 @@ public interface IBlsPayChannelConfigService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
+
+    /**
+     *  根据门店id查询商户id
+     */
+    String selectMerchantIdByStoreId(String storeId);
 }

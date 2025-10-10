@@ -92,6 +92,7 @@ public class PayService {
 
     /**
      *
+     * @param appid  小程序id
      * @param openId 付款用户
      * @param amount
      * @param outTradeNo 交易单号
@@ -99,12 +100,17 @@ public class PayService {
      * @return
      * @throws WxPayException
      */
-    public String jsApiPay(String openId, BigDecimal amount, String outTradeNo, String wxMchId) throws WxPayException {
-
+    public String jsApiPay(String appid, String openId, BigDecimal amount, String outTradeNo, String wxMchId) throws WxPayException {
         WxPayUnifiedOrderV3Request request = new WxPayUnifiedOrderV3Request();
+        request.setAppid(appid);
+        request.setMchid(wxMchId);
+
+        request.setDescription("台球馆消费");
+
         WxPayUnifiedOrderV3Request.Payer payer = new WxPayUnifiedOrderV3Request.Payer();
         payer.setOpenid(openId);
         request.setPayer(payer);
+
 
         WxPayUnifiedOrderV3Request.Amount payAmount = new WxPayUnifiedOrderV3Request.Amount();
         payAmount.setTotal(amount.intValue());
@@ -117,12 +123,10 @@ public class PayService {
 
         WxPayUnifiedOrderV3Result.JsapiResult jsapiResult = wxService.createOrderV3(TradeTypeEnum.JSAPI, request);
 
-        // 返回prepayId，packageValue为组合字符串,格式如 "prepay_id=wx201410272009395522657a690389285100"
-        if (jsapiResult == null || jsapiResult.getPackageValue() == null) {
+        if (jsapiResult == null) {
             throw new WxPayException("创建JSAPI支付订单失败，返回结果为空");
         }
-        log.info("创建JSAPI支付订单成功，返回结果: {}", JSONUtil.toJsonStr(jsapiResult));
-        return jsapiResult.getPackageValue().split("=")[1]; // 返回预支付订单的prepay_id
+        return JSONUtil.toJsonStr(jsapiResult);
     }
 
     /**

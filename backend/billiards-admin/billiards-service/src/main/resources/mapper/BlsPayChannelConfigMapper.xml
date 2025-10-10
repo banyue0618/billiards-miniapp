@@ -4,4 +4,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.dromara.billiards.mapper.BlsPayChannelConfigMapper">
 
+    <select id="selectMerchantIdByStoreId" resultType="java.lang.String">
+      select tenant_id, merchant_id, store_id, sub_mch_id
+    from bls_pay_channel_config
+    where app_id = #{appId}
+      and tenant_id = #{tenantId}
+      and (store_id = #{storeId} or store_id is null)
+      and (merchant_id = #{merchantId} or merchant_id is null)
+    order by (store_id is not null) desc, (merchant_id is not null) desc
+    limit 1;
+    </select>
 </mapper>
