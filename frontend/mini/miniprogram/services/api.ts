@@ -247,8 +247,8 @@ class ApiService {
    * 调用预支付接口
    * @param amount 充值金额
    */
-  createPayment(amount: number) {
-    return http.post('/api/miniapp/payment/pay', { amount })
+  createPayment(amount: number, storeId: string) {
+    return http.post('/api/miniapp/payment/pay', { amount, storeId })
   }
 
   /**

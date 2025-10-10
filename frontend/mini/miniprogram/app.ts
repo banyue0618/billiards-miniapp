@@ -122,7 +122,7 @@ App<IAppOptionExtended>({
   userLocation: null,
   isInitialized: false, // 初始状态为未初始化
   // 默认关闭游客登录按钮，需要时改为 true
-  enableGuestLogin: true,
+  enableGuestLogin: false,
 
   // globalData 结构应符合 IAppOption 的定义
   // 如果 IAppOption['globalData'] 是可选的或允许为空对象，则可以这样初始化

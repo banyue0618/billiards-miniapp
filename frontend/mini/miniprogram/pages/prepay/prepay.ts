@@ -115,11 +115,12 @@ Page({
     }
 
     const amountToPrepay = this.data.selectedAmount;
-    console.log('发起充值，金额：', amountToPrepay);
+    console.log('发起充值，所选：', amountToPrepay);
 
     wx.showLoading({ title: '系统处理中...' });
-    api.createPayment(amountToPrepay).then((res: any) => {
-      wx.hideLoading();
+    const storeId = wx.getStorageSync('X-Store-Id')
+    api.createPayment(amountToPrepay, storeId).then((res: any) => {
+      wx.hideLoading().then(r => console.log(r));
       console.log('预支付订单创建成功', res);
 
       try {

@@ -30,7 +30,7 @@ export class StoreService {
     if (location) {
       params.latitude = location.latitude;
       params.longitude = location.longitude;
-      params.radius = 10; // 默认5公里
+      params.radius = 100; // 默认5公里
     }
 
     // 添加关键词
