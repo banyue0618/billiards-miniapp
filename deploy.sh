@@ -28,8 +28,8 @@ export PROJECT_NAME="billiards-saas"
 export PROJECT_DIR="${PROJECT_ROOT_DIR}/${PROJECT_NAME}"
 export DOMAIN_NAME="localhost"
 
-export BILLIARDS_WECHAT_APPID=wxc19e090025acf679
-export BILLIARDS_WECHAT_SECRET=d65e15a2751c60697a7bfddf2c56ce58
+export BILLIARDS_WECHAT_APPID=xxxxxxxx
+export BILLIARDS_WECHAT_SECRET=xxxxxxxxxxxx
 
 # 打印函数
 print_info() {
