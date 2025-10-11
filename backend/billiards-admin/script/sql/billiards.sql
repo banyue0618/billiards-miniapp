@@ -403,7 +403,8 @@ CREATE TABLE `bls_member_points_record` (
                                             KEY `idx_user_id` (`user_id`),
                                             KEY `idx_type_scene` (`type`, `scene`),
                                             KEY `idx_create_time` (`create_time`),
-                                            KEY `idx_expire_time` (`expire_time`)
+                                            KEY `idx_expire_time` (`expire_time`),
+                                            UNIQUE KEY `uk_business_id_type_scene` (`business_id`, `type`, `scene`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员积分记录表';
 
 CREATE TABLE `bls_member_points_validity` (
@@ -791,7 +792,7 @@ CREATE TABLE `bls_event_outbox` (
                                     `aggregate_id` varchar(64) NOT NULL COMMENT '聚合根ID，如订单ID',
                                     `event_type` varchar(64) NOT NULL COMMENT '事件类型，如 ORDER_COMPLETED/REFUND_REQUESTED',
                                     `payload` text NOT NULL COMMENT '事件载荷JSON',
-                                    `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态：0-NEW 1-SENT 2-FAILED',
+                                    `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态：0-NEW 1-SENT 2-FAILED 3-PROCESSING',
                                     `retry_count` int NOT NULL DEFAULT 0 COMMENT '重试次数',
                                     `next_retry_time` datetime DEFAULT NULL COMMENT '下次重试时间',
                                     `last_error` varchar(255) DEFAULT NULL COMMENT '最后一次错误信息',
@@ -802,7 +803,8 @@ CREATE TABLE `bls_event_outbox` (
                                     `is_delete` tinyint DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
                                     PRIMARY KEY (`id`),
                                     KEY `idx_agg` (`aggregate_type`, `aggregate_id`),
-                                    KEY `idx_merchant_time` (`merchant_id`, `create_time`)
+                                    KEY `idx_merchant_time` (`merchant_id`, `create_time`),
+                                    UNIQUE KEY `uk_aggregate_event` (`aggregate_type`, `aggregate_id`, `event_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='本地消息表(Outbox)';
 
 -- 门店状态 0-营业中 1-休息中 2-已满 3-停业
@@ -828,7 +830,7 @@ insert into billiards_admin.sys_dict_data values(97, '000000', 2,  '已取消', 
 -- 本地消息处理状态 0-待处理 1-处理中 2-处理完成 3-处理失败
 insert into billiards_admin.sys_dict_type values(29, '000000', '本地消息处理状态', 'local_message_process_status',    103, 1, sysdate(), null, null, '本地消息处理状态');
 insert into billiards_admin.sys_dict_data values(98, '000000', 0,  '待处理',     '0',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
-insert into billiards_admin.sys_dict_data values(99, '000000', 1,  '处理中',     '1',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
-insert into billiards_admin.sys_dict_data values(100, '000000', 2,  '处理完成',     '2',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
-insert into billiards_admin.sys_dict_data values(101, '000000', 3,  '处理失败',     '3',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
+insert into billiards_admin.sys_dict_data values(99, '000000', 1,  '处理完成',     '1',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
+insert into billiards_admin.sys_dict_data values(100, '000000', 2,  '处理失败',     '2',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
+insert into billiards_admin.sys_dict_data values(101, '000000', 3,  '处理中',     '3',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
 

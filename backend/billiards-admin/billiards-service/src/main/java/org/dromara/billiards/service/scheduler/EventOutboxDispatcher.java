@@ -9,6 +9,7 @@ import org.dromara.billiards.domain.event.RefundRequestedEvent;
 import org.dromara.billiards.common.constant.OutboxEventTypeEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dromara.billiards.service.IBlsEventOutboxService;
+import org.dromara.billiards.service.OrderService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,8 @@ public class EventOutboxDispatcher {
 
     private final IBlsEventOutboxService outboxService;
     private final ApplicationEventPublisher publisher;
+    private final OrderService orderService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // 每30秒扫描一次待发送/失败且到达重试时间的消息
@@ -32,10 +35,28 @@ public class EventOutboxDispatcher {
 
         for (BlsEventOutbox msg : list) {
             try {
+                // 使用乐观锁 CAS 更新状态，防止多实例重复处理
+                // 更新条件：id 匹配且 status 仍为待处理(0)或失败(2)
+                boolean locked = outboxService.tryLockMessage(msg.getId(), msg.getStatus());
+                if (!locked) {
+                    // 已被其他实例处理，跳过
+                    log.debug("Message {} already locked by another instance", msg.getId());
+                    continue;
+                }
+
+                // 重新发布事件
                 String type = msg.getEventType();
                 if (OutboxEventTypeEnum.ORDER_COMPLETED.name().equals(type)) {
                     OrderCompletedPayload payload = objectMapper.readValue(msg.getPayload(), OrderCompletedPayload.class);
-                    BlsOrder order = new BlsOrder();
+                    BlsOrder order = orderService.getById(payload.getOrderId()); // 确保订单存在
+                    if(order == null) {
+                        log.error("Order not found for outbox event, orderId={}", payload.getOrderId());
+                        // 标记为失败，避免重复调度
+                        msg.setStatus(2L);
+                        msg.setLastError("Order not found");
+                        outboxService.updateById(msg);
+                        continue;
+                    }
                     order.setId(payload.getOrderId());
                     order.setUserId(payload.getUserId());
                     order.setMerchantId(payload.getMerchantId());
@@ -43,15 +64,23 @@ public class EventOutboxDispatcher {
                     publisher.publishEvent(new OrderCompletedEvent(this, order));
                 } else if (OutboxEventTypeEnum.REFUND_REQUESTED.name().equals(type)) {
                     RefundRequestedPayload payload = objectMapper.readValue(msg.getPayload(), RefundRequestedPayload.class);
-                    BlsOrder order = new BlsOrder();
-                    order.setId(payload.getOrderId());
+                    BlsOrder order = orderService.getById(payload.getOrderId()); // 确保订单存在
+                    if(order == null) {
+                        log.error("Order not found for outbox event, orderId={}, type={}", payload.getOrderId(), OutboxEventTypeEnum.REFUND_REQUESTED.name());
+                        // 标记为失败，避免重复调度
+                        msg.setStatus(2L);
+                        msg.setLastError("Order not found");
+                        outboxService.updateById(msg);
+                        continue;
+                    }
                     publisher.publishEvent(new RefundRequestedEvent(this, order, payload.getRefundAmount(), payload.getLastPayRecordId()));
                 }
-                msg.setStatus(1L);
-                msg.setLastError(null);
-                outboxService.updateById(msg);
+
+                // 标记为处理中，防止监听器执行时间过长导致重复调度
+                // 实际的成功/失败状态由 OutboxHelper 在监听器中更新
             } catch (Exception e) {
                 log.error("Dispatch outbox failed id={}, err=", msg.getId(), e);
+                // 如果发布事件本身失败（如 JSON 解析错误），直接标记失败
                 long retry = msg.getRetryCount() == null ? 0L : msg.getRetryCount();
                 msg.setRetryCount(retry + 1);
                 msg.setStatus(2L);

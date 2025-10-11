@@ -80,10 +80,4 @@ public class BlsEventOutboxBo extends BlsTenantMchEntity {
      */
     private String lastError;
 
-    /**
-     * 删除标志（0存在 1删除）
-     */
-    private Long isDelete;
-
-
 }

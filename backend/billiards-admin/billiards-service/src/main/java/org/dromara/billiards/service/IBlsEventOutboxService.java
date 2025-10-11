@@ -74,4 +74,12 @@ public interface IBlsEventOutboxService extends IService<BlsEventOutbox> {
      * @return
      */
     List<BlsEventOutbox> queryPendingMessages();
+
+    /**
+     * 尝试锁定消息（使用乐观锁 CAS 防止多实例重复处理）
+     * @param id 消息ID
+     * @param expectedStatus 期望的当前状态
+     * @return 是否成功锁定
+     */
+    boolean tryLockMessage(String id, Long expectedStatus);
 }

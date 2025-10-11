@@ -55,10 +55,4 @@ public class BlsPayChannelConfigBo extends BlsTenantMchEntity {
     @NotNull(message = "0启用 1停用不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long status;
 
-    /**
-     * 删除标志（0代表存在 1代表删除）
-     */
-    private Long isDelete;
-
-
 }

@@ -170,9 +170,13 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
     @Transactional(rollbackFor = Exception.class)
     public void accrueOnPaidOrder(BlsOrder order) {
         // 幂等：如已对该订单入账过获取类-消费积分，则跳过
+        // 注意：依赖 bls_member_points_record 表的 business_id 唯一索引保证并发安全
         BlsMemberPointsRecordBo existBo = new BlsMemberPointsRecordBo();
         existBo.setBusinessId(order.getId());
-        if (memberPointsRecordService.queryList(existBo) != null && !memberPointsRecordService.queryList(existBo).isEmpty()) {
+        existBo.setType(1L); // 获取类型
+        existBo.setScene(1L); // 消费场景
+        List<?> existingRecords = memberPointsRecordService.queryList(existBo);
+        if (existingRecords != null && !existingRecords.isEmpty()) {
             return;
         }
 
@@ -274,7 +278,15 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
                 ? rules.get(0).getValidityDays() : 365;
             LocalDateTime expire = LocalDateTime.now().plusDays(validityDays);
             recordBo.setExpireTime(expire);
-            memberPointsRecordService.save(recordBo);
+
+            // 使用 try-catch 捕获唯一键冲突异常，保证幂等性
+            try {
+                memberPointsRecordService.save(recordBo);
+            } catch (org.springframework.dao.DuplicateKeyException e) {
+                // 如果 business_id 重复，说明已经处理过该订单，直接返回
+                log.warn("Order {} already accrued, skip");
+                return;
+            }
 
             // 6) 生成有效期批次
             BlsMemberPointsValidity validityBo = new BlsMemberPointsValidity();

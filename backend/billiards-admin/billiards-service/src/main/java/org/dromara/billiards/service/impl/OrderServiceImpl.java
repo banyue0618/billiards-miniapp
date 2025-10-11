@@ -473,7 +473,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
         }
         this.updateById(blsOrder);
 
-        // 事务内写 Outbox，定时任务将负责投递（也可同时 afterCommit 发布一次、双通道兜底）
+        // 事务内写 Outbox，状态为 0（NEW）
+        // 事务提交后立即发布事件（快速路径），定时任务作为兜底重试机制
+        // 注意：OutboxHelper 支持处理两种状态（0-NEW 和 3-PROCESSING），保证幂等性
         try {
             BlsEventOutboxBo completed = new BlsEventOutboxBo();
             completed.setMerchantId(blsOrder.getMerchantId());
@@ -487,7 +489,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
             completedPayload.put("merchantId", blsOrder.getMerchantId());
             completedPayload.put("actualAmount", blsOrder.getActualAmount());
             completed.setPayload(objectMapper.writeValueAsString(completedPayload));
-            completed.setStatus(0L);
+            completed.setStatus(0L); // 0=NEW，事务提交后立即处理
             completed.setRetryCount(0L);
             eventOutboxService.insertByBo(completed);
 
@@ -504,7 +506,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
                 refundPayload.put("refundAmount", refundAmount);
                 refundPayload.put("lastPayRecordId", lastPay.getId());
                 refund.setPayload(objectMapper.writeValueAsString(refundPayload));
-                refund.setStatus(0L);
+                refund.setStatus(0L); // 0=NEW，事务提交后立即处理
                 refund.setRetryCount(0L);
                 eventOutboxService.insertByBo(refund);
             }
@@ -513,7 +515,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
             throw BilliardsException.of(ResultCode.ERROR);
         }
 
-        // 发布事件监听 订单完成、退款请求
+        // 【双通道投递】事务提交后立即发布事件（快速路径）
+        // 如果处理失败或应用崩溃，定时任务会扫描状态=0的记录进行重试
+        // 业务层通过唯一索引保证幂等性，即使重复发布也不会导致数据问题
         eventPublisher.publishEvent(new OrderCompletedEvent(this, blsOrder));
         if (refundAmount.compareTo(BigDecimal.ZERO) > 0) {
             BlsPayRecord lastPay = payRecordService.getLastPayRecord(blsOrder.getUserId());

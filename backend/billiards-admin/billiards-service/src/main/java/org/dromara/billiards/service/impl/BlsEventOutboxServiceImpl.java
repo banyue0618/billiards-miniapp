@@ -152,4 +152,17 @@ public class BlsEventOutboxServiceImpl extends ServiceImpl<BlsEventOutboxMapper,
 
         return list;
     }
+
+    @Override
+    public boolean tryLockMessage(String id, Long expectedStatus) {
+        // 使用 CAS 更新：只有当状态等于 expectedStatus 时才更新为处理中(3)
+        // UPDATE bls_event_outbox SET status = 3 WHERE id = ? AND status = ?
+        int affected = baseMapper.update(null,
+            Wrappers.<BlsEventOutbox>lambdaUpdate()
+                .set(BlsEventOutbox::getStatus, 3L) // 3 = 处理中
+                .eq(BlsEventOutbox::getId, id)
+                .eq(BlsEventOutbox::getStatus, expectedStatus)
+        );
+        return affected > 0;
+    }
 }
