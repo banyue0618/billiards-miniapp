@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.tenant.helper.TenantHelper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -147,6 +148,7 @@ public class BlsUserTenantServiceImpl implements IBlsUserTenantService {
         }
         BlsUserTenantBo bo = new BlsUserTenantBo();
         bo.setUserId(blsUser.getId());
+        bo.setTenantId(TenantHelper.getTenantId());
         List<BlsUserTenantVo> existingRecords = this.queryList(bo);
         if (existingRecords != null && !existingRecords.isEmpty()) {
             // 已存在租户记录，无需重复添加

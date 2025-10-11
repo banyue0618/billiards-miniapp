@@ -825,3 +825,10 @@ insert into billiards_admin.sys_dict_data values(95, '000000', 0,  '进行中', 
 insert into billiards_admin.sys_dict_data values(96, '000000', 1,  '已完成',     '1',       'order_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '订单状态');
 insert into billiards_admin.sys_dict_data values(97, '000000', 2,  '已取消',     '2',       'order_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '订单状态');
 
+-- 本地消息处理状态 0-待处理 1-处理中 2-处理完成 3-处理失败
+insert into billiards_admin.sys_dict_type values(29, '000000', '本地消息处理状态', 'local_message_process_status',    103, 1, sysdate(), null, null, '本地消息处理状态');
+insert into billiards_admin.sys_dict_data values(98, '000000', 0,  '待处理',     '0',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
+insert into billiards_admin.sys_dict_data values(99, '000000', 1,  '处理中',     '1',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
+insert into billiards_admin.sys_dict_data values(100, '000000', 2,  '处理完成',     '2',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
+insert into billiards_admin.sys_dict_data values(101, '000000', 3,  '处理失败',     '3',       'local_message_process_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '本地消息处理状态');
+

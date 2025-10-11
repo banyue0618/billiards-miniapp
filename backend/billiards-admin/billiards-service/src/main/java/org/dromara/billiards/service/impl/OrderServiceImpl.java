@@ -44,7 +44,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单服务实现类
@@ -475,10 +477,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
         try {
             BlsEventOutboxBo completed = new BlsEventOutboxBo();
             completed.setMerchantId(blsOrder.getMerchantId());
+            completed.setTenantId(blsOrder.getTenantId());
             completed.setAggregateType(AggregateTypeEnum.ORDER.name());
             completed.setAggregateId(blsOrder.getId());
             completed.setEventType(OutboxEventTypeEnum.ORDER_COMPLETED.name());
-            java.util.Map<String,Object> completedPayload = new java.util.HashMap<>();
+            Map<String,Object> completedPayload = new HashMap<>();
             completedPayload.put("orderId", blsOrder.getId());
             completedPayload.put("userId", blsOrder.getUserId());
             completedPayload.put("merchantId", blsOrder.getMerchantId());
@@ -492,10 +495,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
                 BlsPayRecord lastPay = payRecordService.getLastPayRecord(blsOrder.getUserId());
                 BlsEventOutboxBo refund = new BlsEventOutboxBo();
                 refund.setMerchantId(blsOrder.getMerchantId());
+                refund.setTenantId(blsOrder.getTenantId());
                 refund.setAggregateType(AggregateTypeEnum.ORDER.name());
                 refund.setAggregateId(blsOrder.getId());
                 refund.setEventType(OutboxEventTypeEnum.REFUND_REQUESTED.name());
-                java.util.Map<String,Object> refundPayload = new java.util.HashMap<>();
+                Map<String,Object> refundPayload = new HashMap<>();
                 refundPayload.put("orderId", blsOrder.getId());
                 refundPayload.put("refundAmount", refundAmount);
                 refundPayload.put("lastPayRecordId", lastPay.getId());
@@ -506,24 +510,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
             }
         } catch (Exception e) {
             log.error("write outbox failed orderId={}, err=", blsOrder.getId(), e);
+            throw BilliardsException.of(ResultCode.ERROR);
         }
 
-        // 提交后即时事件发布，缩短时延；监听器成功后可将 Outbox 标记为 SENT
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                try {
-                    eventPublisher.publishEvent(new OrderCompletedEvent(this, blsOrder));
-                    if (refundAmount.compareTo(BigDecimal.ZERO) > 0) {
-                        BlsPayRecord lastPay = payRecordService.getLastPayRecord(blsOrder.getUserId());
-                        eventPublisher.publishEvent(new RefundRequestedEvent(this, blsOrder, refundAmount, lastPay.getId()));
-                    }
-                } catch (Exception e) {
-                    log.error("publish async events failed orderId={}, err=", blsOrder.getId(), e);
-                }
-            }
-        });
-
+        // 发布事件监听 订单完成、退款请求
+        eventPublisher.publishEvent(new OrderCompletedEvent(this, blsOrder));
+        if (refundAmount.compareTo(BigDecimal.ZERO) > 0) {
+            BlsPayRecord lastPay = payRecordService.getLastPayRecord(blsOrder.getUserId());
+            eventPublisher.publishEvent(new RefundRequestedEvent(this, blsOrder, refundAmount, lastPay.getId()));
+        }
 
         return blsOrder;
     }

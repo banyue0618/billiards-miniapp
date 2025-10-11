@@ -1,6 +1,7 @@
 package org.dromara.billiards.domain.bo;
 
 import org.dromara.billiards.domain.entity.BlsMemberUser;
+import org.dromara.billiards.domain.entity.BlsTenantMchEntity;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -20,7 +21,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsMemberUser.class, reverseConvertGenerate = false)
-public class BlsMemberUserBo extends BaseEntity {
+public class BlsMemberUserBo extends BlsTenantMchEntity {
 
     /**
      * 会员ID

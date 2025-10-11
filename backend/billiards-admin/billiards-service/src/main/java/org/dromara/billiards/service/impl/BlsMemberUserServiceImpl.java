@@ -172,8 +172,6 @@ public class BlsMemberUserServiceImpl extends ServiceImpl<BlsMemberUserMapper, B
         // 幂等：如已对该订单入账过获取类-消费积分，则跳过
         BlsMemberPointsRecordBo existBo = new BlsMemberPointsRecordBo();
         existBo.setBusinessId(order.getId());
-        existBo.setType(1L);
-        existBo.setScene(1L);
         if (memberPointsRecordService.queryList(existBo) != null && !memberPointsRecordService.queryList(existBo).isEmpty()) {
             return;
         }

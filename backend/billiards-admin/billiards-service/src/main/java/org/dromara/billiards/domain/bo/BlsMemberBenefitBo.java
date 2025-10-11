@@ -1,6 +1,7 @@
 package org.dromara.billiards.domain.bo;
 
 import org.dromara.billiards.domain.entity.BlsMemberBenefit;
+import org.dromara.billiards.domain.entity.BlsTenantMchEntity;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsMemberBenefit.class, reverseConvertGenerate = false)
-public class BlsMemberBenefitBo extends BaseEntity {
+public class BlsMemberBenefitBo extends BlsTenantMchEntity {
 
     /**
      * 权益ID

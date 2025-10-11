@@ -144,6 +144,9 @@
                     <el-dropdown-item v-if="scope.row.status === 3" @click="handleStatus(scope.row, 0)">
                       <el-icon><Unlock /></el-icon> 解锁桌台
                     </el-dropdown-item>
+                    <el-dropdown-item v-if="scope.row.status === 2" @click="handleStatus(scope.row, 0)">
+                      <el-icon><Unlock /></el-icon> 恢复桌台
+                    </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>

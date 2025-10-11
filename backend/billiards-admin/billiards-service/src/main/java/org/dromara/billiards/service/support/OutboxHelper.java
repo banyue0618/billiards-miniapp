@@ -16,9 +16,9 @@ public class OutboxHelper {
 
     private final IBlsEventOutboxService eventOutboxService;
 
-    public void markOutbox(String merchantId, String aggregateType, String aggregateId, String eventType, boolean success, String error){
+    public void markOutbox(String aggregateType, String aggregateId, String eventType, boolean success, String error){
         BlsEventOutboxBo queryBo = new BlsEventOutboxBo();
-        queryBo.setMerchantId(merchantId);
+        // 考虑下面两个字段增加唯一索引
         queryBo.setAggregateType(aggregateType);
         queryBo.setAggregateId(aggregateId);
         queryBo.setEventType(eventType);

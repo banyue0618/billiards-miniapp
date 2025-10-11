@@ -1,6 +1,7 @@
 package org.dromara.billiards.domain.bo;
 
 import org.dromara.billiards.domain.entity.BlsMemberLevelConfig;
+import org.dromara.billiards.domain.entity.BlsTenantMchEntity;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -19,7 +20,7 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsMemberLevelConfig.class, reverseConvertGenerate = false)
-public class BlsMemberLevelConfigBo extends BaseEntity {
+public class BlsMemberLevelConfigBo extends BlsTenantMchEntity {
 
     /**
      * 配置ID

@@ -1,6 +1,7 @@
 package org.dromara.billiards.domain.bo;
 
 import org.dromara.billiards.domain.entity.BlsEventOutbox;
+import org.dromara.billiards.domain.entity.BlsTenantMchEntity;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsEventOutbox.class, reverseConvertGenerate = false)
-public class BlsEventOutboxBo extends BaseEntity {
+public class BlsEventOutboxBo extends BlsTenantMchEntity {
 
     /**
      * 事件ID

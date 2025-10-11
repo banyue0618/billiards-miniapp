@@ -1,6 +1,7 @@
 package org.dromara.billiards.domain.bo;
 
 import org.dromara.billiards.domain.entity.BlsPayChannelConfig;
+import org.dromara.billiards.domain.entity.BlsTenantMchEntity;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -18,7 +19,7 @@ import jakarta.validation.constraints.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = BlsPayChannelConfig.class, reverseConvertGenerate = false)
-public class BlsPayChannelConfigBo extends BaseEntity {
+public class BlsPayChannelConfigBo extends BlsTenantMchEntity {
 
     /**
      * ID

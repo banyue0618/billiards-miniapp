@@ -1,6 +1,5 @@
 package org.dromara.billiards.service.scheduler;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.domain.entity.BlsEventOutbox;
@@ -9,7 +8,6 @@ import org.dromara.billiards.domain.event.OrderCompletedEvent;
 import org.dromara.billiards.domain.event.RefundRequestedEvent;
 import org.dromara.billiards.common.constant.OutboxEventTypeEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.dromara.billiards.mapper.BlsEventOutboxMapper;
 import org.dromara.billiards.service.IBlsEventOutboxService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;

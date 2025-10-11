@@ -146,8 +146,8 @@
             t.store_id as storeId,
             s.name as storeName,
             COUNT(tu.id) as usageCount,
-            COALESCE(SUM(tu.duration), 0) as totalDuration,
-            COALESCE(SUM(o.actual_amount), 0) as totalRevenue
+            COALESCE(SUM(tu.duration), 0) as usageTime,
+            COALESCE(SUM(o.actual_amount), 0) as revenue
         FROM bls_table t
         JOIN bls_store s ON t.store_id = s.id
         LEFT JOIN bls_table_usage tu ON t.id = tu.table_id
