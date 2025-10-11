@@ -5,7 +5,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="org.dromara.billiards.mapper.BlsPayChannelConfigMapper">
 
     <select id="selectMerchantIdByStoreId" resultType="java.lang.String">
-      select tenant_id, merchant_id, store_id, sub_mch_id
+      select sub_mch_id
     from bls_pay_channel_config
     where app_id = #{appId}
       and tenant_id = #{tenantId}

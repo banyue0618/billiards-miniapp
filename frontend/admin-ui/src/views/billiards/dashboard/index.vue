@@ -158,8 +158,8 @@
             <el-table-column prop="storeName" label="所属门店" />
             <el-table-column prop="tableNumber" label="桌台编号" align="center" />
             <el-table-column prop="usageCount" label="使用次数" align="center" />
-            <el-table-column prop="usageTime" label="使用时长（分钟）" align="center" />
-            <el-table-column prop="revenue" label="收入（元）" align="center" />
+            <el-table-column prop="usageTime" label="使用时长（分钟）" align="center" min-width="120px" />
+<!--            <el-table-column prop="totalRevenue" label="收入（元）" align="center" />-->
           </el-table>
         </el-card>
       </el-col>

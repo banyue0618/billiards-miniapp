@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.tenant.helper.MerchantHolder;
 import org.dromara.common.tenant.helper.TenantHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -151,6 +152,6 @@ public class BlsPayChannelConfigServiceImpl extends ServiceImpl<BlsPayChannelCon
 
     @Override
     public String selectMerchantIdByStoreId(String storeId) {
-        return baseMapper.selectMerchantIdByStoreId(storeId, appid, TenantHelper.getTenantId());
+        return baseMapper.selectMerchantIdByStoreId(storeId, appid, TenantHelper.getTenantId(), MerchantHolder.get());
     }
 }

@@ -13,5 +13,5 @@ import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
  */
 public interface BlsPayChannelConfigMapper extends BaseMapperPlus<BlsPayChannelConfig, BlsPayChannelConfigVo> {
 
-    String selectMerchantIdByStoreId(@Param("storeId") String storeId, @Param("appId") String appid, @Param("tenantId") String tenantId);
+    String selectMerchantIdByStoreId(@Param("storeId") String storeId, @Param("appId") String appid, @Param("tenantId") String tenantId, @Param("merchantId") String merchantId);
 }
