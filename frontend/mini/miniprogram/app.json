@@ -5,11 +5,14 @@
     "pages/scan/index",
     "pages/timer/index",
     "pages/user/index",
+    "pages/user/recharge-list",
     "pages/order/list",
     "pages/common/privacy/index",
     "pages/common/legal/index",
     "pages/common/protocol/index",
-    "pages/prepay/prepay"
+    "pages/prepay/prepay",
+    "pages/user/collect",
+    "pages/user/points"
   ],
   "window": {
     "navigationBarTextStyle": "white",

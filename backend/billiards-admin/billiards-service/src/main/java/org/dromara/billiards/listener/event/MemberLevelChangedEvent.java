@@ -1,4 +1,4 @@
-package org.dromara.billiards.notify.event;
+package org.dromara.billiards.listener.event;
 
 import org.springframework.context.ApplicationEvent;
 

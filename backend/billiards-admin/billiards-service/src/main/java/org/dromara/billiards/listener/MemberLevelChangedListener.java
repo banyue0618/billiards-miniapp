@@ -1,8 +1,8 @@
-package org.dromara.billiards.service.listener;
+package org.dromara.billiards.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.billiards.notify.event.MemberLevelChangedEvent;
+import org.dromara.billiards.listener.event.MemberLevelChangedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

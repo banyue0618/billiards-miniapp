@@ -1,0 +1,88 @@
+<!-- 充值记录列表页面 -->
+<view class="recharge-list-container">
+  <view class="header">
+    <view class="header-content">
+      <text class="header-title">充值记录</text>
+      <view class="balance-tip" wx:if="{{userBalance !== undefined}}">
+        <text class="balance-label">当前余额：</text>
+        <text class="balance-amount">¥ {{userBalance || 0}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 充值记录列表 -->
+  <view class="recharge-list" wx:if="{{rechargeList.length > 0}}">
+    <view class="recharge-item" wx:for="{{rechargeList}}" wx:key="id">
+      <view class="item-header">
+        <view class="store-info">
+          <text class="store-name">{{item.merchantName || '平台充值'}}</text>
+          <text class="recharge-time">{{item.createTime}}</text>
+        </view>
+        <view class="status-wrap">
+          <text class="status status-{{item.paymentStatus}}">{{item.statusText}}</text>
+        </view>
+      </view>
+      
+      <view class="item-body">
+        <view class="info-row">
+          <text class="label">充值单号</text>
+          <text class="value">{{item.payNo}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">充值金额</text>
+          <text class="value amount">¥{{item.amount}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.transactionId}}">
+          <text class="label">交易号</text>
+          <text class="value transaction">{{item.transactionId}}</text>
+        </view>
+        
+        <!-- 金额状态显示 -->
+        <view class="amount-status" wx:if="{{item.paymentStatus === 1}}">
+          <view class="status-item">
+            <text class="status-label">充值状态</text>
+            <text class="status-value success">已到账</text>
+          </view>
+          <view class="status-item" wx:if="{{item.hasRefund}}">
+            <text class="status-label">退款状态</text>
+            <text class="status-value refund-status-{{item.refundStatus}}">{{item.refundStatusText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="item-footer" wx:if="{{item.paymentStatus === 2 && !item.hasRefund}}">
+        <button class="refund-btn" bindtap="handleRefund" data-id="{{item.id}}" data-amount="{{item.amount}}">
+          申请退款
+        </button>
+      </view>
+
+      <!-- 退款详情 -->
+      <view class="refund-details" wx:if="{{item.hasRefund}}">
+        <view class="refund-summary">
+          <text class="refund-title">退款详情</text>
+        </view>
+        <view class="refund-amount-row">
+          <text class="refund-label">退款金额</text>
+          <text class="refund-amount-value">¥{{item.refundAmount}}</text>
+        </view>
+        <view class="refund-status-row">
+          <text class="refund-label">退款状态</text>
+          <text class="refund-status-value refund-status-{{item.refundStatus}}">{{item.refundStatusText}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && rechargeList.length === 0}}">
+    <image class="empty-icon" src="/images/default/empty.png" mode="aspectFit"></image>
+    <text class="empty-text">暂无充值记录</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>
+

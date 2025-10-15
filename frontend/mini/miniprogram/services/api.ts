@@ -267,6 +267,21 @@ class ApiService {
     // 直接修改请求URL以符合实际接口
     return http.put('/api/miniapp/user/update', profileData)
   }
+
+  /**
+   * 获取充值记录列表
+   */
+  getRechargeList() {
+    return http.get<any[]>('/api/miniapp/user/recharge/list')
+  }
+
+  /**
+   * 申请退款
+   * @param payRecordId 充值记录ID
+   */
+  applyRefund(payRecordId: string) {
+    return http.post('/api/miniapp/user/refund/apply', { payRecordId })
+  }
 }
 
 // 导出API服务实例

@@ -1,4 +1,4 @@
-package org.dromara.billiards.notify.event;
+package org.dromara.billiards.listener.event;
 
 import lombok.Getter;
 import org.dromara.billiards.domain.entity.BlsOrder;

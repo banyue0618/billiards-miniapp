@@ -71,8 +71,19 @@ public interface IBlsRefundRecordService {
      */
     Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
 
-
+    /**
+     * 根据订单ID查询退款记录
+     * @param orderId
+     * @return
+     */
     BlsRefundRecord queryRecordByOrderId(String orderId);
+
+    /**
+     * 根据支付记录ID查询退款记录
+     * @param payRecordId
+     * @return
+     */
+    BlsRefundRecord queryRecordByPayRecordId(String payRecordId);
 
     /**
      * 发起退款

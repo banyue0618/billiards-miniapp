@@ -1,11 +1,11 @@
-package org.dromara.billiards.service.scheduler;
+package org.dromara.billiards.support;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.domain.entity.BlsEventOutbox;
 import org.dromara.billiards.domain.entity.BlsOrder;
-import org.dromara.billiards.domain.event.OrderCompletedEvent;
-import org.dromara.billiards.domain.event.RefundRequestedEvent;
+import org.dromara.billiards.listener.event.OrderCompletedEvent;
+import org.dromara.billiards.listener.event.RefundRequestedEvent;
 import org.dromara.billiards.common.constant.OutboxEventTypeEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dromara.billiards.service.IBlsEventOutboxService;

@@ -1,4 +1,4 @@
-package org.dromara.billiards.service.support;
+package org.dromara.billiards.support;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;

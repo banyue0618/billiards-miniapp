@@ -1,4 +1,4 @@
-package org.dromara.billiards.domain.event;
+package org.dromara.billiards.listener.event;
 
 import org.dromara.billiards.domain.entity.BlsOrder;
 import org.springframework.context.ApplicationEvent;

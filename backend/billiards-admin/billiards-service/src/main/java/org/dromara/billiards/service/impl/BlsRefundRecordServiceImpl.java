@@ -9,18 +9,16 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.common.constant.BilliardsConstants;
-import org.dromara.billiards.common.constant.TransTypeEnum;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.domain.bo.BlsRefundRecordBo;
 import org.dromara.billiards.domain.entity.BlsRefundRecord;
 import org.dromara.billiards.domain.entity.BlsOrder;
 import org.dromara.billiards.domain.entity.BlsPayRecord;
-import org.dromara.billiards.domain.entity.BlsTableUsage;
 import org.dromara.billiards.domain.vo.BlsRefundRecordVo;
 import org.dromara.billiards.security.MerchantQueryHelper;
 import org.dromara.billiards.service.*;
-import org.dromara.billiards.notify.event.RefundFailureEvent;
+import org.dromara.billiards.listener.event.RefundFailureEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
@@ -31,7 +29,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.pay.service.PayService;
-import org.dromara.common.satoken.utils.LoginHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -183,6 +180,16 @@ public class BlsRefundRecordServiceImpl implements IBlsRefundRecordService {
         }
         LambdaQueryWrapper<BlsRefundRecord> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(BlsRefundRecord::getOrderId, orderId);
+        return baseMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public BlsRefundRecord queryRecordByPayRecordId(String payRecordId) {
+        if (StringUtils.isBlank(payRecordId)) {
+            return null;
+        }
+        LambdaQueryWrapper<BlsRefundRecord> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.eq(BlsRefundRecord::getPayRecordId, payRecordId);
         return baseMapper.selectOne(queryWrapper);
     }
 

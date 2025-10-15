@@ -10,12 +10,16 @@ import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.domain.entity.BlsUser;
 import org.dromara.billiards.domain.entity.BlsWalletAccount;
 import org.dromara.billiards.domain.entity.BlsPayRecord;
+import org.dromara.billiards.domain.entity.BlsRefundRecord;
+import org.dromara.billiards.domain.vo.OrderVO;
+import org.dromara.billiards.domain.vo.RechargeRecordVO;
+import org.dromara.billiards.domain.vo.UserVO;
 import org.dromara.billiards.mapper.UserMapper;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.dromara.billiards.service.IBlsPayRecordService;
-import org.dromara.billiards.service.IBlsWalletAccountService;
-import org.dromara.billiards.service.UserService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.dromara.billiards.service.*;
 import org.dromara.billiards.domain.bo.UserUpdateDto;
 import org.dromara.billiards.convert.UserConvert;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +30,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户服务实现类
@@ -39,6 +45,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, BlsUser> implements
     private final IBlsWalletAccountService walletAccountService;
 
     private final IBlsPayRecordService payRecordService;
+
+    private final IBlsRefundRecordService refundRecordService;
+
+    private final OrderService orderService;
 
     private final UserConvert userConvert = UserConvert.INSTANCE;
 
@@ -153,5 +163,107 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, BlsUser> implements
             }
         }
         return false;
+    }
+
+    /**
+     * 获取当前用户的充值记录列表
+     * @return 充值记录列表
+     */
+    @Override
+    public List<RechargeRecordVO> getRechargeList() {
+        Long userId = LoginHelper.getUserId();
+
+        // 查询用户的充值记录
+        LambdaQueryWrapper<BlsPayRecord> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.eq(BlsPayRecord::getUserId, userId)
+                   .orderByDesc(BlsPayRecord::getCreateTime);
+
+        List<BlsPayRecord> payRecords = payRecordService.list(queryWrapper);
+
+        // 转换为VO对象
+        return payRecords.stream().map(this::convertToRechargeRecordVO).collect(Collectors.toList());
+    }
+
+    /**
+     * 申请退款
+     * @param payRecordId 充值记录ID
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void applyRefund(String payRecordId) {
+        if (StringUtils.isBlank(payRecordId)) {
+            throw BilliardsException.of(ResultCode.PARAM_ERROR, "充值记录ID不能为空");
+        }
+
+        Long userId = LoginHelper.getUserId();
+
+        // 先检查当前用户是否处于开台中
+        List<OrderVO> currentOrder = orderService.getCurrentOrder(userId);
+        if (currentOrder != null && !currentOrder.isEmpty()) {
+            throw BilliardsException.of(ResultCode.ERROR, "当前有未结账订单，无法申请退款");
+        }
+
+        // 查询充值记录
+        BlsPayRecord payRecord = payRecordService.getById(payRecordId);
+        if (payRecord == null) {
+            throw BilliardsException.of(ResultCode.NOT_FOUND, "充值记录不存在");
+        }
+
+        // 验证是否为当前用户的记录
+        if (!payRecord.getUserId().equals(userId)) {
+            throw BilliardsException.of(ResultCode.FORBIDDEN, "无权限操作此记录");
+        }
+
+        // 检查支付状态
+        if (payRecord.getPaymentStatus() != PaymentStatus.PAID.getCode()) {
+            throw BilliardsException.of(ResultCode.ERROR, "只有已支付的充值记录才能申请退款");
+        }
+
+        // 检查是否已有退款记录
+        BlsRefundRecord existingRefund = refundRecordService.queryRecordByPayRecordId(payRecordId);
+        if (existingRefund != null) {
+            throw BilliardsException.of(ResultCode.ERROR, "该充值记录已申请过退款");
+        }
+
+        // 调用退款服务
+        refundRecordService.refund(payRecordId, payRecord, payRecord.getAmount());
+
+        log.info("用户{}申请退款成功，充值记录ID：{}", userId, payRecordId);
+    }
+
+    @Override
+    public UserVO getUserInfo() {
+        BlsUser info = getUserInfoById();
+        // 查询用户余额
+        BlsWalletAccount walletAccount = walletAccountService.getWalletAccountByUserId(info.getId());
+        UserVO userVO = userConvert.toVo(info);
+        if (walletAccount != null) {
+            userVO.setBalance(walletAccount.getBalance());
+        }
+        return userVO;
+    }
+
+    /**
+     * 转换充值记录为VO对象
+     */
+    private RechargeRecordVO convertToRechargeRecordVO(BlsPayRecord payRecord) {
+        RechargeRecordVO vo = new RechargeRecordVO();
+        vo.setId(payRecord.getId());
+        vo.setPayNo(payRecord.getPayNo());
+        vo.setAmount(payRecord.getAmount());
+        vo.setChannel(payRecord.getChannel());
+        vo.setPaymentStatus(payRecord.getPaymentStatus());
+        vo.setTransactionId(payRecord.getTransactionId());
+        vo.setCreateTime(payRecord.getCreateTime());
+        vo.setRemark(payRecord.getRemark());
+
+        // 查询退款记录
+        BlsRefundRecord refundRecord = refundRecordService.queryRecordByPayRecordId(payRecord.getId());
+        if (refundRecord != null) {
+            vo.setRefundStatus(refundRecord.getRefundStatus());
+            vo.setRefundAmount(refundRecord.getAmount());
+        }
+
+        return vo;
     }
 }

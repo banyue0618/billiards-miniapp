@@ -40,7 +40,7 @@ public class PaymentMonitorServiceImpl implements PaymentMonitorService {
             return;
         }
         for (BlsPayRecord record : timeoutList) {
-            record.setPaymentStatus(PaymentStatus.PAY_FAIL.getCode());
+            record.setPaymentStatus(PaymentStatus.PAY_TIME.getCode());
             record.setRemark("支付超时(>" + payTimeoutMinutes + "min)");
             record.setUpdateTime(LocalDateTime.now());
             payRecordService.updateById(record);

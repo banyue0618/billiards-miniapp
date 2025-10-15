@@ -3,6 +3,10 @@ package org.dromara.billiards.service;
 import org.dromara.billiards.domain.bo.UserUpdateDto;
 import org.dromara.billiards.domain.entity.BlsUser;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.dromara.billiards.domain.vo.RechargeRecordVO;
+import org.dromara.billiards.domain.vo.UserVO;
+
+import java.util.List;
 
 /**
  * 用户服务接口
@@ -54,5 +58,23 @@ public interface UserService extends IService<BlsUser> {
      * @return
      */
     boolean scanTableEnableCheck();
+
+    /**
+     * 获取当前用户的充值记录列表
+     * @return 充值记录列表
+     */
+    List<RechargeRecordVO> getRechargeList();
+
+    /**
+     * 申请退款
+     * @param payRecordId 充值记录ID
+     */
+    void applyRefund(String payRecordId);
+
+    /**
+     * 获取用户详细信息，若不存在则抛出异常
+     * @return 用户实体
+     */
+    UserVO getUserInfo();
 
 }

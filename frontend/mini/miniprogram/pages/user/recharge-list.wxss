@@ -1,0 +1,305 @@
+/* 充值记录列表页面样式 */
+.recharge-list-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 30rpx;
+}
+
+.header {
+  background-color: #fff;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #1d1d1f;
+}
+
+.balance-tip {
+  display: flex;
+  align-items: center;
+  background-color: #f0f9ff;
+  padding: 12rpx 20rpx;
+  border-radius: 20rpx;
+  border: 1rpx solid #e0f2fe;
+}
+
+.balance-label {
+  font-size: 24rpx;
+  color: #6e6e73;
+  margin-right: 8rpx;
+}
+
+.balance-amount {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #20bd68;
+}
+
+.recharge-list {
+  padding: 0 30rpx;
+}
+
+.recharge-item {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.store-info {
+  flex: 1;
+}
+
+.store-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #1d1d1f;
+  margin-bottom: 8rpx;
+}
+
+.recharge-time {
+  display: block;
+  font-size: 24rpx;
+  color: #86868b;
+}
+
+.status-wrap {
+  margin-left: 20rpx;
+}
+
+.status {
+  display: inline-block;
+  padding: 8rpx 16rpx;
+  font-size: 24rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+}
+
+.status-0 {
+  background-color: #fff3e0;
+  color: #ff9800;
+}
+
+.status-1 {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-2 {
+  background-color: #e3f2fd;
+  color: #2196f3;
+}
+
+.item-body {
+  margin-bottom: 20rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #6e6e73;
+}
+
+.value {
+  font-size: 28rpx;
+  color: #1d1d1f;
+  max-width: 60%;
+  text-align: right;
+  word-break: break-all;
+}
+
+.value.amount {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.value.transaction {
+  font-size: 24rpx;
+  color: #86868b;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.refund-btn {
+  padding: 12rpx 32rpx;
+  font-size: 28rpx;
+  background-color: #ff6b6b;
+  color: #fff;
+  border: none;
+  border-radius: 40rpx;
+  line-height: 1.5;
+}
+
+/* 金额状态显示 */
+.amount-status {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.status-label {
+  font-size: 24rpx;
+  color: #6e6e73;
+  margin-bottom: 8rpx;
+}
+
+.status-value {
+  font-size: 26rpx;
+  font-weight: 500;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.status-value.success {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-value.refund-status-0 {
+  background-color: #fff3e0;
+  color: #ff9800;
+}
+
+.status-value.refund-status-1 {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-value.refund-status-2 {
+  background-color: #ffebee;
+  color: #f44336;
+}
+
+/* 退款详情 */
+.refund-details {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+  border-left: 4rpx solid #ff6b6b;
+}
+
+.refund-summary {
+  margin-bottom: 16rpx;
+}
+
+.refund-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #1d1d1f;
+}
+
+.refund-amount-row,
+.refund-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.refund-label {
+  font-size: 26rpx;
+  color: #6e6e73;
+}
+
+.refund-amount-value {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.refund-status-value {
+  font-size: 26rpx;
+  font-weight: 500;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+}
+
+.refund-status-value.refund-status-0 {
+  background-color: #fff3e0;
+  color: #ff9800;
+}
+
+.refund-status-value.refund-status-1 {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.refund-status-value.refund-status-2 {
+  background-color: #ffebee;
+  color: #f44336;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #86868b;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 60rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #86868b;
+}
+

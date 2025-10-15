@@ -1,9 +1,9 @@
-package org.dromara.billiards.notify.listener;
+package org.dromara.billiards.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.notify.config.RefundNotifyProperties;
-import org.dromara.billiards.notify.event.RefundFailureEvent;
+import org.dromara.billiards.listener.event.RefundFailureEvent;
 import org.dromara.billiards.notify.model.RefundFailureNotice;
 import org.dromara.billiards.notify.service.RefundFailureNotifier;
 import org.dromara.common.redis.utils.RedisUtils;

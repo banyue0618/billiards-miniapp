@@ -4,7 +4,7 @@ public enum PaymentStatus {
     /**
      * 未支付
      */
-    UNPAID(0, "未支付-待查询"),
+    UNPAID(0, "未支付"),
 
     /**
      * 支付中
