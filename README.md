@@ -228,6 +228,9 @@ docker-compose up -d
 - 新增门店收藏功能
 - 添加页面 ![我的收藏](imgs/img_27.png)
 - 添加页面 ![积分记录](imgs/img_28.png)
+- 添加页面 ![意见反馈](imgs/img_29.png)
+- 添加页面 ![关于我们](imgs/img_30.png)
+- 添加页面 ![联系客服](imgs/img_31.png)
 - 修复部分已知bug
 
 ## 贡献指南
