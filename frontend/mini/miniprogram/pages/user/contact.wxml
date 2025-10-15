@@ -1,0 +1,53 @@
+<!--pages/user/contact.wxml-->
+<view class="contact-page">
+  <view class="content-area">
+    <view class="contact-section">
+      <view class="contact-item" bindtap="handleCall">
+        <view class="contact-item-icon">📞</view>
+        <view class="contact-item-content">
+          <view class="contact-item-label">客服热线</view>
+          <view class="contact-item-value">400-123-4567</view>
+        </view>
+        <view class="contact-item-arrow">›</view>
+      </view>
+
+      <view class="contact-item" bindtap="handleEmail">
+        <view class="contact-item-icon">📧</view>
+        <view class="contact-item-content">
+          <view class="contact-item-label">电子邮箱</view>
+          <view class="contact-item-value">support@billiards.com</view>
+        </view>
+        <view class="contact-item-arrow">›</view>
+      </view>
+
+      <view class="contact-item" bindtap="handleOnlineService">
+        <view class="contact-item-icon">💬</view>
+        <view class="contact-item-content">
+          <view class="contact-item-label">在线客服</view>
+          <view class="contact-item-value">点击开始在线咨询</view>
+        </view>
+        <view class="contact-item-arrow">›</view>
+      </view>
+
+      <view class="contact-item">
+        <view class="contact-item-icon">⏰</view>
+        <view class="contact-item-content">
+          <view class="contact-item-label">服务时间</view>
+          <view class="contact-item-value">周一至周日 9:00 - 22:00</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="wechat-section">
+      <view class="wechat-title">微信客服</view>
+      <view class="wechat-qr-container">
+        <view class="wechat-qr-placeholder">
+          <text class="wechat-qr-icon">📱</text>
+          <text class="wechat-qr-text">扫码添加微信客服</text>
+        </view>
+      </view>
+      <view class="wechat-id">微信号：billiards_service</view>
+    </view>
+  </view>
+</view>
+

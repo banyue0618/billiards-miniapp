@@ -1,0 +1,30 @@
+<!--pages/user/feedback.wxml-->
+<view class="feedback-page">
+  <view class="content-container">
+    <view class="form-group">
+      <text class="form-label">反馈内容</text>
+      <textarea 
+        class="feedback-textarea" 
+        placeholder="请输入您的宝贵意见或建议，我们将努力改进（200字以内）" 
+        maxlength="200"
+        value="{{feedbackContent}}"
+        bindinput="onContentInput"
+      ></textarea>
+      <view class="char-count">{{feedbackContent.length}}/200</view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">联系方式（选填）</text>
+      <input 
+        class="feedback-input" 
+        type="text"
+        placeholder="邮箱或手机号，方便我们与您联系"
+        value="{{contactInfo}}"
+        bindinput="onContactInput"
+      />
+    </view>
+
+    <button class="submit-button" bindtap="handleSubmit">提交反馈</button>
+  </view>
+</view>
+

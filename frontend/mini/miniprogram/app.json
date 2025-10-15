@@ -12,7 +12,10 @@
     "pages/common/protocol/index",
     "pages/prepay/prepay",
     "pages/user/collect",
-    "pages/user/points"
+    "pages/user/points",
+    "pages/user/feedback",
+    "pages/user/about",
+    "pages/user/contact"
   ],
   "window": {
     "navigationBarTextStyle": "white",

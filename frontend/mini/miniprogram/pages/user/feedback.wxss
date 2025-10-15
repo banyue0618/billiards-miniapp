@@ -1,0 +1,90 @@
+/* pages/user/feedback.wxss */
+page {
+  background-color: #f9f9f9;
+}
+
+.feedback-page {
+  min-height: 100vh;
+  background-color: #f9f9f9;
+  padding: 32rpx;
+  padding-bottom: 60rpx;
+  box-sizing: border-box;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #6e6e73;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+  font-weight: 500;
+}
+
+.feedback-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24rpx;
+  font-size: 32rpx;
+  border: 1rpx solid #d2d2d7;
+  border-radius: 16rpx;
+  min-height: 300rpx;
+  background-color: #ffffff;
+  color: #1d1d1f;
+  line-height: 1.5;
+}
+
+.feedback-textarea::placeholder {
+  color: #c7c7cd;
+}
+
+.char-count {
+  text-align: right;
+  font-size: 24rpx;
+  color: #8e8e93;
+  margin-top: 12rpx;
+  padding-right: 8rpx;
+}
+
+.feedback-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24rpx;
+  font-size: 32rpx;
+  border: 1rpx solid #d2d2d7;
+  border-radius: 16rpx;
+  background-color: #ffffff;
+  color: #1d1d1f;
+  height: 88rpx;
+  line-height: 1.5;
+}
+
+.feedback-input::placeholder {
+  color: #c7c7cd;
+}
+
+.submit-button {
+  background-color: #007aff;
+  color: #ffffff;
+  border: none;
+  padding: 26rpx 40rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  margin-top: 40rpx;
+  transition: all 0.3s ease;
+}
+
+.submit-button:active {
+  background-color: #0051d5;
+  transform: scale(0.98);
+}
+

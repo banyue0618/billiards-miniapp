@@ -270,8 +270,8 @@ Page({
 
   // 联系客服
   handleContact() {
-    wx.makePhoneCall({
-      phoneNumber: '400-123-4567' // 客服电话
+    wx.navigateTo({
+      url: '/pages/user/contact'
     })
   }
 }) 

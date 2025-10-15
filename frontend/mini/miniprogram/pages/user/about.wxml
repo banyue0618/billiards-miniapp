@@ -1,0 +1,51 @@
+<!--pages/user/about.wxml-->
+<view class="about-page">
+  <view class="content-area">
+    <view class="about-section">
+      <view class="section-title">关于星月台球自助小程序</view>
+      <view class="section-text">欢迎来到星月台球自助台球厅！我们致力于为广大台球爱好者提供一个舒适、便捷、高品质的自助打球环境。</view>
+      <view class="section-text">我们的理念是"科技赋能，畅享桌球"。通过智能化的自助系统，您可以轻松完成开台、计费、结算等操作，无需等待，即刻开打。</view>
+      
+      <view class="section-title">我们的特色</view>
+      <view class="feature-item">
+        <view class="feature-icon">📱</view>
+        <view class="feature-content">
+          <view class="feature-title">智能便捷</view>
+          <view class="feature-desc">小程序一键扫码开台，实时查看消费情况，在线支付，告别传统繁琐流程。</view>
+        </view>
+      </view>
+
+      <view class="feature-item">
+        <view class="feature-icon">🎱</view>
+        <view class="feature-content">
+          <view class="feature-title">优质设施</view>
+          <view class="feature-desc">我们选用专业级比赛球桌、高品质球杆和台球，确保您拥有最佳的打球体验。</view>
+        </view>
+      </view>
+
+      <view class="feature-item">
+        <view class="feature-icon">🏠</view>
+        <view class="feature-content">
+          <view class="feature-title">舒适环境</view>
+          <view class="feature-desc">明亮整洁的场地，配备空调和舒适的休息区，让您在打球之余也能放松身心。</view>
+        </view>
+      </view>
+
+      <view class="feature-item">
+        <view class="feature-icon">💰</view>
+        <view class="feature-content">
+          <view class="feature-title">灵活消费</view>
+          <view class="feature-desc">多种套餐和计时方式可选，满足不同用户的需求，消费透明，无隐形收费。</view>
+        </view>
+      </view>
+
+      <view class="section-title">我们的愿景</view>
+      <view class="section-text">我们希望通过不懈努力，将台球神探打造成全国领先的自助台球连锁品牌，让更多人爱上台球运动，享受其中的乐趣。</view>
+      
+      <view class="version-info">
+        <text class="version-text">版本 v1.0.0</text>
+      </view>
+    </view>
+  </view>
+</view>
+
