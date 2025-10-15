@@ -68,6 +68,11 @@ Page({
 
     // 检查是否已收藏
     this.checkCollectionStatus(id)
+
+    // 监听收藏状态变化事件
+    if (wx.eventBus) {
+      wx.eventBus.on('collectChanged', this.onCollectChanged.bind(this), `store-detail-${id}`)
+    }
   },
 
   onShow() {
@@ -83,6 +88,11 @@ Page({
   onUnload() {
     // 停止定时刷新
     // this.stopRefreshTimer()
+    
+    // 移除事件监听
+    if (wx.eventBus) {
+      wx.eventBus.off('collectChanged', `store-detail-${this.data.id}`)
+    }
   },
 
   onPullDownRefresh() {
@@ -267,6 +277,20 @@ Page({
     }
   },
 
+  // 处理收藏状态变化事件
+  onCollectChanged(event: any) {
+    // 事件总线直接传递数据，不需要event.detail
+    const { storeId, isCollected, clearAll } = event
+    
+    if (clearAll) {
+      // 清空所有收藏
+      this.setData({ isCollected: false })
+    } else if (storeId === this.data.id) {
+      // 当前门店的收藏状态变化
+      this.setData({ isCollected })
+    }
+  },
+
   // 启动定时刷新
   startRefreshTimer() {
     // 先清除可能存在的定时器
@@ -350,6 +374,8 @@ Page({
     try {
       // 从本地存储获取收藏列表
       let collectedStores = wx.getStorageSync('collectedStores') || []
+      console.log(`[StoreDetail] 收藏操作前: ${id} - 当前状态: ${isCollected ? '已收藏' : '未收藏'}`);
+      console.log(`[StoreDetail] 当前收藏列表:`, collectedStores);
       
       if (isCollected) {
         // 取消收藏
@@ -363,11 +389,20 @@ Page({
         showSuccess('收藏成功')
       }
       
+      console.log(`[StoreDetail] 收藏操作后:`, collectedStores);
       // 更新本地存储
       wx.setStorageSync('collectedStores', collectedStores)
       
       // 更新状态
       this.setData({ isCollected: !isCollected })
+      
+      // 发布事件通知其他页面更新收藏状态
+      if (wx.eventBus) {
+        wx.eventBus.emit('collectChanged', { 
+          storeId: id, 
+          isCollected: !isCollected 
+        })
+      }
     } catch (error) {
       console.error('收藏操作失败', error)
       showError('操作失败，请重试')

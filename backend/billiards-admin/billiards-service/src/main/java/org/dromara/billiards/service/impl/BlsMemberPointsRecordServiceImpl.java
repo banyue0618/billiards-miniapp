@@ -76,7 +76,7 @@ public class BlsMemberPointsRecordServiceImpl extends ServiceImpl<BlsMemberPoint
         lqw.orderByAsc(BlsMemberPointsRecord::getId);
         lqw.eq(bo.getUserId() != null, BlsMemberPointsRecord::getUserId, bo.getUserId());
         lqw.eq(bo.getPoints() != null, BlsMemberPointsRecord::getPoints, bo.getPoints());
-        lqw.eq(bo.getType() != null, BlsMemberPointsRecord::getType, bo.getType());
+        lqw.eq(bo.getType() != null && bo.getType() > 0, BlsMemberPointsRecord::getType, bo.getType());
         lqw.eq(bo.getScene() != null, BlsMemberPointsRecord::getScene, bo.getScene());
         lqw.eq(StringUtils.isNotBlank(bo.getRuleId()), BlsMemberPointsRecord::getRuleId, bo.getRuleId());
         lqw.eq(StringUtils.isNotBlank(bo.getBusinessId()), BlsMemberPointsRecord::getBusinessId, bo.getBusinessId());

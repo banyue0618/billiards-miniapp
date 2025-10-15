@@ -1,0 +1,362 @@
+/* pages/user/points.wxss */
+.points-page-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f2f2f7;
+  padding-bottom: 40rpx;
+  box-sizing: border-box;
+}
+
+/* 页面头部 - 积分概览 */
+.page-header {
+  padding: 24rpx 32rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.points-overview {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 32rpx 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+}
+
+.current-points-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 24rpx;
+  border-bottom: 2rpx solid #f0f0f5;
+  margin-bottom: 24rpx;
+}
+
+.points-label {
+  font-size: 28rpx;
+  color: #8e8e93;
+  margin-bottom: 16rpx;
+  font-weight: 400;
+}
+
+.points-value {
+  font-size: 72rpx;
+  font-weight: 700;
+  color: #667eea;
+  letter-spacing: -1rpx;
+}
+
+.statistics-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 26rpx;
+  color: #8e8e93;
+  margin-bottom: 12rpx;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: 600;
+  letter-spacing: -0.5rpx;
+}
+
+.stat-value.earned {
+  color: #34c759;
+}
+
+.stat-value.consumed {
+  color: #ff3b30;
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 48rpx;
+  background-color: #e5e5ea;
+}
+
+/* Tab切换 */
+.tabs-container {
+  background-color: #ffffff;
+  padding: 0 32rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.tab-item {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 0;
+  cursor: pointer;
+}
+
+.tab-text {
+  font-size: 30rpx;
+  color: #8e8e93;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.tab-item.active .tab-text {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48rpx;
+  height: 6rpx;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 3rpx;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 48rpx;
+    opacity: 1;
+  }
+}
+
+/* 积分记录列表 */
+.records-container {
+  padding: 0 32rpx;
+}
+
+.record-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.record-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 1rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+
+.record-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.record-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+
+.record-icon.earned {
+  background: linear-gradient(135deg, #34c759 0%, #30d158 100%);
+}
+
+.record-icon.consumed {
+  background: linear-gradient(135deg, #ff3b30 0%, #ff453a 100%);
+}
+
+.icon-text {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.record-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.record-desc {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #1d1d1f;
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-time {
+  font-size: 24rpx;
+  color: #8e8e93;
+  margin-bottom: 4rpx;
+}
+
+.record-expire {
+  font-size: 22rpx;
+  color: #ff9500;
+  background-color: #fff3e0;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 8rpx;
+}
+
+.record-right {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.record-points {
+  font-size: 36rpx;
+  font-weight: 700;
+  letter-spacing: -0.5rpx;
+}
+
+.record-points.earned {
+  color: #34c759;
+}
+
+.record-points.consumed {
+  color: #ff3b30;
+}
+
+/* 已过期水印 */
+.expired-watermark {
+  position: absolute;
+  top: 50%;
+  right: 24rpx;
+  transform: translateY(-50%);
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(142, 142, 147, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.expired-text {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: rgba(142, 142, 147, 0.5);
+  transform: rotate(-15deg);
+  letter-spacing: 2rpx;
+}
+
+/* 加载更多提示 */
+.load-more {
+  padding: 32rpx 0;
+  text-align: center;
+}
+
+.load-more-text {
+  font-size: 26rpx;
+  color: #8e8e93;
+}
+
+/* 没有更多数据 */
+.no-more {
+  padding: 32rpx 0;
+  text-align: center;
+}
+
+.no-more-text {
+  font-size: 26rpx;
+  color: #c7c7cc;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 40rpx;
+  text-align: center;
+  background-color: transparent;
+  min-height: calc(100vh - 400rpx);
+}
+
+.empty-image {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 32rpx;
+  opacity: 0.6;
+}
+
+.empty-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 16rpx;
+  letter-spacing: -0.3rpx;
+}
+
+.empty-subtitle {
+  font-size: 28rpx;
+  color: #8e8e93;
+  line-height: 1.4;
+  max-width: 400rpx;
+}
+
+/* 加载状态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 40rpx;
+  background-color: transparent;
+  min-height: calc(100vh - 400rpx);
+}
+
+.loading-animation {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(102, 126, 234, 0.2);
+  border-top-color: #667eea;
+  animation: spin 1s linear infinite;
+  margin-bottom: 24rpx;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #8e8e93;
+  font-weight: 400;
+}

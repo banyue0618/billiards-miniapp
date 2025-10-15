@@ -84,5 +84,11 @@ public class BlsMemberPointsRecordVo implements Serializable {
     @ExcelProperty(value = "过期时间")
     private LocalDateTime expireTime;
 
+    /**
+     * 创建时间
+     */
+    @ExcelProperty(value = "创建时间")
+    private LocalDateTime createTime;
+
 
 }

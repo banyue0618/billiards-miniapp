@@ -93,12 +93,29 @@ var formatDurationBySeconds = function(seconds) {
   return parts.join('');
 }
 
+// 将距离格式化为友好显示
+var formatDistance = function(distance) {
+  if (distance < 1000) {
+    return Math.round(distance) + 'm'
+  } else {
+    return (distance / 1000).toFixed(1) + 'km'
+  }
+}
+
+// 格式化日期时间为友好显示（年-月-日 时:分）
+var formatDateTime = function(dateStr) {
+  if (!dateStr) return '';
+  return formatDate(dateStr, 'yyyy-MM-dd hh:mm');
+}
+
 module.exports = {
   formatPrice: formatPrice,
   formatTierPrice: formatTierPrice,
   formatTierMinutes: formatTierMinutes,
   formatTableAvailability: formatTableAvailability,
   formatDate: formatDate,
+  formatDateTime: formatDateTime,
   formatDuration: formatDuration,
   formatDurationBySeconds: formatDurationBySeconds,
+  formatDistance: formatDistance,
 }; 

@@ -282,6 +282,35 @@ class ApiService {
   applyRefund(payRecordId: string) {
     return http.post('/api/miniapp/user/refund/apply', { payRecordId })
   }
+
+  /**
+   * 获取积分记录列表
+   * @param params 查询参数
+   */
+  getPointsRecordList(params?: {
+    type?: number; // 1-获取 2-消耗
+    pageNum?: number;
+    pageSize?: number;
+  }) {
+    return http.get<{
+      total: number;
+      rows: PointsRecord[];
+    }>('/api/miniapp/points/records', params)
+  }
+}
+
+// 积分记录
+export interface PointsRecord {
+  id: string;
+  userId: number;
+  points: number; // 积分数量
+  type: number; // 1-获取 2-消耗
+  scene: number; // 场景
+  ruleId?: string;
+  businessId?: string; // 关联业务ID
+  description: string; // 积分描述
+  expireTime?: string; // 过期时间
+  createTime?: string; // 创建时间
 }
 
 // 导出API服务实例

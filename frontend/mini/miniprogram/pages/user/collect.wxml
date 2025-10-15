@@ -1,0 +1,34 @@
+<!--pages/user/collect.wxml-->
+<wxs module="formatter" src="../../utils/format.wxs"></wxs>
+<view class="collect-page-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-banner">
+      <view class="header-content">
+        <text class="collect-count">共收藏 {{collectedStores.length}} 个门店</text>
+      </view>
+        <view class="header-actions" wx:if="{{collectedStores.length > 0}}">
+          <view class="clear-all-btn" bindtap="showClearConfirm">清空收藏</view>
+        </view>
+    </view>
+  </view>
+
+  <!-- 收藏门店列表 -->
+  <view class="store-list-container" wx:if="{{collectedStores.length > 0}}">
+    <store-card wx:for="{{collectedStores}}" wx:key="id" store="{{item}}" bind:collectTap="onStoreCardCollectTap"></store-card>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{collectedStores.length === 0 && !loading}}">
+    <image class="empty-image" src="/images/default/want-empty.svg" mode="aspectFit"></image>
+    <text class="empty-title">还没有收藏的门店</text>
+    <text class="empty-subtitle">去发现一些喜欢的台球厅吧</text>
+    <button class="explore-btn" bindtap="navigateToIndex">去逛逛</button>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-animation"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>

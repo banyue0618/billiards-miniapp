@@ -160,8 +160,8 @@
       <!-- 会员提示 -->
       <view class="member-promo-section" wx:if="{{!userInfo || !userInfo.isMember}}" bindtap="handleBuyMember">
         <view class="member-promo-content">
-          <text class="member-promo-text">开通会员享优惠价格</text>
-          <text class="member-promo-action">立即开通 ></text>
+          <text class="member-promo-text">消费任意金额一次即可成为会员</text>
+          <!-- <text class="member-promo-action">立即开通 ></text> -->
         </view>
       </view>
     </view>

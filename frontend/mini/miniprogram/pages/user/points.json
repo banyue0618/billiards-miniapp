@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "积分明细",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "backgroundColor": "#f2f2f7",
+  "usingComponents": {}
+}

@@ -9,7 +9,13 @@
   <!-- 内容区域 -->
   <view class="content-section">
     <view class="name-status-row">
-      <text class="store-name-text">{{store.name}}</text>
+      <view class="name-collect-wrapper">
+        <text class="store-name-text">{{store.name}}</text>
+        <!-- 收藏按钮 -->
+        <view class="collect-btn {{isCollected ? 'collected' : ''}}" catchtap="onCollectTap">
+          <text class="iconfont icon-collect collect-icon"></text>
+        </view>
+      </view>
       <text class="status-badge {{statusClass}}">{{statusText}}</text>
     </view>
 

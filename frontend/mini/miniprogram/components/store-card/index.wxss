@@ -27,6 +27,40 @@
   position: relative;
 }
 
+/* 收藏按钮 */
+.collect-btn {
+  width: 48rpx;
+  height: 48rpx;
+  background-color: transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.collect-btn:active {
+  transform: scale(0.9);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.collect-icon {
+  font-size: 28rpx;
+  color: #6e6e73;
+  transition: all 0.2s ease;
+}
+
+.collect-btn.collected {
+  background-color: rgba(255, 71, 87, 0.1);
+  border: 1rpx solid rgba(255, 71, 87, 0.3);
+}
+
+.collect-btn.collected .collect-icon {
+  color: #ff4757;
+  transform: scale(1.1);
+}
+
 .store-image {
   width: 100%;
   height: 100%;
@@ -45,11 +79,24 @@
   margin-bottom: 12rpx; /* 减少底部间距 */
 }
 
+.name-collect-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  max-width: calc(100% - 120rpx); /* 给状态标签留出空间 */
+}
+
 .store-name-text {
   font-size: 30rpx; /* 减小字号 */
   font-weight: 600; /* 减轻字重 */
   color: #1d1d1f; /* 使用HTML中的颜色 */
   letter-spacing: 0.2px; /* 减少字符间距 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 12rpx;
+  max-width: 400rpx; /* 限制最大宽度，给收藏按钮留出空间 */
 }
 
 .status-badge {

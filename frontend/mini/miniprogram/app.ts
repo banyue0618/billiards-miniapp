@@ -74,6 +74,57 @@ wxWithEvents.offAppEvent = (eventName: string, componentId?: string): void => {
   }
 };
 
+// 创建简单的事件总线对象
+const eventBus = {
+  emit: (eventName: string, data?: any) => {
+    console.log(`[事件总线] 触发事件: ${eventName}`, data);
+    const listeners = eventListeners[eventName];
+    if (listeners && listeners.size > 0) {
+      listeners.forEach((listener) => {
+        try {
+          listener.callback(data);
+        } catch (error) {
+          console.error(`[事件总线] 事件处理出错: ${eventName}`, error);
+        }
+      });
+    }
+  },
+  
+  on: (eventName: string, callback: Function, componentId?: string) => {
+    console.log(`[事件总线] 添加事件监听: ${eventName}, 组件ID: ${componentId}`);
+    if (!eventListeners[eventName]) {
+      eventListeners[eventName] = new Map();
+    }
+    
+    if (componentId) {
+      eventListeners[eventName].delete(componentId);
+    } else {
+      componentId = `anonymous-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    eventListeners[eventName].set(componentId, { callback, componentId });
+  },
+  
+  off: (eventName: string, componentId?: string) => {
+    console.log(`[事件总线] 移除事件监听: ${eventName}, 组件ID: ${componentId}`);
+    const listeners = eventListeners[eventName];
+    if (listeners) {
+      if (componentId) {
+        listeners.delete(componentId);
+        if (listeners.size === 0) {
+          delete eventListeners[eventName];
+        }
+      } else {
+        listeners.clear();
+        delete eventListeners[eventName];
+      }
+    }
+  }
+};
+
+// 将事件总线添加到wx对象
+(wx as any).eventBus = eventBus;
+
 // 扩展 IAppOption 类型 (或者在 app.d.ts 中定义)
 export interface IAppOptionExtended extends IAppOption {
   // 将自定义的状态直接放在 App 实例上

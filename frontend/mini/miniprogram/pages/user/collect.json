@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "我的收藏",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f5f5",
+  "usingComponents": {
+    "store-card": "/components/store-card/index"
+  }
+}
