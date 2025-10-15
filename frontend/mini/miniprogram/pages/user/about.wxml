@@ -40,7 +40,7 @@
       </view>
 
       <view class="section-title">我们的愿景</view>
-      <view class="section-text">我们希望通过不懈努力，将台球神探打造成全国领先的自助台球连锁品牌，让更多人爱上台球运动，享受其中的乐趣。</view>
+      <view class="section-text">我们希望通过不懈努力，让更多人爱上台球运动，享受其中的乐趣。</view>
       
       <view class="version-info">
         <text class="version-text">版本 v1.0.0</text>
