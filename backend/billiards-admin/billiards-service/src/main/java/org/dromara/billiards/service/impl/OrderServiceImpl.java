@@ -347,6 +347,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
     }
 
     @Override
+    @Transactional
     public void detectOrders() {
         List<BlsOrder> blsOrders = listOngoingOrders();
         // 计算使用费用，如果消费金额达到一定额度，则发出提醒，告知用户余额不足，如果余额为0，直接结束当前订单
