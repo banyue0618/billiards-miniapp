@@ -341,7 +341,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
     @Override
     public List<BlsOrder> listOngoingOrders() {
         // 查询所有进行中的订单
-        return this.list(new LambdaQueryWrapper<BlsOrder>()
+        return list(new LambdaQueryWrapper<BlsOrder>()
                 .eq(BlsOrder::getStatus, 0) // 0 for in progress
                 .orderByDesc(BlsOrder::getCreateTime));
     }
