@@ -236,11 +236,11 @@ volumes:
   redis-logs:
     name: ${PROJECT_NAME}-redis-log
   vol-emqx-data:
-    name: foo-emqx-data
+    name: ${PROJECT_NAME}-foo-emqx-data
   vol-emqx-etc:
-      name: foo-emqx-etc
+    name: ${PROJECT_NAME}-foo-emqx-etc
   vol-emqx-log:
-      name: foo-emqx-log
+    name: ${PROJECT_NAME}-foo-emqx-log
 
 # =========================================
 # 使用说明
