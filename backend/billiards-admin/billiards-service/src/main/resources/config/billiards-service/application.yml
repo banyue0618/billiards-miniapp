@@ -18,8 +18,8 @@ logging:
 billiards:
   # 微信相关
   wechat:
-    appid: wx5d6ae0d41f988359
-    secret: 2e52121e95bb5e7aee77081b3aeb0dc2
+    appid: XXXXX
+    secret: XXXXXX
   # 支付相关
   payment:
     timeout-minutes: 30
@@ -68,18 +68,18 @@ sse:
 
 wx:
   pay:
-    appId: wx5d6ae0d41f988359 #微信公众号或者小程序等的appid (V3商户模式需要)
-    mchId: 1727610102 #微信支付商户号 (V3商户模式需要)
-    mchKey: 1727610102 #微信支付商户密钥 (默认就是你的商户号)
+    appId: XXXXXXXXXXX #微信公众号或者小程序等的appid (V3商户模式需要)
+    mchId: XXXXX #微信支付商户号 (V3商户模式需要)
+    mchKey: XXXXX #微信支付商户密钥 (默认就是你的商户号)
     subAppId: XXXXX #服务商模式下的子商户公众账号ID
     subMchId: XXXXX #服务商模式下的子商户号
-    keyPath: F:\Downloads\WXCertUtil\cert\1727610102_20251011_cert\apiclient_cert.p12 # p12证书的位置，可以指定绝对路径，也可以指定类路径（以classpath:开头）
-    apiV3Key: 1A438E46149E2FE349F3AC808CFECEEE557F6F92 # apiV3 秘钥值 (V3商户模式需要)
-    certSerialNo: 1A438E46149E2FE349F3AC808CFECEEE557F6F92 # apiV3 证书序列号值 (V3商户模式需要)
-    privateCertPath: F:\Downloads\WXCertUtil\cert\1727610102_20251011_cert\apiclient_cert.pem # apiclient_cert.pem证书文件的绝对路径或者以classpath:开头的类路径. (V3商户模式需要)
-    privateKeyPath: F:\Downloads\WXCertUtil\cert\1727610102_20251011_cert\apiclient_key.pem # apiclient_key.pem证书文件的绝对路径或者以classpath:开头的类路径. (V3商户模式需要)
+    keyPath: F:\Downloads\WXCertUtil\cert\XXXXXX\apiclient_cert.p12 # p12证书的位置，可以指定绝对路径，也可以指定类路径（以classpath:开头）
+    apiV3Key: XXXXXX # apiV3 秘钥值 (V3商户模式需要)
+    certSerialNo: XXXXX # apiV3 证书序列号值 (V3商户模式需要)
+    privateCertPath: F:\Downloads\WXCertUtil\cert\XXXX\apiclient_cert.pem # apiclient_cert.pem证书文件的绝对路径或者以classpath:开头的类路径. (V3商户模式需要)
+    privateKeyPath: F:\Downloads\WXCertUtil\cert\XXXXX\apiclient_key.pem # apiclient_key.pem证书文件的绝对路径或者以classpath:开头的类路径. (V3商户模式需要)
     publicKeyPath: F:\Downloads\WXCertUtil\cert\pub_key.pem # 微信支付公钥，pub_key.pem证书文件的绝对路径或者以classpath:开头的类路径. (V3商户模式需要)
-    publicKeyId: PUB_KEY_ID_0117276101022025101100211995002201 # 微信支付公钥ID (V3商户模式需要)
+    publicKeyId: XXXXX # 微信支付公钥ID (V3商户模式需要)
 
 
 
