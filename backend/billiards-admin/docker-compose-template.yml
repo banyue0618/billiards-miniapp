@@ -105,7 +105,7 @@ services:
       - --character-set-server=utf8mb4       # 字符集设置
       - --collation-server=utf8mb4_unicode_ci # 排序规则
       - --lower_case_table_names=1           # 表名不区分大小写
-      - --max_connections=200                # 最大连接数
+      - --max_connections=20                 # 最大连接数
       - --innodb-buffer-pool-size=256M       # InnoDB缓冲池大小
       - --query-cache-size=32M               # 查询缓存大小
       - --slow-query-log=1                   # 开启慢查询日志
@@ -195,7 +195,29 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
+  emqx:
+    image: emqx/emqx:latest
+    container_name: ${PROJECT_NAME}-emqx
+    restart: always
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+      - "8084:8084"
+      - "18083:18083"
+    environment:
+      - EMQX_NAME=foo_emqx
+      - EMQX_HOST=node1.emqx.io
+      - EMQX_NODE__COOKIE=somecookievalue
+      - vol-emqx-data:/opt/emqx/data
+      - vol-emqx-etc:/opt/emqx/etc
+      - vol-emqx-log:/opt/emqx/log
+    networks:
+      - billiards-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:18083/api/v4/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 # =========================================
 # 网络配置
 # =========================================
@@ -213,6 +235,12 @@ volumes:
     name: ${PROJECT_NAME}-redis-data
   redis-logs:
     name: ${PROJECT_NAME}-redis-log
+  vol-emqx-data:
+    name: foo-emqx-data
+  vol-emqx-etc:
+      name: foo-emqx-etc
+  vol-emqx-log:
+      name: foo-emqx-log
 
 # =========================================
 # 使用说明

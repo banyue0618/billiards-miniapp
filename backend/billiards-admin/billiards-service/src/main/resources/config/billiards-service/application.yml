@@ -53,9 +53,17 @@ billiards:
       sse:
         enabled: true
         message-template: "退款失败: 订单:${orderNo}, 金额:${amount}"
+  iot:
+    mqtt:
+      broker: tcp://emqx:1883
+      username:
+      password:
+      consumer-client-id: billiards-heartbeat-consumer
+      producer-client-id: billiards-table-controller
+      heartbeat-topic-pattern: billiards/+/+/status
 
 sse:
-  enabled: true
+  enabled: false
 
 
 wx:

@@ -445,6 +445,7 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, BlsTable> impleme
         queryWrapper.eq(BlsTable::getStatus, 0); // 只考虑空闲桌台
         queryWrapper.last("ORDER BY RAND() LIMIT 1"); // 随机排序并限制返回1条
         BlsTable blsTable = this.getOne(queryWrapper);
-        return blsTable.getId();
+        return "97daeab8ec5b3c26d92277f63a634abf";
+//        return blsTable.getId();
     }
 }

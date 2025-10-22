@@ -65,5 +65,18 @@
             <artifactId>javase</artifactId>
             <version>3.5.2</version>
         </dependency>
+
+        <!-- Spring Retry for command retry/backoff -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
+        <!-- MQTT client (Paho) for MQTT executor -->
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>1.2.5</version>
+        </dependency>
     </dependencies>
 </project>

@@ -10,6 +10,7 @@ import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.common.utils.OrderNumberGenerator;
 import org.dromara.billiards.convert.OrderConvert;
 import org.dromara.billiards.domain.bo.OrderUpdateDto;
+import org.dromara.billiards.iot.service.IoTOrchestrationService;
 import org.dromara.billiards.listener.event.OrderCompletedEvent;
 import org.dromara.billiards.domain.bo.BlsEventOutboxBo;
 import org.dromara.billiards.common.constant.AggregateTypeEnum;
@@ -68,6 +69,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
     private final IBlsEventOutboxService eventOutboxService;
     private final ObjectMapper objectMapper;
     private final OrderConvert orderConvert = OrderConvert.INSTANCE;
+
+    private final IoTOrchestrationService ioTOrchestrationService;
 
     @Override
     public IPage<BlsOrder> pageAdminOrders(OrderQueryRequest request) {
@@ -194,6 +197,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
         if(!blsTableUsageService.saveTableUsage(blsOrder)){
             throw BilliardsException.of(ResultCode.ERROR);
         }
+
+        // 触发物联网开台场景
+        ioTOrchestrationService.openTable(blsTable.getId(), blsOrder.getId());
 
         return blsOrder;
     }
@@ -522,6 +528,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
             BlsPayRecord lastPay = payRecordService.getLastPayRecord(blsOrder.getUserId());
             eventPublisher.publishEvent(new RefundRequestedEvent(this, blsOrder, refundAmount, lastPay.getId()));
         }
+
+        // 关灯
+        ioTOrchestrationService.closeTable(blsOrder.getTableId(), blsOrder.getId());
 
         return blsOrder;
     }

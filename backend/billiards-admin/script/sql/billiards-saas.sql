@@ -613,7 +613,7 @@ VALUES
 
 -- 台球管理一级菜单
 insert into billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-values (2000, '台球管理', 0, 5, 'example', null, 1, 0, 'M', '0', '0', null, 'billiards', 1, now(), '台球管理目录');
+values (2000, '台球管理', 0, 5, 'billiards', null, 1, 0, 'M', '0', '0', null, 'example', 1, now(), '台球管理目录');
 
 -- 门店管理
 insert into billiards_admin.sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
