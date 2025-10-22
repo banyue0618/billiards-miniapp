@@ -233,6 +233,9 @@ docker-compose up -d
 - 添加【联系客服】页面 ![联系客服](imgs/img_31.png)
 - 修复部分已知bug
 
+## 20251022更新
+- 新增iot物联网模块，支持用户开台之后控制硬件设备的开关
+
 ## 贡献指南
 1. Fork 本仓库
 2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
