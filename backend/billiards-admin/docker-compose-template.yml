@@ -222,7 +222,7 @@ services:
     networks:
       - billiards-network
     healthcheck:
-      test: [ CMD", "/opt/emqx/bin/emqx", "ctl", "status" ]
+      test: [ "CMD", "/opt/emqx/bin/emqx", "ctl", "status" ]
       interval: 5s
       timeout: 25s
       retries: 5
