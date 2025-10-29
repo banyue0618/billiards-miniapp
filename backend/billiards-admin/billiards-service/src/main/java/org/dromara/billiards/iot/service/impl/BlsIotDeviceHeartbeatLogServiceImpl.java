@@ -1,6 +1,8 @@
 package org.dromara.billiards.iot.service.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.dromara.billiards.common.constant.BilliardsConstants;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.iot.domain.BlsIotDevice;
 import org.dromara.billiards.iot.service.IBlsIotDeviceService;
@@ -31,6 +33,7 @@ import java.util.Collection;
  */
 @RequiredArgsConstructor
 @Service
+@DS(BilliardsConstants.DS_BILLIARDS_PLATFORM)
 public class BlsIotDeviceHeartbeatLogServiceImpl extends ServiceImpl<BlsIotDeviceHeartbeatLogMapper, BlsIotDeviceHeartbeatLog> implements IBlsIotDeviceHeartbeatLogService {
 
     private final IBlsIotDeviceService iotDeviceService;
