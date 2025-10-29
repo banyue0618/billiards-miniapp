@@ -47,7 +47,7 @@ services:
       - RESOURCE_STORAGE_LOCAL_BASE_URL=${UPLOAD_PREFIX}  # 文件访问URL前缀
 
       # JVM调优参数
-      - JAVA_OPTS=-Xms512m -Xmx512m -XX:+UseG1GC
+      - JAVA_OPTS=-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxMetaspaceSize=128m -XX:MaxDirectMemorySize=64m -Xss512k
 
       # 其他自定义配置
       - SSE_ENABLED=false
