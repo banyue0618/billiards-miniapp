@@ -28,8 +28,8 @@ export PROJECT_NAME="billiards-saas"
 export PROJECT_DIR="${PROJECT_ROOT_DIR}/${PROJECT_NAME}"
 export DOMAIN_NAME="localhost"
 
-export BILLIARDS_WECHAT_APPID=xxxxxxx
-export BILLIARDS_WECHAT_SECRET=xxxxxxxxxxx
+export BILLIARDS_WECHAT_APPID=wx5d6ae0d41f988359
+export BILLIARDS_WECHAT_SECRET=2e52121e95bb5e7aee77081b3aeb0dc2
 
 # 打印函数
 print_info() {
@@ -541,7 +541,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY ruoyi-admin/target/billiards-admin.jar /app/app.jar
 
 # 设置环境变量
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
 ENV SERVER_PORT=8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
@@ -647,6 +647,22 @@ detect_nginx(){
         else
             print_info "创建Nginx容器..."
             docker-compose -f $COMPOSE_FILE up -d nginx
+        fi
+    fi
+}
+
+detect_mqtt(){
+    print_info "开始检查MQTT容器..."
+    if [[ "$DEPLOY_MODE" = "2" ]]; then
+        if docker ps -a --filter "name=${PROJECT_NAME}-emqx" --format "{{.Names}}" | grep -q "${PROJECT_NAME}-emqx"; then
+            print_info "emqx容器已存在"
+            if ! docker ps --filter "name=${PROJECT_NAME}-emqx" --format "{{.Names}}" | grep -q "${PROJECT_NAME}-emqx"; then
+                print_info "启动现有emqx容器..."
+                docker start ${PROJECT_NAME}-emqx
+            fi
+        else
+            print_info "创建emqx容器..."
+            docker-compose -f $COMPOSE_FILE up -d emqx
         fi
     fi
 }
@@ -893,6 +909,17 @@ wait_for_mysql_initialization() {
     return 0
 }
 
+wait_for_emqx_healthy() {
+  local name="${PROJECT_NAME}-emqx" timeout=60
+  while (( timeout-- > 0 )); do
+    st=$(docker inspect -f '{{.State.Health.Status}}' "$name" 2>/dev/null || echo "unknown")
+    [ "$st" = "healthy" ] && return 0
+    sleep 2
+  done
+  echo "EMQX not healthy in time"; docker logs "$name" --tail 200
+  return 1
+}
+
 # 部署应用服务
 deploy_application() {
     print_step "部署应用服务..."
@@ -922,6 +949,8 @@ deploy_application() {
         # 生成docker配置文件
         generate_docker_config
     fi
+
+    detect_mqtt
 
     # 启动应用服务（使用已构建的镜像）
     docker-compose -f $COMPOSE_FILE up -d billiards-admin
