@@ -203,9 +203,11 @@ services:
       - "1883:1883"
       - "8083:8083"
       - "8084:8084"
+      - "8883:8883"
       - "18083:18083"
     environment:
       - EMQX_NAME=foo_emqx
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=singleton
       - EMQX_HOST=node1.emqx.io
       - EMQX_NODE__COOKIE=somecookievalue
       - vol-emqx-data:/opt/emqx/data
@@ -214,10 +216,10 @@ services:
     networks:
       - billiards-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:18083/api/v4/status" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: [ CMD", "/opt/emqx/bin/emqx", "ctl", "status" ]
+      interval: 5s
+      timeout: 25s
+      retries: 5
 # =========================================
 # 网络配置
 # =========================================
