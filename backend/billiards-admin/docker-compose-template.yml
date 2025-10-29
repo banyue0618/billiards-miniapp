@@ -213,6 +213,12 @@ services:
       - vol-emqx-data:/opt/emqx/data
       - vol-emqx-etc:/opt/emqx/etc
       - vol-emqx-log:/opt/emqx/log
+      - ./emqx-config/emqx.conf:/opt/emqx/etc/emqx.conf
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 300M
     networks:
       - billiards-network
     healthcheck:
