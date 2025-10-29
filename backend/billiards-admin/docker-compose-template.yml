@@ -102,17 +102,7 @@ services:
 
     # MySQL启动参数配置
     command:
-      - --character-set-server=utf8mb4       # 字符集设置
-      - --collation-server=utf8mb4_unicode_ci # 排序规则
-      - --lower_case_table_names=1           # 表名不区分大小写
-      - --max_connections=20                 # 最大连接数
-      - --innodb-buffer-pool-size=256M       # InnoDB缓冲池大小
-      - --query-cache-size=32M               # 查询缓存大小
-      - --slow-query-log=1                   # 开启慢查询日志
-      - --slow-query-log-file=/var/lib/mysql/slow.log  # 慢查询日志文件
-      - --long_query_time=2                  # 慢查询时间阈值（秒）
       - --default-authentication-plugin=mysql_native_password  # 认证插件
-      - --bind-address=0.0.0.0               # 允许所有IP连接
 
     # 数据卷挂载
     volumes:
