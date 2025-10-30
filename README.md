@@ -237,6 +237,9 @@ docker-compose up -d
 - 新增iot物联网模块，支持用户开台之后控制硬件设备的开关
 - iot模块文档地址：[iot物联网模块说明](docs/自助台球厅通用设备控制模型设计说明.md)
 - ESP32烧录脚本：[烧录脚本](backend/billiards-admin/esp32_script.c)
+- 说明：烧录脚本暂不完整，经过优化做了一个完整的版本，后续开源.本烧录采用的是(VSCODE + ESP-IDF)插件的方式进行烧录,![VSCODE](imgs/img_35.png)
+- 设备心跳记录,监控设备是否在线 ![心跳记录](imgs/img_34.png)
+
 
 ## 贡献指南
 1. Fork 本仓库
