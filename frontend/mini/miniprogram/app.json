@@ -15,7 +15,8 @@
     "pages/user/points",
     "pages/user/feedback",
     "pages/user/about",
-    "pages/user/contact"
+    "pages/user/contact",
+    "pages/reservation/reservation"
   ],
   "window": {
     "navigationBarTextStyle": "white",
