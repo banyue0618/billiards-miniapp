@@ -541,7 +541,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY ruoyi-admin/target/billiards-admin.jar /app/app.jar
 
 # 设置环境变量
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"
 ENV SERVER_PORT=8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
@@ -915,13 +915,11 @@ deploy_application() {
     print_info "Docker构建应用容器..."
     build_with_maven_cache
 
-    if [[ ! -f "$COMPOSE_FILE" ]]; then
-        # 准备环境变量（包括Redis和MySQL密码）
-        prepare_environment_variables
+    # 准备环境变量（包括Redis和MySQL密码）
+    prepare_environment_variables
 
-        # 生成docker配置文件
-        generate_docker_config
-    fi
+    # 生成docker配置文件
+    generate_docker_config
 
     # 启动应用服务（使用已构建的镜像）
     docker-compose -f $COMPOSE_FILE up -d billiards-admin
