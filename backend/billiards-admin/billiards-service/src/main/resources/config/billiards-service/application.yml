@@ -19,7 +19,7 @@ billiards:
   # 微信相关
   wechat:
     appid: wx5d6ae0d41f988359
-    secret: 2e52121e95bb5e7aee77081b3aeb0dc2
+    secret: XXXXXXXXXXXXXXX
   # 支付相关
   payment:
     timeout-minutes: 30
@@ -36,6 +36,7 @@ billiards:
     pay-timeout-interval-minutes: 10
     pay-reconcile-interval-minutes: 3
     refund-failed-scan-interval-minutes: 30
+    reservation-expire-interval-minutes: 5
   notify:
     refund-fail:
       enabled: true
