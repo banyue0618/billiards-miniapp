@@ -57,7 +57,7 @@ Page({
   updateTabBarSelected() {
     if (typeof this.getTabBar === 'function') {
       this.getTabBar().setData({
-        selected: 1 // 扫码页面索引为 1
+        selected: 2 // 扫码页面索引为 2
       });
     }
   },

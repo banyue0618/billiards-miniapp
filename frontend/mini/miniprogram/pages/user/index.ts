@@ -65,7 +65,7 @@ Page({
   updateTabBarSelected() {
     if (typeof this.getTabBar === 'function') {
       this.getTabBar().setData({
-        selected: 2 // 用户页面索引为 2
+        selected: 3 // 用户页面索引为 2
       });
     }
   },

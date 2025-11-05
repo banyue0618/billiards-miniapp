@@ -773,6 +773,9 @@ Page({
    */
   onShow() {
     console.log('预约页面 onShow')
+    // 更新自定义 tabBar 的选中状态
+    this.updateTabBarSelected();
+    
     // 如果页面数据为空，重新加载
     if (this.data.tables.length === 0 && this.data.storeId) {
       console.log('页面数据为空，重新加载数据')
@@ -781,6 +784,15 @@ Page({
     
     // 检查登录状态并刷新当前预约记录
     this.checkLoginAndLoadReservation()
+  },
+
+  // 更新 tabBar 选中状态
+  updateTabBarSelected() {
+    if (typeof this.getTabBar === 'function') {
+      this.getTabBar().setData({
+        selected: 1 // 预约页面索引为 1
+      });
+    }
   },
 
   /**

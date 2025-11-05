@@ -94,6 +94,10 @@
   content: "\e62b";
 }
 
+.icon-yuyuejilu:before {
+  content: "\e66c";
+}
+
 .icon-feedback:before {
   content: "\e615";
 }
@@ -137,6 +141,10 @@
 
 .icon-points:before {
   color: #ffcc00; /* 黄色 */
+}
+
+.icon-yuyuejilu:before {
+  color: #13227a; /* 深蓝色 */
 }
 
 .icon-feedback:before {
