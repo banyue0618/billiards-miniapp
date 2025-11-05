@@ -18,8 +18,8 @@ logging:
 billiards:
   # 微信相关
   wechat:
-    appid: XXXXX
-    secret: XXXXXX
+    appid: wx5d6ae0d41f988359
+    secret: 2e52121e95bb5e7aee77081b3aeb0dc2
   # 支付相关
   payment:
     timeout-minutes: 30
@@ -61,6 +61,11 @@ billiards:
       consumer-client-id: billiards-heartbeat-consumer
       producer-client-id: billiards-table-controller
       heartbeat-topic-pattern: billiards/+/+/status
+  # 预约功能配置已迁移到数据库 sys_config 表
+  # 配置键名格式：reservation.xxx (例如：reservation.min_duration_minutes)
+  # 每个租户可以有独立的配置值，配置会自动缓存
+  # 使用 ReservationConfigService.getConfig() 获取当前租户的配置
+  # 配置更新后调用 ReservationConfigService.refreshConfig() 刷新缓存
 
 sse:
   enabled: false
@@ -68,7 +73,7 @@ sse:
 
 wx:
   pay:
-    appId: XXXXXXXXXXX #微信公众号或者小程序等的appid (V3商户模式需要)
+    appId: wx5d6ae0d41f988359 #微信公众号或者小程序等的appid (V3商户模式需要)
     mchId: XXXXX #微信支付商户号 (V3商户模式需要)
     mchKey: XXXXX #微信支付商户密钥 (默认就是你的商户号)
     subAppId: XXXXX #服务商模式下的子商户公众账号ID

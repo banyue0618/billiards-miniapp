@@ -84,4 +84,14 @@ public interface ISysConfigService {
      */
     boolean checkConfigKeyUnique(SysConfigBo config);
 
+
+    /**
+     * 查询参数配置列表
+     *
+     * @param tenantId 租户id
+     * @param configPrefix 参数配置前缀
+     * @return 参数配置集合
+     */
+    List<SysConfigVo> selectConfigListByKeyLike(String tenantId, String configPrefix);
+
 }

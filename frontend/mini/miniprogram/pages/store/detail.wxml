@@ -18,6 +18,24 @@
     </swiper>
   </view>
 
+  <!-- 预约入口卡片 - 醒目位置，用户进入页面即可看到 -->
+  <view class="reservation-entry-card" bindtap="handleReservation">
+    <view class="reservation-entry-content">
+      <view class="reservation-entry-left">
+        <view class="reservation-entry-icon-wrapper">
+          <text class="iconfont icon-calendar menu-icon"></text>
+        </view>
+        <view class="reservation-entry-text">
+          <text class="reservation-entry-title">立即预约</text>
+          <text class="reservation-entry-desc">提前预约，到店即可开台</text>
+        </view>
+      </view>
+      <view class="reservation-entry-arrow">
+        <text class="iconfont icon-arrow-right menu-icon"></text>
+      </view>
+    </view>
+  </view>
+
   <!-- 基本信息卡片(融合了球桌状态和操作按钮) -->
   <view class="info-card main-info-card">
     <!-- 门店名称和状态 -->

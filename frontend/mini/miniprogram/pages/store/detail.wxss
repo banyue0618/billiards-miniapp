@@ -41,6 +41,91 @@
   opacity: 0.5;
 }
 
+/* 预约入口卡片 - 简洁现代风格 */
+.reservation-entry-card {
+  margin: 0 24rpx 20rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  border: 2rpx solid #07C160;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.reservation-entry-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.reservation-entry-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 20rpx;
+  position: relative;
+}
+
+.reservation-entry-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.reservation-entry-icon-wrapper {
+  width: 72rpx;
+  height: 72rpx;
+  background: linear-gradient(135deg, #07C160 0%, #05a454 100%);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.2);
+}
+
+.reservation-entry-icon-wrapper .menu-icon {
+  font-size: 36rpx;
+  color: #ffffff;
+}
+
+.reservation-entry-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.reservation-entry-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1d1d1f;
+  line-height: 1.4;
+  margin-bottom: 6rpx;
+}
+
+.reservation-entry-desc {
+  font-size: 24rpx;
+  color: #6e6e73;
+  line-height: 1.4;
+}
+
+.reservation-entry-arrow {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.reservation-entry-arrow .menu-icon {
+  font-size: 28rpx;
+  color: #8e8e93;
+}
+
 /* 信息卡片通用样式 */
 .info-card {
   background-color: #ffffff;

@@ -20,11 +20,22 @@ Page({
     enableGuestLogin: true,
     hasMore: false, // 是否有更多数据
     checkingLocation: false, // 是否正在检查位置授权状态
+    // 公告与首页预约入口控制
+    announcements: [] as string[],
+    showAnnouncement: true,
+    showHomeReserveCta: false,
   },
 
   onLoad() {
     // onLoad 时，app.ts 的 onLaunch 可能仍在执行
-    this.setData({enableGuestLogin: app.enableGuestLogin });
+    this.setData({
+      enableGuestLogin: app.enableGuestLogin,
+      // 默认公告文案，可后续由后端/配置下发
+      announcements: [
+        '点击门店卡片进入详情，预约入口在门店详情页',
+        '欢迎使用自助台球厅小程序，祝您打台球愉快',
+      ],
+    });
   },
 
   onShow() {
@@ -235,5 +246,20 @@ Page({
       keyword: ''
     });
     this.onPullDownRefresh(); // 清空关键词后刷新列表
-  }
+  },
+
+  // 预约入口 - 跳转到预约页面
+  goReserve() {
+    // 直接跳转到预约页面，由目标页处理登录/鉴权与门店选择
+    wx.navigateTo({ url: '/pages/reservation/reservation' });
+  },
+
+  // 公告点击
+  onAnnouncementTap(e: WechatMiniprogram.TouchEvent) {
+    const index = (e.currentTarget?.dataset as any)?.index ?? 0;
+    const text = this.data.announcements?.[index] || '';
+    if (text) {
+      wx.showToast({ title: text, icon: 'none' });
+    }
+  },
 }) 

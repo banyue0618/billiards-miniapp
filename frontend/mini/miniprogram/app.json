@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/reservation/reservation",
     "pages/store/detail",
     "pages/scan/index",
     "pages/timer/index",
@@ -16,7 +17,7 @@
     "pages/user/feedback",
     "pages/user/about",
     "pages/user/contact",
-    "pages/reservation/reservation"
+    "pages/user/reserve-list"
   ],
   "window": {
     "navigationBarTextStyle": "white",
@@ -43,6 +44,10 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页"
+      },
+      {
+        "pagePath": "pages/reservation/reservation",
+        "text": "预约"
       },
       {
         "pagePath": "pages/scan/index",

@@ -118,8 +118,11 @@ security:
     - /warm-flow-ui/token-name
     - /*.html
     - /api/miniapp/stores/nearby
+    - /api/miniapp/stores/nearest
     - /api/miniapp/user/auth/login
     - /api/miniapp/stores/detail
+    - /api/miniapp/tables/reservation/list
+    - /api/miniapp/common/error-codes
     - /system/tenantApply
 
 # 多租户配置

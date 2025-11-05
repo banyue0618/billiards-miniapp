@@ -140,7 +140,27 @@ public enum ResultCode implements IResultCode {
 
     INVALID_CHANNEL(4031, "非法渠道"),
 
-    INVALID_TIME_RANGE(5031, "非法时间区间"), ORDER_NOT_REFUNDING(2012, "订单未处于可退款状态"), REFUND_ABNORMAL(2013, "订单退款异常，请前往微信商户平台处理");
+    INVALID_TIME_RANGE(5031, "非法时间区间"), ORDER_NOT_REFUNDING(2012, "订单未处于可退款状态"), REFUND_ABNORMAL(2013, "订单退款异常，请前往微信商户平台处理"),
+
+    /**
+     * 预约时间段冲突
+     */
+    RESERVATION_TIME_CONFLICT(3002, "预约时间段冲突，该时间段已被预约"),
+
+    /**
+     * 预约时间接近，不允许开台
+     */
+    RESERVATION_TOO_CLOSE(3003, "该桌台有即将开始的预约，暂不允许开台"),
+
+    /**
+     * 预约不存在
+     */
+    RESERVATION_NOT_EXIST(3004, "预约不存在"),
+
+    /**
+     * 存在预约，只能玩到预约开始时间
+     */
+    RESERVATION_EXISTS_LIMIT(3005, "该桌台已有预约，您只能使用到预约开始时间"), USER_HAS_PENDING_RESERVATION(3006, "您已有未完成的预约，无法再次预约");
 
     /**
      * 状态码

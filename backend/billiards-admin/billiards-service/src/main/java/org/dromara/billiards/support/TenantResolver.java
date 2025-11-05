@@ -1,4 +1,4 @@
-package org.dromara.billiards.config;
+package org.dromara.billiards.support;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;

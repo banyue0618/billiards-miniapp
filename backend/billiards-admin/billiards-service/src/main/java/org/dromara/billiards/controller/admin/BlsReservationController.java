@@ -1,4 +1,4 @@
-package org.dromara.billiards.controller;
+package org.dromara.billiards.controller.admin;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
  */
 @Validated
 @RequiredArgsConstructor
-@RestController
+@RestController("adminReservationController")
 @RequestMapping("/billiards/reservation")
 public class BlsReservationController extends BaseController {
 
@@ -101,12 +101,5 @@ public class BlsReservationController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
         return toAjax(blsReservationService.deleteWithValidByIds(List.of(ids), true));
-    }
-
-    @Log(title = "用户预约", businessType = BusinessType.INSERT)
-    @RepeatSubmit()
-    @PostMapping("/reserve")
-    public R<BlsReservationVo> reserve(@Validated(AddGroup.class) @RequestBody BlsReservationBo bo) {
-        return R.ok(blsReservationService.reserve(bo));
     }
 }

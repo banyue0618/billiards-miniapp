@@ -124,6 +124,70 @@ export interface UserInfo {
   balance?: number;
 }
 
+// 预约相关类型定义
+export interface TimeSlot {
+  startTime: string;
+  endTime: string;
+  status: 'available' | 'blocked';
+  label: string;
+}
+
+export interface TableTag {
+  type: 'disinfection' | 'holiday' | 'discount' | 'maintenance' | 'other';
+  text: string;
+}
+
+export interface ReservationTable {
+  id: string;
+  name: string;
+  statusText: string;
+  description?: string;
+  image?: string;
+  tags?: TableTag[];
+  slots: TimeSlot[];
+}
+
+// 预约参数
+export interface ReservationParams {
+  tableId: string;
+  startTime: string; // yyyy-MM-dd HH:mm:ss
+  endTime: string; // yyyy-MM-dd HH:mm:ss
+}
+
+// 当前预约记录
+export interface CurrentReservation {
+  reservationNo?: string;
+  startTime: string; // yyyy-MM-dd HH:mm:ss 或 ISO 8601 格式
+  endTime: string; // yyyy-MM-dd HH:mm:ss 或 ISO 8601 格式
+  status: number; // 0=预约中,1=已到店,2=已完成,3=已取消,4=已过期
+  payStatus?: number; // 0=未支付,1=已支付,2=已退款
+  payAmount?: number;
+  payTime?: string;
+  remark?: string;
+  storeId: string;
+  tableId: string;
+  storeName: string;
+  tableNumber: string;
+  formattedTime?: string; // 格式化后的时间段显示文本
+}
+
+// 预约记录（列表项）
+export interface ReservationItem {
+  id?: number;
+  reservationNo: string;
+  startTime: string; // yyyy-MM-dd HH:mm:ss 或 ISO 8601 格式
+  endTime: string; // yyyy-MM-dd HH:mm:ss 或 ISO 8601 格式
+  status: number; // 0=预约中,1=已到店,2=已完成,3=已取消,4=已过期
+  payStatus?: number; // 0=未支付,1=已支付,2=已退款
+  payAmount?: number;
+  payTime?: string;
+  remark?: string;
+  storeId: string;
+  tableId: string;
+  storeName: string;
+  tableNumber: string;
+}
+
 /**
  * API服务类
  */
@@ -160,6 +224,14 @@ class ApiService {
    */
   getStoreDetail(request: StoreDetailParam) {
     return http.post<StoreDetail>(`/api/miniapp/stores/detail`, request)
+  }
+
+  /**
+   * 获取最近的门店
+   * @param request 包含经纬度的请求参数
+   */
+  getNearestStore(request: StoreDetailParam) {
+    return http.post<StoreDetail>(`/api/miniapp/stores/nearest`, request)
   }
 
   /**
@@ -296,6 +368,70 @@ class ApiService {
       total: number;
       rows: PointsRecord[];
     }>('/api/miniapp/points/records', params)
+  }
+
+  /**
+   * 获取预约桌台列表
+   * @param storeId 门店ID
+   * @param date 日期（格式：yyyy-MM-dd，可选，默认为今天）
+   */
+  getReservationTables(storeId: string, date?: string) {
+    return http.get<ReservationTable[]>('/api/miniapp/tables/reservation/list', {
+      storeId,
+      ...(date ? { date } : {})
+    })
+  }
+
+  /**
+   * 预约桌台
+   * @param params 预约参数
+   */
+  createReservation(params: ReservationParams) {
+    return http.post('/api/miniapp/reservation/reserve', params)
+  }
+
+  /**
+   * 获取当前进行中的预约记录
+   */
+  getCurrentReservation() {
+    return http.get<CurrentReservation | null>('/api/miniapp/reservation/current')
+  }
+
+  /**
+   * 获取预约记录列表
+   * @param params 查询参数（分页和筛选条件）
+   */
+  getReservationList(params?: {
+    pageNum?: number;
+    pageSize?: number;
+    status?: number; // 预约状态筛选
+  }) {
+    return http.get<{
+      records: ReservationItem[];
+      total: number;
+      size: number;
+      current: number;
+      pages: number;
+    }>('/api/miniapp/reservation/list', params)
+  }
+
+  /**
+   * 取消预约
+   * @param id 预约ID
+   */
+  cancelReservation(id: number) {
+    return http.post(`/api/miniapp/reservation/${id}/cancel`)
+  }
+
+  /**
+   * 获取错误码映射
+   * 用于初始化时加载所有错误码和错误消息的映射关系
+   */
+  getErrorCodes() {
+    return http.get<Record<number, string>>('/api/miniapp/common/error-codes', undefined, {
+      showLoading: false,
+      showError: false
+    })
   }
 }
 

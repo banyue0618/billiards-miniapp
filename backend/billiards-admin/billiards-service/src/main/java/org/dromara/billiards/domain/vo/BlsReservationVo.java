@@ -1,5 +1,6 @@
 package org.dromara.billiards.domain.vo;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
@@ -41,13 +42,13 @@ public class BlsReservationVo implements Serializable {
      * 预约开始时间
      */
     @ExcelProperty(value = "预约开始时间")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 预约结束时间
      */
     @ExcelProperty(value = "预约结束时间")
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
      * 状态：0=预约中,1=已到店,2=已完成,3=已取消,4=已过期
@@ -79,6 +80,28 @@ public class BlsReservationVo implements Serializable {
     @ExcelProperty(value = "备注", converter = ExcelDictConvert.class)
     @ExcelDictFormat(readConverterExp = "如=包厢号、特殊说明")
     private String remark;
+
+
+    /**
+     * 门店ID
+     */
+    private String storeId;
+
+    /**
+     * 台球桌ID
+     */
+    private String tableId;
+
+
+    /**
+     * 门店名称
+     */
+    private String storeName;
+
+    /**
+     * 台球桌编号
+     */
+    private String tableNumber;
 
 
 }

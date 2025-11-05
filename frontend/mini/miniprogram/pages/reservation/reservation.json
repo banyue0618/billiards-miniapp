@@ -1,3 +1,6 @@
 {
-  "usingComponents": {}
+  "navigationBarTitleText": "预约",
+  "usingComponents": {
+    "login-modal": "/components/login-modal/index"
+  }
 }

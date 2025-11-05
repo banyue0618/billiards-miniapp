@@ -106,4 +106,12 @@ public interface StoreService extends IService<BlsStore> {
      * @return 可用门店分页实体列表
      */
     IPage<BlsStore> pageAvailableStores(StoreQueryRequest request);
+
+    /**
+     * (小程序) 获取最近的门店
+     * @param latitude 纬度
+     * @param longitude 经度
+     * @return 最近的门店信息，如果没有找到则返回 null
+     */
+    NearbyStoreVO getNearestStore(BigDecimal latitude, BigDecimal longitude);
 }

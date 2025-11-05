@@ -1,6 +1,7 @@
 package org.dromara.billiards.service.impl;
 
 import org.dromara.billiards.common.constant.BilliardsConstants;
+import org.dromara.billiards.common.constant.TableStatusEnum;
 import org.dromara.billiards.domain.entity.BlsPriceRule;
 import org.dromara.billiards.domain.entity.BlsStore;
 import org.dromara.billiards.domain.entity.BlsTable;
@@ -362,7 +363,7 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, BlsStore> impleme
             tablesInfoVO.setAvailable(availableTables);
         } else {
             List<BlsTable> blsTables = tableMapper.selectList(new LambdaQueryWrapper<BlsTable>().eq(BlsTable::getStoreId, blsStore.getId()));
-            Long availableCnt = blsTables.stream().filter(table -> table.getStatus() != null && table.getStatus() == 0).count();
+            Long availableCnt = blsTables.stream().filter(table -> table.getStatus() != null && table.getStatus() == TableStatusEnum.FREE.getCode()).count();
             tablesInfoVO.setTotal(blsTables.size());
             tablesInfoVO.setAvailable(availableCnt.intValue());
         }
@@ -458,6 +459,23 @@ public class StoreServiceImpl extends ServiceImpl<StoreMapper, BlsStore> impleme
         queryWrapper.orderByDesc(BlsStore::getCreateTime);
 
         return this.page(pageParam, queryWrapper);
+    }
+
+    @Override
+    public NearbyStoreVO getNearestStore(BigDecimal latitude, BigDecimal longitude) {
+        if (latitude == null || longitude == null) {
+            return null;
+        }
+
+        // 使用一个较大的搜索半径（50公里）来查找最近的门店
+        List<NearbyStoreVO> nearbyStores = getNearbyStores(latitude, longitude, 50);
+        
+        // 返回距离最近的门店（列表已经按距离排序）
+        if (nearbyStores.isEmpty()) {
+            return null;
+        }
+        
+        return nearbyStores.get(0);
     }
 }
 

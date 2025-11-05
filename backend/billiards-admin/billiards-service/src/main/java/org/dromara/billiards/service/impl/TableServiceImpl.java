@@ -2,6 +2,7 @@ package org.dromara.billiards.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import org.dromara.billiards.common.constant.BilliardsConstants;
+import org.dromara.billiards.common.constant.TableStatusEnum;
 import org.dromara.billiards.convert.PriceRuleConvert;
 import org.dromara.billiards.convert.TableConvert;
 import org.dromara.billiards.domain.entity.BlsTable;
@@ -14,6 +15,7 @@ import org.dromara.billiards.domain.vo.TableVO;
 import org.dromara.billiards.service.PriceRuleService;
 import org.dromara.billiards.service.TableService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -47,7 +49,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.dromara.billiards.domain.vo.ReservationTableVO;
+import org.dromara.billiards.domain.vo.TableTagVO;
+import org.dromara.billiards.domain.vo.TimeSlotVO;
+import org.dromara.billiards.service.IBlsReservationService;
+import org.dromara.billiards.service.ReservationConfigService;
+import org.dromara.billiards.domain.entity.BlsReservation;
+import org.dromara.billiards.common.constant.ReservationStatusEnum;
+import org.dromara.billiards.config.BlsReserveConfig;
+import org.dromara.common.core.utils.DateUtils;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * 桌台服务实现类
@@ -67,6 +84,8 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, BlsTable> impleme
     private final PriceRuleService priceRuleService;
 
     private final QrCodeTokenService qrCodeTokenService;
+    private final IBlsReservationService reservationService;
+    private final ReservationConfigService reservationConfigService;
 
     /**
      * 重写 getById 方法，以便在未找到对象时抛出标准异常
@@ -281,7 +300,7 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, BlsTable> impleme
             blsTable.setTableNumber(combinedNumber); // 保持向后兼容
             blsTable.setTableType(request.getTableType());
             blsTable.setPriceRuleId(request.getPriceRuleId());
-            blsTable.setStatus(0);  // 默认状态为空闲
+            blsTable.setStatus(TableStatusEnum.FREE.getCode());  // 默认状态为空闲
 
             tablesToCreate.add(blsTable);
         }
@@ -362,7 +381,7 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, BlsTable> impleme
         // 获取桌台信息、价格信息
         BlsTable blsTable = this.getById(id);
         if (blsTable == null) {
-            throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST, "桌台不存在");
+            throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST);
         }
         TableVO tableVO = tableConvert.toVo(blsTable);// 转换桌台为VO
 
@@ -401,18 +420,25 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, BlsTable> impleme
         // 获取桌台信息
         BlsTable blsTable = this.getById(tableId);
         if (blsTable == null) {
-            throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST, "桌台不存在");
+            throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST);
         }
         // 检查当前状态是否为锁定状态
-        if (blsTable.getStatus() != 1) { // 假设1表示锁定状态
-            log.warn("桌台 {} 当前状态为 {}, 无需解锁", tableId, blsTable.getStatus());
+        if (blsTable.getStatus() != TableStatusEnum.IN_USE.getCode()) { // 假设1表示锁定状态
+            log.warn("桌台 {} 当前状态为 {}, 无需解锁", tableId, TableStatusEnum.fromCode(blsTable.getStatus()).getDescription());
             return true; // 如果不是锁定状态，直接返回成功
         }
         // 更新状态为0（空闲）
-        blsTable.setStatus(0);
+        blsTable.setStatus(TableStatusEnum.FREE.getCode());
         return this.updateById(blsTable); // 返回更新结果
     }
 
+    /**
+     * 锁定桌台（使用乐观锁确保原子性）
+     * 注意：此方法应在分布式锁保护下调用，确保同一桌台的操作串行化
+     *
+     * @param tableId 桌台ID
+     * @return 锁定后的桌台信息
+     */
     @Override
     public BlsTable lockTable(String tableId) {
         if (StringUtils.isEmpty(tableId)) {
@@ -424,27 +450,172 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, BlsTable> impleme
             throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST);
         }
         // 检查当前状态是否为空闲状态
-        if (blsTable.getStatus() != 0) { // 假设0表示空闲状态
-            log.warn("桌台 {} 当前状态为 {}, 无法锁定", tableId, blsTable.getStatus());
-            return blsTable; // 如果不是空闲状态，直接返回当前桌台信息
-        }
-        // 更新状态为1（锁定）
-        blsTable.setStatus(1);
-        boolean success = this.updateById(blsTable); // 更新桌台状态
-        if (!success) {
+        if (blsTable.getStatus() != TableStatusEnum.FREE.getCode()) { // 假设0表示空闲状态
+            log.warn("桌台 {} 当前状态为 {}, 无法锁定", tableId, TableStatusEnum.fromCode(blsTable.getStatus()).getDescription());
             throw BilliardsException.of(ResultCode.TABLE_OCCUPIED);
         }
+        // 使用条件更新 + 乐观锁：只更新状态为FREE的记录，并检查版本号
+        // 这样可以确保原子性：如果状态已被修改，更新不会成功
+        LambdaUpdateWrapper<BlsTable> updateWrapper = Wrappers.lambdaUpdate();
+        updateWrapper.eq(BlsTable::getId, tableId)
+                     .eq(BlsTable::getStatus, TableStatusEnum.FREE.getCode()) // 只更新状态为FREE的记录
+                     .set(BlsTable::getStatus, TableStatusEnum.LOCKED.getCode());
+        boolean success = this.update(updateWrapper);
 
-        return blsTable; // 返回更新后的桌台信息
+        if (!success) {
+            // 更新失败，可能是状态已被修改或版本号冲突，重新查询最新状态
+            BlsTable latestTable = this.getById(tableId);
+            if (latestTable == null) {
+                throw BilliardsException.of(ResultCode.TABLE_NOT_EXIST);
+            }
+            // 如果状态已经改变，说明桌台已被占用
+            if (latestTable.getStatus() != TableStatusEnum.FREE.getCode()) {
+                log.warn("桌台 {} 状态已被修改为 {}, 无法锁定", tableId, TableStatusEnum.fromCode(latestTable.getStatus()).getDescription());
+                throw BilliardsException.of(ResultCode.TABLE_OCCUPIED);
+            }
+            // 如果状态仍然是FREE但更新失败，可能是版本号冲突，抛出异常
+            throw BilliardsException.of(ResultCode.TABLE_OCCUPIED, "桌台状态更新失败，请重试");
+        }
+
+        // 更新成功后，重新查询最新状态（包含版本号）
+        BlsTable updatedTable = this.getById(tableId);
+        return updatedTable != null ? updatedTable : blsTable;
     }
 
     @Override
     public String randomTableId() {
         // 随机返回一个空闲桌台
         LambdaQueryWrapper<BlsTable> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.eq(BlsTable::getStatus, 0); // 只考虑空闲桌台
+        queryWrapper.eq(BlsTable::getStatus, TableStatusEnum.FREE.getCode()); // 只考虑空闲桌台
         queryWrapper.last("ORDER BY RAND() LIMIT 1"); // 随机排序并限制返回1条
         BlsTable blsTable = this.getOne(queryWrapper);
         return blsTable.getId();
     }
+
+    @Override
+    public List<ReservationTableVO> getReservationTables(String storeId, String date) {
+        if (StringUtils.isEmpty(storeId)) {
+            throw BilliardsException.of(ResultCode.PARAM_ERROR, "门店ID不能为空");
+        }
+        if (StringUtils.isEmpty(date)) {
+            date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+
+        // 解析日期
+        LocalDate targetDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDateTime dayStart = targetDate.atStartOfDay();
+        LocalDateTime dayEnd = targetDate.atTime(23, 59, 59);
+
+        // 获取预约配置
+        BlsReserveConfig config = reservationConfigService.getConfig();
+        String openingHours = config.getOpeningHours(); // 格式：10:00-23:00
+
+        // 查询门店下的所有桌台
+        List<BlsTable> tables = getTablesByStore(storeId);
+
+        // 查询该日期所有桌台的预约记录
+        List<BlsReservation> reservations = reservationService.list(
+            Wrappers.lambdaQuery(BlsReservation.class)
+                .eq(BlsReservation::getStoreId, storeId)
+                .eq(BlsReservation::getStatus, ReservationStatusEnum.PENDING.getCode())
+                .ge(BlsReservation::getStartTime, DateUtils.toDate(dayStart))
+                .le(BlsReservation::getStartTime, DateUtils.toDate(dayEnd))
+        );
+
+        // 按桌台ID分组预约记录
+        Map<String, List<BlsReservation>> reservationsByTable = reservations.stream()
+            .collect(Collectors.groupingBy(BlsReservation::getTableId));
+
+        // 转换桌台列表
+        return tables.stream().map(table -> {
+            ReservationTableVO vo = new ReservationTableVO();
+            vo.setId(table.getId());
+            vo.setName("桌台 " + table.getTableNumber());
+
+            // 设置状态文本
+            if (table.getStatus() == TableStatusEnum.FREE.getCode()) {
+                vo.setStatusText("可预约");
+            } else{
+                vo.setStatusText(TableStatusEnum.fromCode(table.getStatus()).getDescription() + "(不可用)");
+            }
+
+            vo.setDescription(table.getDescription());
+            vo.setImage(table.getImage());
+
+            // 设置 mock tags（暂时返回两个）
+            List<TableTagVO> tags = new ArrayList<>();
+            tags.add(new TableTagVO());
+            tags.get(0).setType("disinfection");
+            tags.get(0).setText("时间段消毒");
+            tags.add(new TableTagVO());
+            tags.get(1).setType("holiday");
+            tags.get(1).setText("节假日优惠");
+            vo.setTags(tags);
+
+            // 生成时间段
+            List<BlsReservation> tableReservations = reservationsByTable.getOrDefault(table.getId(), Collections.emptyList());
+            vo.setSlots(generateTimeSlots(dayStart, openingHours, tableReservations));
+
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 生成时间段列表
+     * @param dayStart 一天的开始时间
+     * @param openingHours 营业时间（格式：10:00-23:00）
+     * @param reservations 该桌台在该天的预约记录
+     * @return 时间段列表
+     */
+    private List<TimeSlotVO> generateTimeSlots(LocalDateTime dayStart, String openingHours, List<BlsReservation> reservations) {
+        List<TimeSlotVO> slots = new ArrayList<>();
+
+        // 解析营业时间
+        int startHour = 10;
+        int endHour = 23;
+        if (StringUtils.isNotBlank(openingHours) && openingHours.contains("-")) {
+            String[] parts = openingHours.split("-");
+            if (parts.length == 2) {
+                try {
+                    startHour = Integer.parseInt(parts[0].split(":")[0]);
+                    endHour = Integer.parseInt(parts[1].split(":")[0]);
+                } catch (Exception e) {
+                    log.warn("解析营业时间失败: {}", openingHours);
+                }
+            }
+        }
+
+        // 生成24小时的时间段
+        for (int hour = 0; hour < 24; hour++) {
+            TimeSlotVO slot = new TimeSlotVO();
+            slot.setStartTime(String.format("%02d:00", hour));
+            slot.setEndTime(String.format("%02d:00", hour + 1));
+            slot.setLabel("");
+
+            // 判断时间段是否在营业时间内
+            if (hour < startHour || hour >= endHour) {
+                slot.setStatus("blocked");
+            } else {
+                // 检查是否有预约占用该时间段
+                boolean isReserved = false;
+                LocalDateTime slotStart = dayStart.plusHours(hour);
+                LocalDateTime slotEnd = dayStart.plusHours(hour + 1);
+
+                for (BlsReservation reservation : reservations) {
+                    // 检查时间段是否与预约重叠
+                    if (!(slotEnd.isBefore(reservation.getStartTime()) || slotStart.isAfter(reservation.getEndTime()))) {
+                        isReserved = true;
+                        break;
+                    }
+                }
+
+                slot.setStatus(isReserved ? "blocked" : "available");
+            }
+
+            slots.add(slot);
+        }
+
+        return slots;
+    }
+
 }

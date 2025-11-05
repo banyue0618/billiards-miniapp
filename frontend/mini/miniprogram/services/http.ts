@@ -12,6 +12,9 @@ const BASE_URL = 'http://127.0.0.1:8080'
 // 请求队列
 const requestQueue: Set<string> = new Set()
 
+// 错误码映射表（从后端加载）
+let errorCodeMap: Record<number, string> = {}
+
 // 请求配置接口
 interface RequestConfig extends Omit<WechatMiniprogram.RequestOption, 'url'> {
   url: string;
@@ -31,6 +34,25 @@ interface ApiResponse<T = any> {
  * HTTP请求工具类
  */
 class Http {
+  /**
+   * 初始化错误码映射
+   * 在应用启动时调用，从后端加载所有错误码映射
+   */
+  async initErrorCodes(): Promise<void> {
+    try {
+      // 直接使用http请求，避免循环依赖
+      const errorCodes = await this.get<Record<number, string>>('/api/miniapp/common/error-codes', undefined, {
+        showLoading: false,
+        showError: false
+      })
+      errorCodeMap = errorCodes || {}
+      console.log('[HTTP] 错误码映射加载成功', Object.keys(errorCodeMap).length, '个错误码')
+    } catch (error) {
+      console.error('[HTTP] 错误码映射加载失败', error)
+      // 加载失败不影响应用运行，使用默认的错误消息
+    }
+  }
+
   /**
    * 发送请求
    * @param config 请求配置
@@ -180,16 +202,30 @@ class Http {
   private handleBusinessError(response: ApiResponse, config: RequestConfig): void {
     if (!config.showError) return
     
-    // 显示业务错误
-    showError(response.message || '请求失败')
+    // 优先使用响应中的错误消息，如果没有则从映射表中查找
+    let errorMessage = response.message
     
-    // 特殊错误码处理
+    if (!errorMessage && errorCodeMap[response.code]) {
+      errorMessage = errorCodeMap[response.code]
+    }
+    
+    // 如果还是没有，使用默认消息
+    if (!errorMessage) {
+      errorMessage = '请求失败'
+    }
+    
+    // 显示业务错误
+    showError(errorMessage)
+    
+    // 特殊错误码处理（需要特殊逻辑的错误码）
     switch (response.code) {
+      case 401:
       case 1001:
-        // 登录凭证无效
+        // 登录凭证无效或未授权
         this.handleUnauthorized()
         break
-      // 其他业务错误码处理...
+      // 其他需要特殊处理的错误码可以在这里添加
+      // 但错误消息已经通过映射表获取，这里只需要处理特殊逻辑
     }
   }
 

@@ -7,6 +7,7 @@ import org.dromara.billiards.domain.entity.BlsTable;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.dromara.billiards.domain.vo.TableVO;
+import org.dromara.billiards.domain.vo.ReservationTableVO;
 
 import java.util.List;
 
@@ -124,4 +125,12 @@ public interface TableService extends IService<BlsTable> {
      * @return
      */
     String randomTableId();
+
+    /**
+     * 获取预约桌台列表
+     * @param storeId 门店ID
+     * @param date 日期（格式：yyyy-MM-dd）
+     * @return 预约桌台列表
+     */
+    List<ReservationTableVO> getReservationTables(String storeId, String date);
 }

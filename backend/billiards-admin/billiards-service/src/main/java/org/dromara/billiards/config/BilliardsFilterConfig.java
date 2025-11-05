@@ -1,8 +1,8 @@
 package org.dromara.billiards.config;
 
-import org.dromara.billiards.framework.filter.LogFilter;
-import org.dromara.billiards.framework.filter.RequestBodyLogFilter;
-import org.dromara.billiards.framework.filter.ResponseBodyLogFilter;
+import org.dromara.billiards.filter.LogFilter;
+import org.dromara.billiards.filter.RequestBodyLogFilter;
+import org.dromara.billiards.filter.ResponseBodyLogFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

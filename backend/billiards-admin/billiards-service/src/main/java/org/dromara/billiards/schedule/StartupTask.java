@@ -1,9 +1,10 @@
-package org.dromara.billiards.config;
+package org.dromara.billiards.schedule;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.billiards.service.OrderService;
 import org.dromara.billiards.service.PaymentMonitorService;
+import org.dromara.billiards.service.IBlsReservationService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,9 @@ public class StartupTask implements CommandLineRunner {
     @Resource
     private PaymentMonitorService paymentMonitorService;
 
+    @Resource
+    private IBlsReservationService reservationService;
+
     @Value("${billiards.schedule.pay-timeout-interval-minutes:30}")
     private long payTimeoutIntervalMinutes;
 
@@ -42,6 +46,9 @@ public class StartupTask implements CommandLineRunner {
 
     @Value("${billiards.schedule.enabled:true}")
     private boolean enabled;
+
+    @Value("${billiards.schedule.reservation-expire-interval-minutes:5}")
+    private long reservationExpireIntervalMinutes;
 
     @Override
     public void run(String... args) throws Exception {
@@ -88,5 +95,19 @@ public class StartupTask implements CommandLineRunner {
         }, 3, refundFailedScanIntervalMinutes, TimeUnit.MINUTES);
 
         log.info("支付/退款监控任务已启动：超时检测({}m)、支付中轮询({}m)、退款失败扫描({}m)", payTimeoutIntervalMinutes, payReconcileIntervalMinutes, refundFailedScanIntervalMinutes);
+
+        // 预约过期检查任务（默认每5分钟，可配置，使用配置中的 autoCheckIntervalMinutes）
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            try {
+                int expiredCount = reservationService.checkAndExpireReservations();
+                if (expiredCount > 0) {
+                    log.info("预约过期检查完成，共标记 {} 条预约为已过期", expiredCount);
+                }
+            } catch (Exception e) {
+                log.error("预约过期检查任务执行异常: {}", e.getMessage(), e);
+            }
+        }, 4, reservationExpireIntervalMinutes, TimeUnit.MINUTES);
+
+        log.info("预约过期检查任务已启动，每 {} 分钟执行一次", reservationExpireIntervalMinutes);
     }
 }

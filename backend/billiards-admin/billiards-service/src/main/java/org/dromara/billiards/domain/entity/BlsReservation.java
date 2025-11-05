@@ -3,6 +3,8 @@ package org.dromara.billiards.domain.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.io.Serial;
@@ -16,7 +18,7 @@ import java.io.Serial;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bls_reservation")
-public class BlsReservation extends BilliardsBaseEntity {
+public class BlsReservation extends BlsTenantMchEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -26,11 +28,6 @@ public class BlsReservation extends BilliardsBaseEntity {
      */
     @TableId(value = "id")
     private Long id;
-
-    /**
-     * 所属商家ID
-     */
-    private String merchantId;
 
     /**
      * 预约编号（可用于展示或查询）
@@ -53,14 +50,24 @@ public class BlsReservation extends BilliardsBaseEntity {
     private String tableId;
 
     /**
+     * 门店名称
+     */
+    private String storeName;
+
+    /**
+     * 台球桌编号
+     */
+    private String tableNumber;
+
+    /**
      * 预约开始时间
      */
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 预约结束时间
      */
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
      * 状态：0=预约中,1=已到店,2=已完成,3=已取消,4=已过期

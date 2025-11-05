@@ -127,6 +127,11 @@ public interface BilliardsConstants {
     String DS_BILLIARDS_PLATFORM = "platform";
 
     /**
+     *  台球管理数据源
+     */
+    String DS_ADMIN = "admin";
+
+    /**
      * 最低消费
      */
     BigDecimal MIN_BALANCE_FOR_PLAY = new BigDecimal("10.00");

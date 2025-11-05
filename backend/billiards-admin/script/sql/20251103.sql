@@ -8,6 +8,8 @@ CREATE TABLE bls_reservation (
      user_id BIGINT NOT NULL COMMENT '预约用户ID',
      store_id VARCHAR(32) NOT NULL COMMENT '门店ID',
      table_id VARCHAR(32) NOT NULL COMMENT '台球桌ID',
+     `table_number` varchar(10) DEFAULT NULL COMMENT '桌台号',
+     `store_name` varchar(100) DEFAULT NULL COMMENT '门店名称',
      start_time DATETIME NOT NULL COMMENT '预约开始时间',
      end_time DATETIME NOT NULL COMMENT '预约结束时间',
      status TINYINT DEFAULT 0 COMMENT '状态：0=预约中,1=已到店,3=已取消,4=已过期',
@@ -28,7 +30,8 @@ CREATE TABLE bls_reservation (
      KEY `idx_tenant` (`tenant_id`),
      KEY `idx_tenant_merchant` (`tenant_id`, `merchant_id`),
      INDEX idx_table_time (table_id, start_time, end_time),
-     INDEX idx_tennant_table_time (tenant_id, table_id, start_time, end_time)
+     INDEX idx_tennant_table_time (tenant_id, table_id, start_time, end_time),
+     INDEX idx_table_status_time (`table_id`, `status`, `start_time`, `end_time`)
 ) COMMENT='用户预约记录表';
 
 

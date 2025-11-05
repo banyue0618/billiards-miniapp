@@ -1,2 +1,162 @@
 <!--pages/reservation/reservation.wxml-->
-<text>pages/reservation/reservation.wxml</text>
+<view class="container">
+  <!-- 门店信息展示区域 -->
+  <view class="store-info-section" wx:if="{{store}}">
+    <!-- 头部：门店名称和状态 -->
+    <view class="store-info-header">
+      <text class="store-name">{{store.name}}</text>
+      <view class="store-status-badge {{store.status === '0' ? 'open' : 'closed'}}">
+        {{store.status === '0' ? '营业中' : '休息中'}}
+      </view>
+    </view>
+
+    <!-- 中部：门店图片 -->
+    <view class="store-image-wrapper">
+      <swiper class="store-image-carousel" 
+        indicator-dots="{{store.images && store.images.length > 1}}" 
+        indicator-color="rgba(255, 255, 255, 0.6)" 
+        indicator-active-color="#fff" 
+        autoplay="{{true}}" 
+        interval="3000" 
+        duration="500" 
+        circular="{{true}}">
+        <block wx:if="{{store.images && store.images.length > 0}}">
+          <swiper-item wx:for="{{store.images}}" wx:key="index">
+            <image src="{{item}}" mode="aspectFill" class="store-image" />
+          </swiper-item>
+        </block>
+        <swiper-item wx:else>
+          <view class="store-image-placeholder">
+            <image src="/images/default/store-placeholder.png" mode="aspectFit" />
+          </view>
+        </swiper-item>
+      </swiper>
+    </view>
+
+    <!-- 底部：基本信息和预约提示 -->
+    <view class="store-info-footer">
+      <!-- 营业信息 -->
+      <view class="store-business-info" wx:if="{{store.businessHours}}">
+        <view class="business-info-row">
+          <text class="business-info-icon">🕐</text>
+          <text class="business-info-text">{{store.businessHours}}</text>
+        </view>
+      </view>
+      
+      <!-- 预约提示 -->
+      <view class="reservation-hint">
+        <text class="reservation-hint-text">点击时间段选择预约范围，绿色表示可预约，红色表示不可预约</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 当前预约记录展示区域 -->
+  <view class="current-reservation-section" wx:if="{{isLogin && currentReservation}}">
+    <view class="current-reservation-card">
+      <view class="current-reservation-header">
+        <text class="current-reservation-title">当前预约</text>
+      </view>
+      <view class="current-reservation-content">
+        <view class="reservation-info-row">
+          <text class="reservation-info-label">门店：</text>
+          <text class="reservation-info-value">{{currentReservation.storeName}}</text>
+        </view>
+        <view class="reservation-info-row">
+          <text class="reservation-info-label">桌台：</text>
+          <text class="reservation-info-value">{{currentReservation.tableNumber}}</text>
+        </view>
+        <view class="reservation-info-row">
+          <text class="reservation-info-label">时间段：</text>
+          <text class="reservation-info-value">{{currentReservation.formattedTime || (currentReservation.startTime + ' - ' + currentReservation.endTime)}}</text>
+        </view>
+        <view class="reservation-info-row" wx:if="{{countdownText}}">
+          <text class="reservation-info-label">倒计时：</text>
+          <text class="reservation-info-value countdown-text">{{countdownText}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 未登录提示 -->
+  <view class="login-prompt-section" wx:if="{{!isLogin}}">
+    <view class="login-prompt-card">
+      <view class="login-prompt-icon">🔐</view>
+      <view class="login-prompt-text">登录后可查看当前预约记录</view>
+      <button class="login-prompt-button" bindtap="handleLogin">立即登录</button>
+    </view>
+  </view>
+
+  <view class="main">
+    <view class="table-grid">
+      <view class="table-card" wx:for="{{tables}}" wx:key="id">
+        <!-- 桌台名称 -->
+        <view class="table-header">
+          <text class="table-name">{{item.name}}</text>
+        </view>
+
+        <!-- 上部：时间段区域 -->
+        <view class="timeline-section">
+          <view class="timeline-header">
+            <text class="timeline-title">选择时间段</text>
+            <text class="scroll-hint" wx:if="{{item.slots.length > 12}}">左右滑动查看更多</text>
+          </view>
+          <view class="timeline-wrapper">
+            <view class="slots-container" id="slots-{{item.id}}">
+              <view 
+                class="slot {{slot.status === 'available' ? 'available' : 'blocked'}} {{slotIndex === item.startIndex ? 'start' : ''}} {{slotIndex === item.endIndex ? 'end' : ''}} {{item.startIndex !== undefined && item.endIndex !== undefined && slotIndex > item.startIndex && slotIndex < item.endIndex ? 'selected-range' : ''}}"
+                wx:for="{{item.slots}}" 
+                wx:key="startTime"
+                wx:for-item="slot"
+                wx:for-index="slotIndex"
+                bindtap="onSlotTap"
+                data-table-id="{{item.id}}"
+                data-slot-index="{{slotIndex}}"
+                data-slot-status="{{slot.status}}"
+              >
+                <text class="slot-time">{{slot.startTime}}</text>
+              </view>
+            </view>
+            <!-- 滚动指示器 -->
+            <view class="scroll-indicator" wx:if="{{item.slots.length > 12}}">
+              <view class="indicator-dot"></view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 中部：图片区域 -->
+        <view class="image-section">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" class="table-image"></image>
+          <view wx:else class="table-image-placeholder">
+            <text class="placeholder-text">暂无图片</text>
+          </view>
+        </view>
+
+        <!-- 底部：标签区域 -->
+        <view class="tags-section" wx:if="{{item.tags && item.tags.length > 0}}">
+          <view 
+            class="tag tag-{{tag.type}}" 
+            wx:for="{{item.tags}}" 
+            wx:key="text"
+            wx:for-item="tag"
+          >
+            <text class="tag-text">{{tag.text}}</text>
+          </view>
+        </view>
+
+        <!-- 预约按钮区域 - 选择时间段后显示 -->
+        <view class="reservation-actions" wx:if="{{item.selectedSlot}}">
+          <button 
+            class="reserve-btn" 
+            bindtap="onReserveTap"
+            data-table-id="{{item.id}}"
+          >
+            预约 {{item.selectedSlot.startTime}} - {{item.selectedSlot.endTime}}
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 登录弹窗组件 -->
+<login-modal show="{{showLoginModal}}" bind:close="closeLoginModal" bind:login-success="onLoginSuccess"></login-modal>

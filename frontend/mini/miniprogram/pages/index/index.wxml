@@ -33,6 +33,22 @@
     </view>
   </view>
 
+  <!-- 公告横幅：位于搜索框下方，窄条滚动/轮播提示 -->
+  <view wx:if="{{showAnnouncement && announcements.length}}" class="announcement-bar">
+    <view class="announcement-icon-wrapper">
+      <text class="announcement-horn-icon">📢</text>
+    </view>
+    <swiper class="announcement-swiper" autoplay circular interval="4000" duration="300">
+      <block wx:for="{{announcements}}" wx:key="index">
+        <swiper-item>
+          <view class="announcement-item" bindtap="onAnnouncementTap" data-index="{{index}}">
+            <text class="announcement-text">{{item}}</text>
+          </view>
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+
   <!-- 门店列表 (仅在登录后显示) -->
   <view class="store-list-container">
     <block wx:if="{{stores.length > 0 && hasLocationAuth}}">
@@ -77,6 +93,11 @@
   <view wx:if="{{!isLoggedIn && !showLoginPrompt}}" class="fallback-login-prompt">
     <button open-type="getPhoneNumber" bindgetphonenumber="handleGetPhoneNumber" class="login-button">立即登录</button>
     <button wx:if="{{enableGuestLogin}}" bindtap="handleCodeLogin" class="login-button outline">游客登录</button>
+  </view>
+
+  <!-- 浮动预约入口：最小侵入，固定在右下角，不影响现有布局 -->
+  <view class="floating-reserve-cta" wx:if="{{hasLocationAuth && !loading && showHomeReserveCta}}">
+    <button class="floating-reserve-button" bindtap="goReserve">立即预约</button>
   </view>
 
 </view>

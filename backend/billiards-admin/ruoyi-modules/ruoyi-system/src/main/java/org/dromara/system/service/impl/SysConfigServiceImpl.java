@@ -203,6 +203,14 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
         return true;
     }
 
+    @Override
+    public List<SysConfigVo> selectConfigListByKeyLike(String tenantId, String configPrefix) {
+        LambdaQueryWrapper<SysConfig> lqw = Wrappers.lambdaQuery();
+        lqw.like(SysConfig::getConfigKey, configPrefix);
+        lqw.eq(SysConfig::getTenantId, tenantId);
+        return baseMapper.selectVoList(lqw);
+    }
+
     /**
      * 根据参数 key 获取参数值
      *

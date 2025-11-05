@@ -74,4 +74,17 @@ public class StoreController {
         NearbyStoreVO store = storeService.getStoreInfo(request.getStoreId(), request.getLatitude(), request.getLongitude());
         return ApiResult.success(store);
     }
+
+    /**
+     * 获取最近的门店
+     */
+    @PostMapping("/nearest")
+    @Operation(summary = "最近门店", description = "根据用户当前位置获取最近的门店")
+    public R<NearbyStoreVO> getNearestStore(@Validated @RequestBody NearbyStoreRequest request) {
+        NearbyStoreVO nearestStore = storeService.getNearestStore(request.getLatitude(), request.getLongitude());
+        if (nearestStore == null) {
+            return ApiResult.error("未找到附近的门店");
+        }
+        return ApiResult.success(nearestStore);
+    }
 }

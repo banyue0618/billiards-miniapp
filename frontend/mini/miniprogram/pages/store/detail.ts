@@ -335,6 +335,19 @@ Page({
     })
   },
 
+  // 跳转到预约页面
+  handleReservation() {
+    const { id } = this.data
+    if (!id) {
+      showError('门店信息异常')
+      return
+    }
+    // 跳转到预约页面，传递门店ID
+    wx.navigateTo({
+      url: `/pages/reservation/reservation?storeId=${id}`
+    })
+  },
+
   // 联系客服
   handleContact() {
     const { store } = this.data

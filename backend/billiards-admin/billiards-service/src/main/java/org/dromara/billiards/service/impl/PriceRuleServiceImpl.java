@@ -1,6 +1,7 @@
 package org.dromara.billiards.service.impl;
 
 import org.dromara.billiards.common.constant.BilliardsConstants;
+import org.dromara.billiards.common.constant.TableStatusEnum;
 import org.dromara.billiards.common.exception.BilliardsException;
 import org.dromara.billiards.common.result.ResultCode;
 import org.dromara.billiards.convert.PriceRuleConvert;
@@ -167,26 +168,10 @@ public class PriceRuleServiceImpl extends ServiceImpl<PriceRuleMapper, BlsPriceR
         queryWrapper.eq(BlsTable::getPriceRuleId, id);
         List<BlsTable> boundBlsTables = tableMapper.selectList(queryWrapper);
 
+        // 如果已经绑定在桌台，不允许删除
         if (!boundBlsTables.isEmpty()) {
-            // 判断是否有桌台正在使用中（状态为1表示使用中）
-            boolean hasTablesInUse = boundBlsTables.stream()
-                .anyMatch(table -> table.getStatus() != null && table.getStatus() == 1);
-
-            if (hasTablesInUse) {
-                throw BilliardsException.of(ResultCode.ERROR,
-                    "计费规则正在被使用中的桌台使用，无法删除。请先停止桌台使用后再删除。");
-            }
-
-            // 对已绑定的桌台解除绑定
-            log.info("计费规则{}被{}个桌台使用，执行解绑操作", id, boundBlsTables.size());
-
-            // 为所有绑定的桌台设置为null
-            LambdaUpdateWrapper<BlsTable> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(BlsTable::getPriceRuleId, id)
-                       .set(BlsTable::getPriceRuleId, null);
-            tableMapper.update(null, updateWrapper);
-
-            log.info("已解绑计费规则{}的所有桌台", id);
+            throw BilliardsException.of(ResultCode.ERROR,
+                "计费规则已绑定桌台，无法删除。请先删除桌台后再删除计费规则。");
         }
 
         if (!this.removeById(id)) {

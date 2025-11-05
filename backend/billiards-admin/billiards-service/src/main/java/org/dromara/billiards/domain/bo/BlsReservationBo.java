@@ -8,6 +8,8 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -38,13 +40,13 @@ public class BlsReservationBo extends BaseEntity {
      * 预约开始时间
      */
     @NotNull(message = "预约开始时间不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 预约结束时间
      */
     @NotNull(message = "预约结束时间不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
      * 状态：0=预约中,1=已到店,2=已完成,3=已取消,4=已过期

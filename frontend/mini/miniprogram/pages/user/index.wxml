@@ -60,6 +60,11 @@
         <text class="menu-text">我的积分</text>
         <text class="iconfont icon-arrow-right arrow-icon"></text>
       </view>
+      <view class="menu-item" bindtap="navigateTo" data-url="/pages/user/reserve-list">
+        <text class="iconfont icon-yuyuejilu menu-icon"></text>
+        <text class="menu-text">我的预约</text>
+        <text class="iconfont icon-arrow-right arrow-icon"></text>
+      </view>
     </view>
   </view>
   

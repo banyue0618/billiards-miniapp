@@ -1,1 +1,724 @@
 /* pages/reservation/reservation.wxss */
+page {
+  --bg: #f5f5f7;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --accent: #007aff;
+  --accent-soft: rgba(0, 122, 255, 0.1);
+  --available: #34c759;
+  --available-bg: rgba(52, 199, 89, 0.1);
+  --blocked: #ff3b30;
+  --blocked-bg: rgba(255, 59, 48, 0.1);
+  --shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+  --radius-lg: 20rpx;
+  --radius-md: 16rpx;
+  --radius-sm: 12rpx;
+  background: linear-gradient(180deg, #f5f5f7 0%, #ffffff 100%);
+  color: #1d1d1f;
+  min-height: 100vh;
+}
+
+.container {
+  padding: 24rpx 20rpx 40rpx;
+  min-height: 100vh;
+}
+
+/* 门店信息展示区域 */
+.store-info-section {
+  margin-bottom: 20rpx;
+  background: var(--card-bg);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-radius: var(--radius-lg);
+  padding: 16rpx;
+  box-shadow: var(--shadow);
+  border: 0.5rpx solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+/* 头部：门店名称和状态 */
+.store-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.store-info-section .store-name {
+  font-size: 34rpx;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #1d1d1f;
+  flex: 1;
+}
+
+.store-image-wrapper {
+  width: 100%;
+  height: 280rpx;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.store-image-carousel {
+  width: 100%;
+  height: 100%;
+}
+
+.store-image {
+  width: 100%;
+  height: 100%;
+}
+
+.store-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(118, 118, 128, 0.08);
+}
+
+.store-image-placeholder image {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: 0.5;
+}
+
+/* 底部：基本信息和预约提示 */
+.store-info-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.store-business-info {
+  margin-bottom: 0;
+}
+
+.business-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.business-info-icon {
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.business-info-text {
+  font-size: 24rpx;
+  color: rgba(29, 29, 31, 0.7);
+  font-weight: 400;
+}
+
+.reservation-hint {
+  padding-top: 8rpx;
+}
+
+.reservation-hint-text {
+  font-size: 24rpx;
+  color: rgba(29, 29, 31, 0.6);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.store-status-badge {
+  font-size: 22rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 12rpx;
+  font-weight: 500;
+}
+
+.store-status-badge.open {
+  background: rgba(52, 199, 89, 0.15);
+  color: #34c759;
+}
+
+.store-status-badge.closed {
+  background: rgba(142, 142, 147, 0.15);
+  color: #8e8e93;
+}
+
+/* 当前预约记录展示区域 */
+.current-reservation-section {
+  margin-bottom: 20rpx;
+}
+
+.current-reservation-card {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 122, 255, 0.05) 100%);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-radius: var(--radius-lg);
+  padding: 20rpx 18rpx;
+  box-shadow: var(--shadow);
+  border: 0.5rpx solid rgba(0, 122, 255, 0.2);
+}
+
+.current-reservation-header {
+  margin-bottom: 16rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 0.5rpx solid rgba(0, 122, 255, 0.15);
+}
+
+.current-reservation-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+
+.current-reservation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.reservation-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+}
+
+.reservation-info-label {
+  font-size: 26rpx;
+  color: rgba(29, 29, 31, 0.6);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.reservation-info-value {
+  font-size: 26rpx;
+  color: #1d1d1f;
+  font-weight: 500;
+  flex: 1;
+  word-break: break-all;
+}
+
+.reservation-info-value.countdown-text {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* 未登录提示区域 */
+.login-prompt-section {
+  margin-bottom: 20rpx;
+}
+
+.login-prompt-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-radius: var(--radius-lg);
+  padding: 32rpx 24rpx;
+  box-shadow: var(--shadow);
+  border: 0.5rpx solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.login-prompt-icon {
+  font-size: 64rpx;
+  line-height: 1;
+}
+
+.login-prompt-text {
+  font-size: 28rpx;
+  color: rgba(29, 29, 31, 0.7);
+  font-weight: 400;
+  text-align: center;
+}
+
+.login-prompt-button {
+  margin-top: 8rpx;
+  padding: 16rpx 48rpx;
+  border-radius: var(--radius-md);
+  font-size: 28rpx;
+  font-weight: 600;
+  border: none;
+  background: var(--accent);
+  color: white;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.25);
+}
+
+.login-prompt-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(0, 122, 255, 0.2);
+  opacity: 0.9;
+}
+
+.header {
+  display: none; /* 预约提示已移到门店信息区域 */
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.table-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.table-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-radius: var(--radius-lg);
+  padding: 20rpx 18rpx;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  border: 0.5rpx solid rgba(0, 0, 0, 0.05);
+}
+
+.table-header {
+  margin-bottom: 10rpx;
+}
+
+.table-title {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}
+
+.table-name {
+  font-size: 34rpx;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #1d1d1f;
+}
+
+.table-status-badge {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  background: rgba(118, 118, 128, 0.15);
+  color: rgba(29, 29, 31, 0.7);
+  font-weight: 500;
+}
+
+.table-status-badge.available {
+  background: rgba(52, 199, 89, 0.15);
+  color: #34c759;
+}
+
+.table-subtitle {
+  font-size: 26rpx;
+  color: rgba(29, 29, 31, 0.5);
+  font-weight: 400;
+}
+
+/* 时间段区域 */
+.timeline-section {
+  margin-bottom: -5rpx;
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+  padding: 0 4rpx;
+}
+
+.timeline-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: rgba(29, 29, 31, 0.8);
+}
+
+.scroll-hint {
+  font-size: 22rpx;
+  color: rgba(29, 29, 31, 0.5);
+  font-weight: 400;
+}
+
+.timeline-wrapper {
+  position: relative;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* 时间段容器 - 连续排列 */
+.slots-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 0;
+  padding: 4rpx 0; /* 从6rpx减小到4rpx */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  /* 优化滚动性能 */
+  will-change: scroll-position;
+}
+
+.slots-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* 滚动指示器 */
+.scroll-indicator {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24rpx;
+  height: 30rpx; /* 从40rpx减小到30rpx */
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9));
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4rpx;
+}
+
+.indicator-dot {
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 50%;
+  background: rgba(0, 122, 255, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.slot {
+  flex-shrink: 0;
+  min-width: 110rpx;
+  height: 54rpx; /* 从80rpx缩小三分之一到54rpx */
+  border-radius: 0;
+  padding: 6rpx 12rpx; /* 减小垂直padding */
+  background: rgba(118, 118, 128, 0.06);
+  font-weight: 500;
+  font-size: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx; /* 减小gap */
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-right: 1rpx solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.02);
+}
+
+/* 第一个时间段：左侧圆角 */
+.slot:first-child {
+  border-top-left-radius: 12rpx;
+  border-bottom-left-radius: 12rpx;
+}
+
+/* 最后一个时间段：右侧圆角 */
+.slot:last-child {
+  border-top-right-radius: 12rpx;
+  border-bottom-right-radius: 12rpx;
+  border-right: none;
+}
+
+.slot-time {
+  font-size: 24rpx; /* 稍微减小字体 */
+  font-weight: 600;
+  color: rgba(29, 29, 31, 0.8);
+  line-height: 1.2;
+}
+
+.slot-label {
+  display: none; /* 移除标签文字 */
+}
+
+/* 可预约时间段 - 绿色 */
+.slot.available {
+  background: rgba(52, 199, 89, 0.1);
+}
+
+.slot.available .slot-time {
+  color: #34c759;
+  font-weight: 600;
+}
+
+.slot.available .slot-label {
+  display: none;
+}
+
+/* 不可预约时间段 - 红色 */
+.slot.blocked {
+  background: rgba(255, 59, 48, 0.08);
+  opacity: 0.6;
+}
+
+.slot.blocked .slot-time {
+  color: #ff3b30;
+}
+
+.slot.blocked .slot-label {
+  display: none;
+}
+
+/* 选择的中间范围 - 与起止样式一致 */
+.slot.available.selected-range {
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.35), rgba(52, 199, 89, 0.25));
+  border-left: 3rpx solid #34c759;
+  border-right: 3rpx solid #34c759;
+  box-shadow: 
+    -2rpx 0 8rpx rgba(52, 199, 89, 0.3),
+    2rpx 0 8rpx rgba(52, 199, 89, 0.3),
+    0 2rpx 4rpx rgba(0, 0, 0, 0.06);
+  z-index: 2;
+  transform: scale(1.02);
+}
+
+.slot.available.selected-range .slot-time {
+  color: #28a745;
+  font-weight: 600; /* 保持正常字重，不加粗 */
+  font-size: 24rpx;
+}
+
+.slot.available.selected-range .slot-label {
+  display: none;
+}
+
+/* 起始时间段 - 深色渐变、发光边框 */
+.slot.available.start {
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.35), rgba(52, 199, 89, 0.25));
+  border-left: 3rpx solid #34c759;
+  box-shadow: 
+    -2rpx 0 8rpx rgba(52, 199, 89, 0.3),
+    0 2rpx 4rpx rgba(0, 0, 0, 0.06);
+  z-index: 2;
+  transform: scale(1.02);
+}
+
+.slot.available.start:first-child {
+  border-top-left-radius: 12rpx;
+  border-bottom-left-radius: 12rpx;
+}
+
+.slot.available.start .slot-time {
+  color: #28a745;
+  font-weight: 600; /* 移除加粗，保持正常字重 */
+  font-size: 24rpx;
+}
+
+.slot.available.start .slot-label {
+  display: none;
+}
+
+/* 结束时间段 - 深色渐变、发光边框 */
+.slot.available.end {
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.25), rgba(52, 199, 89, 0.35));
+  border-right: 3rpx solid #34c759;
+  box-shadow: 
+    2rpx 0 8rpx rgba(52, 199, 89, 0.3),
+    0 2rpx 4rpx rgba(0, 0, 0, 0.06);
+  z-index: 2;
+  transform: scale(1.02);
+}
+
+.slot.available.end:last-child {
+  border-top-right-radius: 12rpx;
+  border-bottom-right-radius: 12rpx;
+}
+
+.slot.available.end .slot-time {
+  color: #28a745;
+  font-weight: 600; /* 移除加粗，保持正常字重 */
+  font-size: 24rpx;
+}
+
+.slot.available.end .slot-label {
+  display: none;
+}
+
+/* 起始和结束相同（只选择了一个时间段） */
+.slot.available.start.end {
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.4), rgba(52, 199, 89, 0.4));
+  border-left: 3rpx solid #34c759;
+  border-right: 3rpx solid #34c759;
+  box-shadow: 
+    -2rpx 0 8rpx rgba(52, 199, 89, 0.3),
+    2rpx 0 8rpx rgba(52, 199, 89, 0.3),
+    0 2rpx 4rpx rgba(0, 0, 0, 0.06);
+  z-index: 2;
+  transform: scale(1.02);
+}
+
+.slot.available.start.end:first-child {
+  border-top-left-radius: 12rpx;
+  border-bottom-left-radius: 12rpx;
+}
+
+.slot.available.start.end:last-child {
+  border-top-right-radius: 12rpx;
+  border-bottom-right-radius: 12rpx;
+}
+
+.slot.available.start.end .slot-time {
+  color: #28a745;
+  font-weight: 600; /* 移除加粗，保持正常字重 */
+  font-size: 24rpx;
+}
+
+/* 点击效果 */
+.slot.available:active {
+  transform: scale(0.98);
+  opacity: 0.85;
+}
+
+.slot.available.start:active,
+.slot.available.end:active {
+  transform: scale(1.0);
+}
+
+/* 图片区域 */
+.image-section {
+  margin: 12rpx 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: rgba(118, 118, 128, 0.08);
+}
+
+.table-image {
+  width: 100%;
+  height: 240rpx;
+  display: block;
+}
+
+.table-image-placeholder {
+  width: 100%;
+  height: 240rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(118, 118, 128, 0.06);
+}
+
+.placeholder-text {
+  font-size: 26rpx;
+  color: rgba(29, 29, 31, 0.4);
+  font-weight: 400;
+}
+
+/* 标签区域 */
+.tags-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-bottom: 0;
+}
+
+.tag {
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tag-text {
+  color: inherit;
+}
+
+/* 不同类型标签的颜色 */
+.tag-disinfection {
+  background: rgba(0, 122, 255, 0.12);
+  color: #007aff;
+}
+
+.tag-holiday {
+  background: rgba(255, 149, 0, 0.12);
+  color: #ff9500;
+}
+
+.tag-discount {
+  background: rgba(255, 45, 85, 0.12);
+  color: #ff2d55;
+}
+
+.tag-maintenance {
+  background: rgba(142, 142, 147, 0.12);
+  color: #8e8e93;
+}
+
+.tag-other {
+  background: rgba(118, 118, 128, 0.12);
+  color: rgba(29, 29, 31, 0.7);
+}
+
+/* 预约按钮区域 - 选择时间段后显示 */
+.reservation-actions {
+  margin-top: 8rpx;
+  padding-top: 12rpx;
+  border-top: 0.5rpx solid rgba(0, 0, 0, 0.08);
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reserve-btn {
+  width: 100%;
+  padding: 18rpx;
+  border-radius: var(--radius-md);
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+  background: var(--accent);
+  color: white;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.25);
+  letter-spacing: -0.01em;
+}
+
+.reserve-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(0, 122, 255, 0.2);
+  opacity: 0.9;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .container {
+    padding: 20rpx 16rpx 32rpx;
+  }
+  
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .slot {
+    min-width: 100rpx;
+  }
+}

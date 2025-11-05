@@ -1,5 +1,6 @@
 package org.dromara.billiards.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.dromara.billiards.domain.entity.BlsReservation;
 import org.dromara.billiards.domain.vo.BlsReservationVo;
@@ -34,6 +35,16 @@ public interface IBlsReservationService extends IService<BlsReservation> {
      * @return 用户预约记录分页列表
      */
     TableDataInfo<BlsReservationVo> queryPageList(BlsReservationBo bo, PageQuery pageQuery);
+
+
+    /**
+     * 分页查询用户预约记录列表（个人用户使用）
+     *
+     * @param bo        查询条件
+     * @param pageQuery 分页参数
+     * @return 用户预约记录分页列表
+     */
+    IPage<BlsReservationVo> queryPage(BlsReservationBo bo, PageQuery pageQuery);
 
     /**
      * 查询符合条件的用户预约记录列表
@@ -74,4 +85,17 @@ public interface IBlsReservationService extends IService<BlsReservation> {
      * @return
      */
     BlsReservationVo reserve(BlsReservationBo bo);
+
+    /**
+     * 获取用户进行中的预约记录
+     */
+    BlsReservationVo current();
+
+    /**
+     * 检查并标记过期的预约记录
+     * 查询所有预约中状态且未签到的预约，如果开始时间 + 过期阈值 < 当前时间，则标记为已过期
+     * 
+     * @return 过期的预约数量
+     */
+    int checkAndExpireReservations();
 }

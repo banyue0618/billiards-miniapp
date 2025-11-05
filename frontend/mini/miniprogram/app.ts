@@ -3,6 +3,7 @@ import type { UserInfo as CustomUserInfo } from './services/api' // 重命名导
 import { AuthService } from './services/authService'
 import { LocationService } from './services/locationService'
 import { StoreService } from './services/storeService'
+import http from './services/http'
 import type { WxWithEvents, EventListener } from './types/events'
 
 // 事件监听器映射
@@ -192,13 +193,19 @@ App<IAppOptionExtended>({
    * 初始化各服务
    * 将初始化逻辑抽离为单独方法，方便在需要时重新初始化
    */
-  initServices() {
+  async initServices() {
     console.log('App - 初始化各服务');
     try {
       // 初始化服务
       this.authService.init(this);
       this.locationService.init(this);
       this.storeService.init(this);
+      
+      // 初始化错误码映射（不阻塞其他初始化）
+      http.initErrorCodes().catch(err => {
+        console.error('App - 错误码映射初始化失败', err);
+      });
+      
       this.isInitialized = true;
       console.log('App - 服务初始化完成');
     } catch (error) {

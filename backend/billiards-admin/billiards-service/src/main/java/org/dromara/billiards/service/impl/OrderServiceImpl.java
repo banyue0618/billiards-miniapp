@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.lock.annotation.Lock4j;
 import org.dromara.billiards.domain.bo.OrderQueryRequest;
 import org.dromara.billiards.service.pricing.PricingResult;
 import org.dromara.billiards.service.pricing.PricingStrategy;
@@ -41,8 +42,15 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
+import org.dromara.billiards.service.IBlsReservationService;
+import org.dromara.billiards.service.ReservationConfigService;
+import org.dromara.billiards.service.impl.BlsReservationServiceImpl;
+import org.dromara.billiards.domain.entity.BlsReservation;
+import org.dromara.billiards.config.BlsReserveConfig;
+import org.dromara.common.core.utils.DateUtils;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +79,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
     private final OrderConvert orderConvert = OrderConvert.INSTANCE;
 
     private final IoTOrchestrationService ioTOrchestrationService;
+    private final IBlsReservationService reservationService;
+    private final ReservationConfigService reservationConfigService;
 
     @Override
     public IPage<BlsOrder> pageAdminOrders(OrderQueryRequest request) {
@@ -164,10 +174,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
 
     /**
      * 创建订单
+     * 使用分布式锁确保同一桌台同一时间只能被一个用户开台
+     * 锁的key为 table:{tableId}，确保同一桌台的操作串行化
+     * 线下扫码优先级高于线上预约
+     * 
      * @param tableId 桌台ID
      * @return 订单对象
      */
     @Override
+    @Lock4j(keys = {"'table:' + #tableId"}, acquireTimeout = 3000, expire = 10000)
     @Transactional(rollbackFor = Exception.class)
     public BlsOrder createOrder(String tableId, String channel) {
         // 限定渠道
@@ -183,6 +198,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
 
         // 获取桌台信息
         BlsTable blsTable = tableService.lockTable(tableId); // 锁定桌台，防止其他用户同时使用
+
+        // 检查预约冲突（线下扫码优先级更高）
+        checkReservationConflict(tableId, channel);
 
         // 创建订单
         BlsOrder blsOrder = this.orderInit(blsTable);
@@ -202,6 +220,60 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
         ioTOrchestrationService.openTable(blsTable.getId(), blsOrder.getId());
 
         return blsOrder;
+    }
+
+    /**
+     * 检查预约冲突
+     * 场景1：A用户预约，B用户同时线下扫码 - 线下扫码优先级更高，取消预约
+     * 场景2：用户预约了下午三点到五点，中午一点有人扫码开台 - 提示用户，只能玩到三点
+     * 场景3：用户线下扫码，发现存在预约记录，并且预约时间接近 - 不允许开台
+     *
+     * @param tableId 桌台ID
+     * @param channel 渠道（用于判断是否为线下扫码）
+     */
+    private void checkReservationConflict(String tableId, String channel) {
+        // 判断是否为线下扫码（通过渠道判断，如果渠道是扫码相关的，则认为是线下扫码）
+        // 这里假设如果channel不是小程序渠道，则认为是线下扫码
+        boolean isOfflineScan = !OrderChannelEnum.MINI_PROGRAM.getChannelName().equals(channel);
+
+        // 查询该桌台是否有即将开始的预约
+        BlsReservation upcomingReservation = ((BlsReservationServiceImpl) reservationService).findUpcomingReservation(tableId, LocalDateTime.now());
+
+        if (upcomingReservation == null) {
+            // 没有预约，直接允许开台
+            return;
+        }
+
+        // 计算距离预约开始时间还有多少分钟
+        LocalDateTime now = LocalDateTime.now();
+        long minutesUntilReservation = Duration.between(now, upcomingReservation.getStartTime()).toMinutes();
+
+        // 获取预约配置
+        BlsReserveConfig config = reservationConfigService.getConfig();
+        int thresholdMinutes = config.getTooCloseThresholdMinutes();
+
+        if (isOfflineScan) {
+            // 场景1和场景3：线下扫码
+            if (minutesUntilReservation <= thresholdMinutes && minutesUntilReservation > 0) {
+                // 场景3：预约时间接近，不允许开台
+                throw BilliardsException.of(ResultCode.RESERVATION_TOO_CLOSE);
+            } else {
+                // 场景1和场景2：线下扫码优先级更高
+                // 取消预约（线下扫码优先级更高，无论预约时间是否已过）
+                ((BlsReservationServiceImpl) reservationService).cancelReservation(upcomingReservation.getId());
+
+                if (minutesUntilReservation > thresholdMinutes) {
+                    // 场景2：提示用户只能玩到预约开始时间
+                    // 这里在订单备注中记录，实际应该通过返回信息提示用户
+                    // 订单的endTime会在计费时自动限制到预约开始时间
+                    log.info("线下扫码开台，桌台{}有预约，预约开始时间：{}，已取消预约，用户可以使用",
+                        tableId, upcomingReservation.getStartTime());
+                }
+            }
+        } else {
+            // 线上预约渠道：如果存在预约冲突，不允许预约
+            // 这个逻辑在预约服务中已经处理了
+        }
     }
 
     /**

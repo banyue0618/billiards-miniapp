@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>台球厅预约原型</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f5f7;
+      --card-bg: rgba(255,255,255,0.78);
+      --accent: #007aff;
+      --accent-soft: rgba(0,122,255,0.08);
+      --available: #34c759;
+      --available-bg: rgba(52,199,89,0.12);
+      --blocked: #ff3b30;
+      --blocked-bg: rgba(255,59,48,0.12);
+      --shadow: 0 18px 40px rgba(0,0,0,0.08);
+      --radius-lg: 28px;
+      --radius-sm: 14px;
+      --sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sf);
+      background: linear-gradient(160deg, #eef1f7 0%, #f8f8fa 38%, #f5f5f7 100%);
+      color: #1d1d1f;
+      padding: 32px clamp(18px, 6vw, 56px) 120px;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: clamp(30px, 5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    header p {
+      font-size: clamp(16px, 3vw, 18px);
+      color: rgba(29,29,31,0.68);
+      margin: 0;
+      max-width: 640px;
+      line-height: 1.58;
+    }
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 15px;
+    }
+    main {
+      display: grid;
+      gap: 26px;
+    }
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 18px clamp(14px, 3vw, 22px);
+      border-radius: var(--radius-lg);
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 220px;
+      flex: 1;
+    }
+    .filter-label {
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: rgba(29,29,31,0.55);
+    }
+    .filter-input {
+      border: 1px solid rgba(120,120,128,0.12);
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #1d1d1f;
+      background: rgba(255,255,255,0.88);
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+    .filter-input:focus {
+      outline: none;
+      border-color: rgba(0,122,255,0.45);
+      box-shadow: 0 0 0 4px rgba(0,122,255,0.12);
+    }
+    .table-grid {
+      display: grid;
+      gap: 24px;
+    }
+    .table-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius-lg);
+      padding: clamp(18px, 4vw, 26px);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 22px;
+    }
+    .table-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-title {
+      display: grid;
+      gap: 6px;
+    }
+    .table-title span:first-child {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .table-title span:last-child {
+      font-size: 15px;
+      color: rgba(29,29,31,0.55);
+    }
+    .table-badges {
+      display: flex;
+      gap: 10px;
+    }
+    .badge {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(118,118,128,0.12);
+      color: rgba(29,29,31,0.75);
+    }
+    .badge.accent {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .timeline {
+      display: grid;
+      gap: 18px;
+    }
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      color: rgba(29,29,31,0.55);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .slots {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    .slot {
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      background: rgba(118,118,128,0.08);
+      font-weight: 600;
+      font-size: 15px;
+      display: grid;
+      gap: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .slot span {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(29,29,31,0.55);
+    }
+    .slot.available {
+      background: var(--available-bg);
+      color: var(--available);
+    }
+    .slot.blocked {
+      background: var(--blocked-bg);
+      color: var(--blocked);
+    }
+    .slot.available:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(52,199,89,0.15);
+    }
+    .slot.blocked {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+    .cta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: flex-end;
+    }
+    .cta {
+      padding: 16px 32px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .cta.primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 18px 30px rgba(0,122,255,0.28);
+    }
+    .cta.primary:active {
+      transform: scale(0.98);
+    }
+    @media (max-width: 768px) {
+      body { padding-bottom: 64px; }
+      .filter-bar { gap: 18px; }
+      .filter-section { min-width: 100%; }
+      .table-header { flex-direction: column; align-items: flex-start; }
+      .cta-bar { justify-content: stretch; }
+      .cta { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p>可预约桌台，绿色代表可预约，红色代表与其他预约冲突或超出营业时间。</p>
+  </header>
+
+  <main>
+    <section class="table-grid">
+      <article class="table-card">
+        <div class="table-header">
+          <div class="table-title">
+            <span>桌台 A01 · 可预约</span>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="slots">
+            <button class="slot available" type="button">
+              10:00 - 11:00
+              <span>可预约</span>
+            </button>
+            <button class="slot available" type="button">
+              11:00 - 12:00
+              <span>可预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              12:00 - 13:00
+              <span>已有预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              13:00 - 14:00
+              <span>已有预约</span>
+            </button>
+            <button class="slot available" type="button">
+              14:00 - 15:00
+              <span>可预约</span>
+            </button>
+            <button class="slot available" type="button">
+              15:00 - 16:00
+              <span>可预约</span>
+            </button>
+            <button class="slot available" type="button">
+              16:00 - 17:00
+              <span>可预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              17:00 - 18:00
+              <span>超出营业时间</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="cta-bar">
+          <button class="cta primary" type="button">预约 14:00 - 15:00</button>
+        </div>
+      </article>
+
+      <article class="table-card">
+        <div class="table-header">
+          <div class="table-title">
+            <span>桌台 B12 · 可预约</span>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="slots">
+            <button class="slot blocked" type="button" disabled>
+              10:00 - 11:00
+              <span>已有预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              11:00 - 12:00
+              <span>已有预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              12:00 - 12:30
+              <span>消杀间隔</span>
+            </button>
+            <button class="slot available" type="button">
+              12:30 - 13:30
+              <span>可预约</span>
+            </button>
+            <button class="slot available" type="button">
+              13:30 - 14:30
+              <span>可预约</span>
+            </button>
+            <button class="slot available" type="button">
+              14:30 - 15:30
+              <span>可预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              15:30 - 16:30
+              <span>已有预约</span>
+            </button>
+            <button class="slot available" type="button">
+              16:30 - 17:30
+              <span>可预约</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="cta-bar">
+          <button class="cta primary" type="button">预约 12:30 - 13:30</button>
+        </div>
+      </article>
+
+      <article class="table-card">
+        <div class="table-header">
+          <div class="table-title">
+            <span>桌台 C05 · 可预约</span>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="slots">
+            <button class="slot blocked" type="button" disabled>
+              10:00 - 11:00
+              <span>已有预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              11:00 - 12:00
+              <span>已有预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              12:00 - 13:00
+              <span>维护中</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              13:00 - 14:00
+              <span>维护中</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              14:00 - 21:00
+              <span>包场预约</span>
+            </button>
+            <button class="slot blocked" type="button" disabled>
+              21:00 - 22:30
+              <span>已有预约</span>
+            </button>
+            <button class="slot available" type="button">
+              22:30 - 23:00
+              <span>可预约（30 分钟）</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="cta-bar">
+          <button class="cta primary" type="button">预约 22:30 - 23:00</button>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

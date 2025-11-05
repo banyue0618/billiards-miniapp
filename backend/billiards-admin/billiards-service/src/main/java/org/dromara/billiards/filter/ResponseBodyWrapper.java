@@ -1,4 +1,4 @@
-package org.dromara.billiards.framework.filter;
+package org.dromara.billiards.filter;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;

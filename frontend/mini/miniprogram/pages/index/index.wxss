@@ -578,3 +578,87 @@
   font-size: 24rpx;
   color: #6e6e73;
 }
+
+/* 公告横幅样式 */
+.announcement-bar {
+  display: flex;
+  align-items: center;
+  background-color: #FFFBF0;
+  border-radius: 12rpx;
+  padding: 8rpx 16rpx;
+  margin: 12rpx 0 16rpx 0;
+  box-shadow: 0 2rpx 8rpx rgba(255, 149, 0, 0.15);
+  border: 1rpx solid rgba(255, 149, 0, 0.2);
+}
+
+.announcement-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10rpx;
+  flex-shrink: 0;
+}
+
+.announcement-horn-icon {
+  font-size: 28rpx;
+  line-height: 1;
+  animation: hornPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 1rpx 2rpx rgba(255, 149, 0, 0.3));
+}
+
+@keyframes hornPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+.announcement-swiper {
+  flex: 1;
+  height: 32rpx;
+}
+
+.announcement-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 32rpx;
+}
+
+.announcement-text {
+  font-size: 24rpx;
+  color: #666666;
+  line-height: 32rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 浮动预约按钮样式 */
+.floating-reserve-cta {
+  position: fixed;
+  right: 24rpx;
+  bottom: calc(24rpx + env(safe-area-inset-bottom));
+  z-index: 120; /* 高于其他内容但低于系统组件 */
+}
+
+.floating-reserve-button {
+  background: linear-gradient(135deg, #07C160, #05a454);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  padding: 22rpx 36rpx;
+  border: none;
+  border-radius: 999rpx;
+  box-shadow: 0 12rpx 24rpx rgba(7, 193, 96, 0.25);
+  line-height: 1.2;
+}
+
+.floating-reserve-button:active {
+  opacity: 0.92;
+  transform: scale(0.98);
+}

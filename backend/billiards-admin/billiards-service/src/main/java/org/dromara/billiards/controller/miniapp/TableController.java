@@ -5,6 +5,7 @@ import org.dromara.billiards.common.result.ApiResult;
 import org.dromara.billiards.convert.TableConvert;
 import org.dromara.billiards.domain.bo.TableQueryRequest;
 import org.dromara.billiards.domain.entity.BlsTable;
+import org.dromara.billiards.domain.vo.ReservationTableVO;
 import org.dromara.billiards.domain.vo.TableVO;
 import org.dromara.billiards.service.TableService;
 import org.dromara.billiards.service.QrCodeTokenService;
@@ -84,5 +85,20 @@ public class TableController {
     @GetMapping("/randomTableId")
     public R<String> randomTableId() {
         return ApiResult.success("获取成功", tableService.randomTableId());
+    }
+
+    /**
+     * 获取预约桌台列表
+     * @param storeId 门店ID
+     * @param date 日期（格式：yyyy-MM-dd，可选，默认为今天）
+     * @return 预约桌台列表
+     */
+    @GetMapping("/reservation/list")
+    @Operation(summary = "预约桌台列表", description = "获取指定门店和日期的预约桌台列表，包含时间段信息")
+    public R<List<ReservationTableVO>> getReservationTables(
+            @Parameter(description = "门店ID", required = true) @RequestParam String storeId,
+            @Parameter(description = "日期（格式：yyyy-MM-dd）", required = false) @RequestParam(required = false) String date) {
+        List<ReservationTableVO> tables = tableService.getReservationTables(storeId, date);
+        return ApiResult.success(tables);
     }
 }
