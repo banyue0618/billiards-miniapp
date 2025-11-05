@@ -28,8 +28,8 @@ export PROJECT_NAME="billiards-saas"
 export PROJECT_DIR="${PROJECT_ROOT_DIR}/${PROJECT_NAME}"
 export DOMAIN_NAME="localhost"
 
-export BILLIARDS_WECHAT_APPID=xxxxxxx
-export BILLIARDS_WECHAT_SECRET=xxxxxxxxxxx
+export BILLIARDS_WECHAT_APPID=wxc19e090025acf679
+export BILLIARDS_WECHAT_SECRET=xxxxxxxxxxxxxxxxx
 
 # 打印函数
 print_info() {
@@ -541,7 +541,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY ruoyi-admin/target/billiards-admin.jar /app/app.jar
 
 # 设置环境变量
-ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
 ENV SERVER_PORT=8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
@@ -647,6 +647,22 @@ detect_nginx(){
         else
             print_info "创建Nginx容器..."
             docker-compose -f $COMPOSE_FILE up -d nginx
+        fi
+    fi
+}
+
+detect_mqtt(){
+    print_info "开始检查MQTT容器..."
+    if [[ "$DEPLOY_MODE" = "2" ]]; then
+        if docker ps -a --filter "name=${PROJECT_NAME}-emqx" --format "{{.Names}}" | grep -q "${PROJECT_NAME}-emqx"; then
+            print_info "emqx容器已存在"
+            if ! docker ps --filter "name=${PROJECT_NAME}-emqx" --format "{{.Names}}" | grep -q "${PROJECT_NAME}-emqx"; then
+                print_info "启动现有emqx容器..."
+                docker start ${PROJECT_NAME}-emqx
+            fi
+        else
+            print_info "创建emqx容器..."
+            docker-compose -f $COMPOSE_FILE up -d emqx
         fi
     fi
 }
@@ -893,6 +909,7 @@ wait_for_mysql_initialization() {
     return 0
 }
 
+
 # 部署应用服务
 deploy_application() {
     print_step "部署应用服务..."
@@ -906,6 +923,7 @@ deploy_application() {
         COMPOSE_FILE="docker-compose.simple.yml"
     fi
 
+
     # 停止并移除现有的应用容器（强制更新）
     print_info "更新应用容器..."
     docker-compose -f $COMPOSE_FILE stop billiards-admin >/dev/null 2>&1 || true
@@ -915,11 +933,15 @@ deploy_application() {
     print_info "Docker构建应用容器..."
     build_with_maven_cache
 
-    # 准备环境变量（包括Redis和MySQL密码）
-    prepare_environment_variables
+    if [[ ! -f "$COMPOSE_FILE" ]]; then
+        # 准备环境变量（包括Redis和MySQL密码）
+        prepare_environment_variables
 
-    # 生成docker配置文件
-    generate_docker_config
+        # 生成docker配置文件
+        generate_docker_config
+    fi
+
+	detect_mqtt
 
     # 启动应用服务（使用已构建的镜像）
     docker-compose -f $COMPOSE_FILE up -d billiards-admin
