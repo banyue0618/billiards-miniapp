@@ -32,6 +32,11 @@ public class BlsReservationVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 主键ID
+     */
+    private Long id;
+
+    /**
      * 预约编号（可用于展示或查询）
      */
     @ExcelProperty(value = "预约编号", converter = ExcelDictConvert.class)

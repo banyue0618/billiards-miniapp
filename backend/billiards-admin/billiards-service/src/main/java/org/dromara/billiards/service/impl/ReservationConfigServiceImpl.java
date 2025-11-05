@@ -14,6 +14,8 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -48,7 +50,8 @@ public class ReservationConfigServiceImpl implements ReservationConfigService {
      * @return 预约配置对象
      */
     @Override
-    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源，确保在事务中也能切换数据源
+    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Cacheable(value = CACHE_NAME, key = "#root.method.name + ':' + T(org.dromara.common.tenant.helper.TenantHelper).getTenantId()")
     public BlsReserveConfig getConfig() {
         String tenantId = TenantHelper.getTenantId();
@@ -57,12 +60,14 @@ public class ReservationConfigServiceImpl implements ReservationConfigService {
 
     /**
      * 获取指定租户的预约配置
+     * 使用 REQUIRES_NEW 传播级别，确保无论在哪里调用都会创建新事务并使用 admin 数据源
      *
      * @param tenantId 租户ID
      * @return 预约配置对象
      */
     @Override
-    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源，确保在事务中也能切换数据源
+    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Cacheable(value = CACHE_NAME, key = "'getConfig:' + #tenantId")
     public BlsReserveConfig getConfig(String tenantId) {
 
@@ -89,7 +94,8 @@ public class ReservationConfigServiceImpl implements ReservationConfigService {
      * @param tenantId 租户ID，如果为null则刷新当前租户
      */
     @Override
-    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源，确保在事务中也能切换数据源
+    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void refreshConfig(String tenantId) {
         if (StringUtils.isBlank(tenantId)) {
             tenantId = TenantHelper.getTenantId();

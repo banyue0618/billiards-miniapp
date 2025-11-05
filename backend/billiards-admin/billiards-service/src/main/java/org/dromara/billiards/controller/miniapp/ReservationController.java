@@ -72,7 +72,7 @@ public class ReservationController {
     @Operation(summary = "取消预约", description = "取消指定的预约记录")
     @Log(title = "取消预约", businessType = BusinessType.UPDATE)
     public R<Void> cancelReservation(@PathVariable Long id) {
-        // TODO: 实现取消预约的逻辑
+        reservationService.cancelReservation(id);
         return ApiResult.success();
     }
 }

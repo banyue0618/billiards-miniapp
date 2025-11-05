@@ -8,6 +8,7 @@ import org.dromara.billiards.domain.bo.BlsReservationBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -94,8 +95,30 @@ public interface IBlsReservationService extends IService<BlsReservation> {
     /**
      * 检查并标记过期的预约记录
      * 查询所有预约中状态且未签到的预约，如果开始时间 + 过期阈值 < 当前时间，则标记为已过期
-     * 
+     *
      * @return 过期的预约数量
      */
     int checkAndExpireReservations();
+
+    /**
+     * 查询桌台在指定时间点之后最近的预约记录
+     * @param tableId 桌台ID
+     * @param afterTime 指定时间点（可选，如果为null则查询当前时间之后的预约）
+     * @return 预约记录，如果没有则返回null
+     */
+    BlsReservation findUpcomingReservation(String tableId, LocalDateTime afterTime);
+
+
+    /**
+     * 取消预约
+     * @param reservationId 预约ID
+     */
+    void cancelReservation(Long reservationId);
+
+
+    /**
+     * 预约到店签到
+     * @param reservationId 预约ID
+     */
+    void checkInReservation(Long reservationId);
 }

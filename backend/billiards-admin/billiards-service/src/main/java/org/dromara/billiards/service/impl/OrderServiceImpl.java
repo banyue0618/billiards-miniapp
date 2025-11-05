@@ -177,7 +177,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
      * 使用分布式锁确保同一桌台同一时间只能被一个用户开台
      * 锁的key为 table:{tableId}，确保同一桌台的操作串行化
      * 线下扫码优先级高于线上预约
-     * 
+     *
      * @param tableId 桌台ID
      * @return 订单对象
      */
@@ -237,10 +237,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
         boolean isOfflineScan = !OrderChannelEnum.MINI_PROGRAM.getChannelName().equals(channel);
 
         // 查询该桌台是否有即将开始的预约
-        BlsReservation upcomingReservation = ((BlsReservationServiceImpl) reservationService).findUpcomingReservation(tableId, LocalDateTime.now());
+        BlsReservation upcomingReservation = reservationService.findUpcomingReservation(tableId, LocalDateTime.now());
 
         if (upcomingReservation == null) {
             // 没有预约，直接允许开台
+            return;
+        }
+
+        // 判断是否是自己的预约
+        if (upcomingReservation.getUserId().equals(LoginHelper.getUserId())) {
+            // 是自己的预约，允许开台 同时设置预约状态为已到店
+            reservationService.checkInReservation(upcomingReservation.getId());
             return;
         }
 
@@ -260,7 +267,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
             } else {
                 // 场景1和场景2：线下扫码优先级更高
                 // 取消预约（线下扫码优先级更高，无论预约时间是否已过）
-                ((BlsReservationServiceImpl) reservationService).cancelReservation(upcomingReservation.getId());
+                reservationService.cancelReservation(upcomingReservation.getId());
 
                 if (minutesUntilReservation > thresholdMinutes) {
                     // 场景2：提示用户只能玩到预约开始时间

@@ -74,6 +74,12 @@
           <text class="reservation-info-value countdown-text">{{countdownText}}</text>
         </view>
       </view>
+      <!-- 取消预约按钮 -->
+      <view class="current-reservation-actions" wx:if="{{currentReservation.status === 0}}">
+        <button class="cancel-reservation-btn" bindtap="handleCancelReservation" data-id="{{currentReservation.id}}">
+          取消预约
+        </button>
+      </view>
     </view>
   </view>
 

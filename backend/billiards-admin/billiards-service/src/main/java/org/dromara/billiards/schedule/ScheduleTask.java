@@ -95,10 +95,7 @@ public class ScheduleTask implements CommandLineRunner {
         // 预约过期检查任务（默认每5分钟，可配置，使用配置中的 autoCheckIntervalMinutes）
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             taskLogger.record("RESERVE_TIMEOUT", "预约过期检查任务", () -> {
-                int expiredCount = reservationService.checkAndExpireReservations();
-                if (expiredCount > 0) {
-                    log.info("预约过期检查完成，共标记 {} 条预约为已过期", expiredCount);
-                }
+                reservationService.checkAndExpireReservations();
             });
         }, 4, reservationExpireIntervalMinutes, TimeUnit.MINUTES);
 

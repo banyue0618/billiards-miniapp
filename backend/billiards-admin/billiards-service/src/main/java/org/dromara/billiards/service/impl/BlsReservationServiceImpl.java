@@ -288,6 +288,7 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
      * @param afterTime 指定时间点（可选，如果为null则查询当前时间之后的预约）
      * @return 预约记录，如果没有则返回null
      */
+    @Override
     public BlsReservation findUpcomingReservation(String tableId, LocalDateTime afterTime) {
         if (afterTime == null) {
             afterTime = LocalDateTime.now();
@@ -304,7 +305,7 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
     }
 
     /**
-     * 取消预约（线下扫码优先级更高时使用）
+     * 取消预约
      * @param reservationId 预约ID
      */
     @Transactional(rollbackFor = Exception.class)
@@ -322,6 +323,21 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
         updateById(reservation);
     }
 
+    @Override
+    public void checkInReservation(Long reservationId) {
+        BlsReservation reservation = getById(reservationId);
+        if (reservation == null) {
+            throw BilliardsException.of(ResultCode.RESERVATION_NOT_EXIST);
+        }
+        if (reservation.getStatus() != ReservationStatusEnum.PENDING.getCode()) {
+            // 只有预约中状态才能到店更新
+            return;
+        }
+        reservation.setStatus(ReservationStatusEnum.CHECKED_IN.getCode());
+        reservation.setCheckInTime(new Date());
+        updateById(reservation);
+    }
+
     /**
      * 检查并标记过期的预约记录
      * 查询所有预约中状态且未签到的预约，如果开始时间 + 过期阈值 < 当前时间，则标记为已过期
@@ -329,7 +345,6 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
      * @return 过期的预约数量
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public int checkAndExpireReservations() {
         LocalDateTime now = LocalDateTime.now();
         int totalExpiredCount = 0;
@@ -351,7 +366,7 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
             try {
                 // 切换到对应租户上下文获取配置
                 String tenantId = reservation.getTenantId();
-                BlsReserveConfig config = getReservationConfig(tenantId);
+                BlsReserveConfig config = reservationConfigService.getConfig(tenantId);
 
                 // 计算过期时间点：开始时间 + 过期阈值
                 // reservation.getStartTime() 返回 LocalDateTime
@@ -371,6 +386,7 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
             } catch (Exception e) {
                 // 记录异常但继续处理其他预约
                 log.error("处理预约过期失败，预约ID: {}, 租户ID: {}", reservation.getId(), reservation.getTenantId(), e);
+                throw e;
             }
         }
 
@@ -381,16 +397,4 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
         return totalExpiredCount;
     }
 
-    /**
-     * 获取预约配置（独立方法，不参与事务，确保数据源切换生效）
-     * 注意：此方法不使用事务，避免与调用方的事务冲突导致数据源切换失效
-     *
-     * @param tenantId 租户ID
-     * @return 预约配置
-     */
-    private BlsReserveConfig getReservationConfig(String tenantId) {
-        // 直接调用配置服务，不使用事务传播
-        // ReservationConfigServiceImpl 类上已标注 @DS(ADMIN)，会切换到 admin 数据源
-        return reservationConfigService.getConfig(tenantId);
-    }
 }

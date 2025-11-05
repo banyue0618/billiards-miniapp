@@ -156,6 +156,7 @@ export interface ReservationParams {
 
 // 当前预约记录
 export interface CurrentReservation {
+  id?: number; // 预约ID
   reservationNo?: string;
   startTime: string; // yyyy-MM-dd HH:mm:ss 或 ISO 8601 格式
   endTime: string; // yyyy-MM-dd HH:mm:ss 或 ISO 8601 格式

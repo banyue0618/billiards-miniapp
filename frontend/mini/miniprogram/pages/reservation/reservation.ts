@@ -1,8 +1,8 @@
-// pages/reservation/reservation.ts
 import api from '../../services/api'
 import { StoreDetail, TimeSlot, TableTag, CurrentReservation } from '../../services/api'
 import type { IAppOptionExtended } from '../../app'
 const loginUtil = require('../../utils/loginUtil')
+const { showConfirm } = require('../../utils/util')
 
 const app = getApp<IAppOptionExtended>();
 
@@ -837,6 +837,66 @@ Page({
     })
     // 登录成功后加载当前预约记录
     this.loadCurrentReservation()
+  },
+
+  /**
+   * 取消当前预约
+   */
+  async handleCancelReservation(e: any) {
+    const { id } = e.currentTarget.dataset
+    
+    if (!id) {
+      wx.showToast({
+        title: '预约ID不存在',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 确认取消
+    const res = await showConfirm('确认取消', '确定要取消当前预约吗？')
+    
+    if (!res.confirm) {
+      return
+    }
+
+    try {
+      wx.showLoading({
+        title: '取消中...',
+        mask: true
+      })
+
+      await api.cancelReservation(id)
+
+      wx.hideLoading()
+      wx.showToast({
+        title: '取消成功',
+        icon: 'success',
+        duration: 2000
+      })
+
+      // 清除当前预约记录
+      this.setData({
+        currentReservation: null,
+        countdownText: ''
+      })
+      this.clearCountdown()
+
+      // 刷新桌台数据
+      setTimeout(() => {
+        if (this.data.storeId) {
+          this.loadTables(this.data.storeId, this.data.selectedDate)
+        }
+      }, 1500)
+    } catch (error: any) {
+      wx.hideLoading()
+      console.error('取消预约失败', error)
+      wx.showToast({
+        title: error?.message || '取消失败，请重试',
+        icon: 'none',
+        duration: 2000
+      })
+    }
   },
 
   /**

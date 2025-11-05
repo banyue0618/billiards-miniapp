@@ -562,13 +562,18 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, BlsTable> impleme
 
     /**
      * 生成时间段列表
-     * @param dayStart 一天的开始时间
+     * @param dayStart 一天的开始时间（00:00:00）
      * @param openingHours 营业时间（格式：10:00-23:00）
      * @param reservations 该桌台在该天的预约记录
      * @return 时间段列表
      */
     private List<TimeSlotVO> generateTimeSlots(LocalDateTime dayStart, String openingHours, List<BlsReservation> reservations) {
         List<TimeSlotVO> slots = new ArrayList<>();
+        
+        // 获取当前时间
+        LocalDateTime now = LocalDateTime.now();
+        // 判断是否是今天
+        boolean isToday = dayStart.toLocalDate().equals(now.toLocalDate());
 
         // 解析营业时间
         int startHour = 10;
@@ -592,24 +597,30 @@ public class TableServiceImpl extends ServiceImpl<TableMapper, BlsTable> impleme
             slot.setEndTime(String.format("%02d:00", hour + 1));
             slot.setLabel("");
 
+            LocalDateTime slotStart = dayStart.plusHours(hour);
+            LocalDateTime slotEnd = dayStart.plusHours(hour + 1);
+
             // 判断时间段是否在营业时间内
             if (hour < startHour || hour >= endHour) {
                 slot.setStatus("blocked");
             } else {
-                // 检查是否有预约占用该时间段
-                boolean isReserved = false;
-                LocalDateTime slotStart = dayStart.plusHours(hour);
-                LocalDateTime slotEnd = dayStart.plusHours(hour + 1);
-
-                for (BlsReservation reservation : reservations) {
-                    // 检查时间段是否与预约重叠
-                    if (!(slotEnd.isBefore(reservation.getStartTime()) || slotStart.isAfter(reservation.getEndTime()))) {
-                        isReserved = true;
-                        break;
+                // 如果是今天，检查时间段是否已经过了当前时间
+                if (isToday && slotStart.isBefore(now)) {
+                    // 时间段的开始时间已经过了当前时间，标记为不可预约
+                    slot.setStatus("blocked");
+                } else {
+                    // 检查是否有预约占用该时间段
+                    boolean isReserved = false;
+                    for (BlsReservation reservation : reservations) {
+                        // 检查时间段是否与预约重叠
+                        if (!(slotEnd.isBefore(reservation.getStartTime()) || slotStart.isAfter(reservation.getEndTime()))) {
+                            isReserved = true;
+                            break;
+                        }
                     }
-                }
 
-                slot.setStatus(isReserved ? "blocked" : "available");
+                    slot.setStatus(isReserved ? "blocked" : "available");
+                }
             }
 
             slots.add(slot);
