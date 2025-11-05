@@ -1,5 +1,6 @@
 -- 新增预约功能
 
+USE `billiards_saas`;
 CREATE TABLE bls_reservation (
      id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
      `merchant_id` varchar(36) NOT NULL COMMENT '所属商家ID',
@@ -35,6 +36,7 @@ CREATE TABLE bls_reservation (
 ) COMMENT='用户预约记录表';
 
 
+USE `billiards_admin`;
 -- 预约配置
 INSERT INTO sys_config (config_id, tenant_id, config_name, config_key, config_value, config_type, remark, create_time) VALUES
    (2001, '000000', '每次最短预约时长（分钟）', 'reserve.min_duration_minutes', '30', 'N', '每次最短预约时长，单位：分钟', NOW()),
@@ -72,12 +74,12 @@ INSERT INTO sys_config (config_id, tenant_id, config_name, config_key, config_va
 
 -- 菜单 SQL
 insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
-values(7000, '预约管理', '0', '7', 'reservation', 'reservation', 1, 0, 'C', '0', '0', null, 'reservation', 103, 1, sysdate(), null, null, '用户预约记录菜单');
+values(7000, '预约管理', '0', '7', 'reserve', null, 1, 0, 'M', '0', '0', null, 'reserve', 103, 1, sysdate(), null, null, '用户预约记录菜单');
 
 
 
 insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
-values(70001, '用户预约记录', '3', '1', 'reservation', 'billiards/reservation/index', 1, 0, 'C', '0', '0', 'billiards:reservation:list', '#', 103, 1, sysdate(), null, null, '用户预约记录菜单');
+values(70001, '用户预约管理', '7000', '1', 'reservation', 'billiards/reservation/index', 1, 0, 'C', '0', '0', 'billiards:reservation:list', '#', 103, 1, sysdate(), null, null, '用户预约记录菜单');
 
 -- 按钮 SQL
 insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_dept, create_by, create_time, update_by, update_time, remark)
@@ -96,4 +98,27 @@ insert into sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 values(700015, '用户预约记录导出', 70001, '5',  '#', '', 1, 0, 'F', '0', '0', 'billiards:reservation:export',       '#', 103, 1, sysdate(), null, null, '');
 
 
+
+-- 预约状态 reservation_status 0-预约中 1-已到店 2-已完成 3-已取消 4-已过期
+insert into billiards_admin.sys_dict_type values(43, '000000', '预约状态', 'reservation_status',    103, 1, sysdate(), null, null, '预约状态');
+insert into billiards_admin.sys_dict_data values(153, '000000', 0,  '预约中',     '0',       'reservation_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '预约状态');
+insert into billiards_admin.sys_dict_data values(154, '000000', 1,  '已到店',     '1',       'reservation_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '预约状态');
+insert into billiards_admin.sys_dict_data values(155, '000000', 2,  '已完成',     '2',       'reservation_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '预约状态');
+insert into billiards_admin.sys_dict_data values(156, '000000', 3,  '已取消',     '3',       'reservation_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '预约状态');
+insert into billiards_admin.sys_dict_data values(157, '000000', 4,  '已过期',     '4',       'reservation_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '预约状态');
+
+
+-- 定时任务执行记录表
+CREATE TABLE bls_schedule_task_log (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    task_code VARCHAR(64) NOT NULL COMMENT '任务编码',
+    task_name VARCHAR(100) NOT NULL COMMENT '任务名称',
+    start_time DATETIME NOT NULL COMMENT '开始时间',
+    end_time DATETIME NOT NULL COMMENT '结束时间',
+    duration_ms BIGINT NOT NULL COMMENT '执行时长（毫秒）',
+    status VARCHAR(10) NOT NULL COMMENT '状态：SUCCESS/FAIL',
+    error_msg VARCHAR(255) DEFAULT NULL COMMENT '错误信息',
+    create_time DATETIME NOT NULL COMMENT '创建时间',
+    remark VARCHAR(255) DEFAULT NULL COMMENT '备注'
+) COMMENT='定时任务执行记录表';
 

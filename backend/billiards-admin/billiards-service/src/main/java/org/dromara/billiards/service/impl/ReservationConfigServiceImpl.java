@@ -48,6 +48,7 @@ public class ReservationConfigServiceImpl implements ReservationConfigService {
      * @return 预约配置对象
      */
     @Override
+    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源，确保在事务中也能切换数据源
     @Cacheable(value = CACHE_NAME, key = "#root.method.name + ':' + T(org.dromara.common.tenant.helper.TenantHelper).getTenantId()")
     public BlsReserveConfig getConfig() {
         String tenantId = TenantHelper.getTenantId();
@@ -61,6 +62,7 @@ public class ReservationConfigServiceImpl implements ReservationConfigService {
      * @return 预约配置对象
      */
     @Override
+    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源，确保在事务中也能切换数据源
     @Cacheable(value = CACHE_NAME, key = "'getConfig:' + #tenantId")
     public BlsReserveConfig getConfig(String tenantId) {
 
@@ -87,6 +89,7 @@ public class ReservationConfigServiceImpl implements ReservationConfigService {
      * @param tenantId 租户ID，如果为null则刷新当前租户
      */
     @Override
+    @DS(BilliardsConstants.DS_ADMIN) // 显式指定数据源，确保在事务中也能切换数据源
     public void refreshConfig(String tenantId) {
         if (StringUtils.isBlank(tenantId)) {
             tenantId = TenantHelper.getTenantId();
@@ -97,7 +100,7 @@ public class ReservationConfigServiceImpl implements ReservationConfigService {
             return;
         }
 
-        // 重新从数据库加载配置并缓存
+        // 重新从数据库加载配置并缓存（需要切换到 admin 数据源）
         List<SysConfigVo> sysConfigVos = sysConfigService.selectConfigListByKeyLike(tenantId, CONFIG_PREFIX);
 
         // 本地映射，避免后续重复查询

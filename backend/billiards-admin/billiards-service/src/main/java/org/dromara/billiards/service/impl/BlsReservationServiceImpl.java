@@ -98,6 +98,10 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
     @Override
     public IPage<BlsReservationVo> queryPage(BlsReservationBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<BlsReservation> lqw = buildQueryWrapper(bo);
+        // 如果已登录
+        if (LoginHelper.isLogin()) {
+            lqw.eq(BlsReservation::getUserId, LoginHelper.getUserId());
+        }
         return baseMapper.selectVoPage(pageQuery.build(), lqw);
     }
 
@@ -121,11 +125,6 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
         lqw.eq(bo.getEndTime() != null, BlsReservation::getEndTime, bo.getEndTime());
         lqw.eq(bo.getStatus() != null, BlsReservation::getStatus, bo.getStatus());
         lqw.eq(bo.getPayStatus() != null, BlsReservation::getPayStatus, bo.getPayStatus());
-
-        // 如果已登录
-        if (LoginHelper.isLogin()) {
-            lqw.eq(BlsReservation::getUserId, LoginHelper.getUserId());
-        }
 
         // 可选商户范围过滤
         MerchantQueryHelper.apply(lqw, BlsReservation::getMerchantId);
@@ -188,7 +187,7 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
      * 预约桌台
      * 使用分布式锁确保同一桌台同一时间段只能被一个用户预约
      * 锁的key为 table:{tableId}，确保同一桌台的操作串行化
-     * 
+     *
      * @param bo
      * @return
      */
@@ -326,7 +325,7 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
     /**
      * 检查并标记过期的预约记录
      * 查询所有预约中状态且未签到的预约，如果开始时间 + 过期阈值 < 当前时间，则标记为已过期
-     * 
+     *
      * @return 过期的预约数量
      */
     @Override
@@ -340,9 +339,9 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
         queryWrapper.eq(BlsReservation::getStatus, ReservationStatusEnum.PENDING.getCode());
         queryWrapper.isNull(BlsReservation::getCheckInTime); // 未签到
         queryWrapper.le(BlsReservation::getStartTime, now); // 开始时间 <= 当前时间
-        
+
         List<BlsReservation> pendingReservations = list(queryWrapper);
-        
+
         if (pendingReservations.isEmpty()) {
             return 0;
         }
@@ -352,19 +351,20 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
             try {
                 // 切换到对应租户上下文获取配置
                 String tenantId = reservation.getTenantId();
-                BlsReserveConfig config = reservationConfigService.getConfig(tenantId);
-                
+                BlsReserveConfig config = getReservationConfig(tenantId);
+
                 // 计算过期时间点：开始时间 + 过期阈值
                 // reservation.getStartTime() 返回 LocalDateTime
                 LocalDateTime startTime = reservation.getStartTime();
                 LocalDateTime expireTime = startTime.plusMinutes(config.getExpireAfterStartMinutes());
-                
+
                 // 如果当前时间已经超过过期时间点，则标记为已过期
                 if (now.isAfter(expireTime) || now.isEqual(expireTime)) {
                     reservation.setStatus(ReservationStatusEnum.EXPIRED.getCode());
+                    reservation.setRemark("系统自动标记为已过期");
                     updateById(reservation);
                     totalExpiredCount++;
-                    
+
                     // TODO: 如果启用了退款策略，可以在这里处理退款逻辑
                     // 如果预约有支付定金，根据退款策略决定是否退款
                 }
@@ -379,5 +379,18 @@ public class BlsReservationServiceImpl  extends ServiceImpl<BlsReservationMapper
         }
 
         return totalExpiredCount;
+    }
+
+    /**
+     * 获取预约配置（独立方法，不参与事务，确保数据源切换生效）
+     * 注意：此方法不使用事务，避免与调用方的事务冲突导致数据源切换失效
+     *
+     * @param tenantId 租户ID
+     * @return 预约配置
+     */
+    private BlsReserveConfig getReservationConfig(String tenantId) {
+        // 直接调用配置服务，不使用事务传播
+        // ReservationConfigServiceImpl 类上已标注 @DS(ADMIN)，会切换到 admin 数据源
+        return reservationConfigService.getConfig(tenantId);
     }
 }
