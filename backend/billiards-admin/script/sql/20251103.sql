@@ -108,6 +108,7 @@ insert into billiards_admin.sys_dict_data values(156, '000000', 3,  '已取消',
 insert into billiards_admin.sys_dict_data values(157, '000000', 4,  '已过期',     '4',       'reservation_status',  '',   '',  'N', 103, 1, sysdate(), null, null, '预约状态');
 
 
+USE `billiards_saas`;
 -- 定时任务执行记录表
 CREATE TABLE bls_schedule_task_log (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
