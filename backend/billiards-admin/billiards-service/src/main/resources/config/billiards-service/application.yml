@@ -23,7 +23,7 @@ billiards:
   # 支付相关
   payment:
     timeout-minutes: 30
-    mock-enabled: false # 是否开启模拟支付，true为开启，false为关闭
+    mock-enabled: true # 是否开启模拟支付，true为开启，false为关闭
     notify-url: https://banyue.xin/api/miniapp/payment/payNotify # 支付回调地址
     refund-url: https://banyue.xin/api/miniapp/payment/refundNotify # 退款回调地址
     # 这里的 excludes 列表现在可以被注释掉或清空，因为主要排除逻辑已移至全局 security.excludes
