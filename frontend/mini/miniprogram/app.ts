@@ -156,6 +156,8 @@ export interface IAppOptionExtended extends IAppOption {
     // 登录事件相关属性
     loginEventEmitted?: boolean;
     loginEventTimestamp?: number;
+    // 预约页面参数
+    reservationStoreId?: string; // 预约页面需要传递的门店ID
   };
   // 允许 IAppOption 中可能存在的其他属性和方法
   [key: string]: any;
@@ -174,14 +176,15 @@ App<IAppOptionExtended>({
   userLocation: null,
   isInitialized: false, // 初始状态为未初始化
   // 默认关闭游客登录按钮，需要时改为 true
-  enableGuestLogin: false,
+  enableGuestLogin: true,
 
   // globalData 结构应符合 IAppOption 的定义
   // 如果 IAppOption['globalData'] 是可选的或允许为空对象，则可以这样初始化
   globalData: {
     userInfo: undefined,
     loginEventEmitted: false,
-    loginEventTimestamp: 0
+    loginEventTimestamp: 0,
+    reservationStoreId: undefined // 预约页面需要传递的门店ID
   },
 
   // 服务实例初始化

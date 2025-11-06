@@ -342,9 +342,11 @@ Page({
       showError('门店信息异常')
       return
     }
-    // 跳转到预约页面，传递门店ID
-    wx.navigateTo({
-      url: `/pages/reservation/reservation?storeId=${id}`
+    // 预约页面是 tabBar 页面，必须使用 switchTab
+    // 由于 switchTab 不支持传递参数，使用全局变量传递门店ID
+    app.globalData.reservationStoreId = id
+    wx.switchTab({
+      url: '/pages/reservation/reservation'
     })
   },
 

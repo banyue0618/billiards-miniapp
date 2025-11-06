@@ -45,8 +45,17 @@ Page({
     try {
       console.log('预约页面 onLoad 开始', options)
       
-      // 可以从 options 中获取门店ID等参数
-      let storeId = options.storeId || ''
+      // 更新自定义 tabBar 的选中状态
+      this.updateTabBarSelected();
+      
+      // 优先从全局变量获取门店ID（通过 switchTab 跳转时使用）
+      // 如果没有，则从 options 中获取（兼容直接点击 tabBar 或其他方式跳转）
+      let storeId = app.globalData.reservationStoreId || options.storeId || ''
+      // 获取后清空全局变量，避免影响下次跳转
+      if (app.globalData.reservationStoreId) {
+        app.globalData.reservationStoreId = undefined
+      }
+      
       const date = options.date || this.getTodayDate()
       let needLoadStoreInfo = false // 是否需要加载门店信息
       
@@ -775,6 +784,19 @@ Page({
     console.log('预约页面 onShow')
     // 更新自定义 tabBar 的选中状态
     this.updateTabBarSelected();
+    
+    // 检查是否有通过全局变量传递的门店ID（通过 switchTab 跳转时使用）
+    if (app.globalData.reservationStoreId) {
+      const storeId = app.globalData.reservationStoreId
+      app.globalData.reservationStoreId = undefined // 获取后清空
+      
+      // 如果门店ID发生变化，重新加载数据
+      if (this.data.storeId !== storeId) {
+        this.setData({ storeId })
+        this.loadStoreInfo(storeId)
+        this.loadTables(storeId, this.data.selectedDate)
+      }
+    }
     
     // 如果页面数据为空，重新加载
     if (this.data.tables.length === 0 && this.data.storeId) {
