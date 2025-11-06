@@ -409,16 +409,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, BlsOrder> impleme
     @Override
     public BlsOrder completeOrder(String orderId) {
         BlsOrder blsOrder = this.getById(orderId);
-        if (blsOrder == null) {
-            throw BilliardsException.of(ResultCode.ORDER_NOT_EXIST);
-        }
-        if(blsOrder.getPaymentStatus() != 2){
-            throw BilliardsException.of(ResultCode.ORDER_NOT_REFUNDING);
-        }
-        blsOrder.setPaymentStatus(1);
-        // 更新订单状态
-        if (!this.updateById(blsOrder)) {
-            throw BilliardsException.of(ResultCode.ERROR);
+        // 用户有可能付款了，但是没开台，那就不会产生订单，所以这里先检查订单是否存在
+        if (blsOrder != null) {
+            if(blsOrder.getPaymentStatus() != 2){
+                throw BilliardsException.of(ResultCode.ORDER_NOT_REFUNDING);
+            }
+            blsOrder.setPaymentStatus(1);
+            // 更新订单状态
+            if (!this.updateById(blsOrder)) {
+                throw BilliardsException.of(ResultCode.ERROR);
+            }
         }
         return blsOrder;
     }
