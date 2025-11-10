@@ -208,12 +208,13 @@ services:
       - "8883:8883"
       - "18083:18083"
     environment:
-      - EMQX_NAME=foo_emqx@127.0.0.1
+      - EMQX_NAME=billiards_emqx@127.0.0.1
       - EMQX_CLUSTER__DISCOVERY_STRATEGY=singleton
       - EMQX_LISTENER__TCP__EXTERNAL=0.0.0.0:1883
       - EMQX_LISTENER__WS__EXTERNAL=0.0.0.0:8083
       - EMQX_LISTENER__WSS__EXTERNAL=0.0.0.0:8084
       - EMQX_LISTENER__SSL__EXTERNAL=0.0.0.0:8883
+      - EMQX_NODE__COOKIE=somecookievalue
       - vol-emqx-data:/opt/emqx/data
       - vol-emqx-etc:/opt/emqx/etc
       - vol-emqx-log:/opt/emqx/log
