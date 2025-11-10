@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==========================================
-# 数据库初始化脚本准备工具
+# 数据库初始化脚本准备工具（仅首次部署该脚本会执行，后续数据库变更动作请自行复制sql语句执行）
 # 功能：生成随机密码并准备SQL初始化脚本
 # ==========================================
 
@@ -94,27 +94,80 @@ prepare_sql_scripts() {
     rm -rf "$TEMP_SQL_DIR"
     mkdir -p "$TEMP_SQL_DIR"
 
-    # 检查必要的SQL文件是否存在
-    local required_files=("$SQL_DIR/01-init-databases.sql" "$SQL_DIR/ry_vue_5.X.sql" "$SQL_DIR/billiards-saas.sql")
-    for file in "${required_files[@]}"; do
-        if [[ ! -f "$file" ]]; then
-            print_error "缺少必要的SQL文件: $file"
-            exit 1
+    # 检查SQL目录是否存在
+    if [[ ! -d "$SQL_DIR" ]]; then
+        print_error "SQL目录不存在: $SQL_DIR"
+        exit 1
+    fi
+
+    # 获取所有文件夹，按修改时间排序（最旧的在前）
+    local folders
+    # 使用 find + stat 或 ls 查找目录，按修改时间排序
+    # 优先使用 find -printf（GNU find），否则使用 ls -td（更通用）
+    if find "$SQL_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' >/dev/null 2>&1; then
+        # GNU find 支持 -printf，按修改时间戳排序（最旧的在前）
+        mapfile -t folders < <(find "$SQL_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -n | cut -d' ' -f2-)
+    else
+        # 使用 ls -td 按修改时间排序（最新的在前），然后反转数组
+        local temp_folders
+        mapfile -t temp_folders < <(ls -td "$SQL_DIR"/*/ 2>/dev/null)
+        # 反转数组（最旧的在前）
+        folders=()
+        for ((i=${#temp_folders[@]}-1; i>=0; i--)); do
+            folders+=("${temp_folders[i]}")
+        done
+    fi
+
+    if [[ ${#folders[@]} -eq 0 ]]; then
+        print_warning "SQL目录下没有找到任何文件夹"
+        return 0
+    fi
+
+    print_info "找到 ${#folders[@]} 个SQL文件夹，按时间顺序处理..."
+
+    local file_counter=1
+    local total_files=0
+
+    # 遍历每个文件夹
+    for folder in "${folders[@]}"; do
+        local folder_name=$(basename "$folder")
+        print_info "处理文件夹: $folder_name"
+
+        # 查找文件夹中的所有SQL文件，按文件名排序
+        local sql_files
+        mapfile -t sql_files < <(find "$folder" -maxdepth 1 -type f -name "*.sql" | sort)
+
+        if [[ ${#sql_files[@]} -eq 0 ]]; then
+            print_warning "  文件夹 $folder_name 中没有找到SQL文件，跳过"
+            continue
         fi
+
+        # 处理每个SQL文件
+        for sql_file in "${sql_files[@]}"; do
+            local file_name=$(basename "$sql_file")
+            local seq_num=$(printf "%02d" "$file_counter")
+            local target_file="$TEMP_SQL_DIR/${seq_num}-${folder_name}-${file_name}"
+
+            # 如果文件包含密码占位符，则替换；否则直接复制
+            if grep -q '\${BILLIARDS_DB_PASSWORD}' "$sql_file" 2>/dev/null; then
+                print_info "  处理文件: $file_name (替换密码占位符)"
+                sed "s/\${BILLIARDS_DB_PASSWORD}/$ROOT_PASSWORD/g" \
+                    "$sql_file" > "$target_file"
+            else
+                print_info "  复制文件: $file_name"
+                cp "$sql_file" "$target_file"
+            fi
+
+            ((file_counter++))
+            ((total_files++))
+        done
     done
 
-    # 复制并处理SQL脚本（按执行顺序命名）
-    print_info "处理数据库创建脚本..."
-    sed "s/\${BILLIARDS_DB_PASSWORD}/$ROOT_PASSWORD/g" \
-        "$SQL_DIR/01-init-databases.sql" > "$TEMP_SQL_DIR/01-init-databases.sql"
-
-    print_info "复制管理端数据库脚本..."
-    cp "$SQL_DIR/ry_vue_5.X.sql" "$TEMP_SQL_DIR/02-admin-schema.sql"
-
-    print_info "复制SaaS平台数据库脚本..."
-    cp "$SQL_DIR/billiards-saas.sql" "$TEMP_SQL_DIR/03-saas-schema.sql"
-
-    print_success "SQL脚本准备完成 ($(ls -1 "$TEMP_SQL_DIR"/*.sql | wc -l) 个文件)"
+    if [[ $total_files -eq 0 ]]; then
+        print_warning "没有找到任何SQL文件"
+    else
+        print_success "SQL脚本准备完成 ($total_files 个文件)"
+    fi
 }
 
 
