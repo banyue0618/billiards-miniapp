@@ -202,8 +202,10 @@ prepare_sql_scripts() {
                 }
             fi
 
-            ((file_counter++))
-            ((total_files++))
+            # 在 set -e 环境下，使用 || true 确保算术表达式不会导致脚本退出
+            ((file_counter++)) || true
+            ((total_files++)) || true
+            print_info "  文件计数器: $file_counter, 总文件数: $total_files"
         done
     done
 
