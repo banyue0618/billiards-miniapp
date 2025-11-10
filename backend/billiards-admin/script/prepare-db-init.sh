@@ -151,11 +151,29 @@ prepare_sql_scripts() {
             # 如果文件包含密码占位符，则替换；否则直接复制
             if grep -q '\${BILLIARDS_DB_PASSWORD}' "$sql_file" 2>/dev/null; then
                 print_info "  处理文件: $file_name (替换密码占位符)"
-                sed "s/\${BILLIARDS_DB_PASSWORD}/$ROOT_PASSWORD/g" \
-                    "$sql_file" > "$target_file"
+                # 使用 perl 进行替换，更安全地处理特殊字符
+                # 如果 perl 不可用，回退到 sed（使用 | 作为分隔符）
+                if command -v perl >/dev/null 2>&1; then
+                    # 使用 perl 替换，ROOT_PASSWORD 需要作为环境变量传递
+                    if ! ROOT_PASSWORD="$ROOT_PASSWORD" perl -pe 's/\$\{BILLIARDS_DB_PASSWORD\}/$ENV{ROOT_PASSWORD}/g' "$sql_file" > "$target_file"; then
+                        print_error "  处理文件失败: $file_name (perl 替换失败)"
+                        exit 1
+                    fi
+                else
+                    # 回退到 sed，使用 | 作为分隔符并转义特殊字符
+                    local escaped_password=$(printf '%s\n' "$ROOT_PASSWORD" | sed 's/[|&]/\\&/g')
+                    if ! sed "s|\${BILLIARDS_DB_PASSWORD}|${escaped_password}|g" \
+                        "$sql_file" > "$target_file"; then
+                        print_error "  处理文件失败: $file_name (sed 替换失败)"
+                        exit 1
+                    fi
+                fi
             else
                 print_info "  复制文件: $file_name"
-                cp "$sql_file" "$target_file"
+                if ! cp "$sql_file" "$target_file"; then
+                    print_error "  复制文件失败: $file_name"
+                    exit 1
+                fi
             fi
 
             ((file_counter++))

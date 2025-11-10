@@ -768,22 +768,15 @@ prepare_database_initialization() {
 
     cd $PROJECT_DIR/backend/billiards-admin
 
-    # 检查是否已有数据库凭据文件
-    if [[ -f ".env.db" ]]; then
-        print_info "发现已存在的数据库凭据文件"
-        source .env.db
-        print_success "数据库凭据已加载"
+    # 生成数据库凭据
+    print_info "首次部署，生成数据库凭据..."
+    if [[ -f "script/prepare-db-init.sh" ]]; then
+        chmod +x script/prepare-db-init.sh
+        ./script/prepare-db-init.sh
+        print_success "数据库凭据生成完成"
     else
-        # 生成数据库凭据
-        print_info "首次部署，生成数据库凭据..."
-        if [[ -f "script/prepare-db-init.sh" ]]; then
-            chmod +x script/prepare-db-init.sh
-            ./script/prepare-db-init.sh
-            print_success "数据库凭据生成完成"
-        else
-            print_warning "数据库准备脚本不存在，部署中断，请检查相关脚本文件：script/prepare-db-init.sh"
-            exit 1
-        fi
+        print_warning "数据库准备脚本不存在，部署中断，请检查相关脚本文件：script/prepare-db-init.sh"
+        exit 1
     fi
 }
 
