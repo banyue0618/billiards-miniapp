@@ -55,6 +55,12 @@ services:
       - BILLIARDS_WECHAT_SECRET=${BILLIARDS_WECHAT_SECRET}
       - BILLIARDS_PAYMENT_MOCK-ENABLED=${BILLIARDS_PAYMENT_MOCK_ENABLED}
 
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
     # 数据卷挂载：宿主机路径:容器路径
     volumes:
       - ${PROJECT_ROOT_DIR}/logs:/app/logs                     # 应用日志挂载
@@ -100,6 +106,12 @@ services:
       - MYSQL_ROOT_HOST=%                    # 允许root远程连接
       - TZ=Asia/Shanghai                     # 时区设置
 
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+
     # MySQL启动参数配置
     command:
       - --default-authentication-plugin=mysql_native_password  # 认证插件
@@ -140,7 +152,7 @@ services:
       --requirepass ${REDIS_PASSWORD}
       --appendonly yes
       --appendfsync everysec
-      --maxmemory 256mb
+      --maxmemory 64mb
       --maxmemory-policy allkeys-lru
 
     # 数据卷挂载
