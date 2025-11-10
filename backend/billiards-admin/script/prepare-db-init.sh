@@ -151,12 +151,45 @@ prepare_sql_scripts() {
             # 如果文件包含密码占位符，则替换；否则直接复制
             if grep -q '\${BILLIARDS_DB_PASSWORD}' "$sql_file" 2>/dev/null; then
                 print_info "  处理文件: $file_name (替换密码占位符)"
-                # 使用原来的 sed 命令，保持简单直接
-                sed "s/\${BILLIARDS_DB_PASSWORD}/$ROOT_PASSWORD/g" \
-                    "$sql_file" > "$target_file"
+                # 使用 sed 替换，使用 | 作为分隔符避免密码中的特殊字符问题
+                # 在 set -e 环境下，需要确保命令失败时不会退出脚本
+                set +e  # 临时禁用 set -e
+                sed "s|\${BILLIARDS_DB_PASSWORD}|$ROOT_PASSWORD|g" \
+                    "$sql_file" > "$target_file" 2>&1
+                local sed_exit_code=$?
+                set -e  # 重新启用 set -e
+                
+                if [[ $sed_exit_code -ne 0 ]]; then
+                    print_warning "  sed 替换失败（退出码: $sed_exit_code），尝试使用 perl..."
+                    if command -v perl >/dev/null 2>&1; then
+                        set +e
+                        ROOT_PASSWORD="$ROOT_PASSWORD" perl -pe 's/\$\{BILLIARDS_DB_PASSWORD\}/$ENV{ROOT_PASSWORD}/g' "$sql_file" > "$target_file" 2>&1
+                        local perl_exit_code=$?
+                        set -e
+                        if [[ $perl_exit_code -ne 0 ]]; then
+                            print_error "  处理文件失败: $file_name"
+                            print_error "  sed 退出码: $sed_exit_code"
+                            print_error "  perl 退出码: $perl_exit_code"
+                            print_error "  源文件: $sql_file"
+                            print_error "  目标文件: $target_file"
+                            exit 1
+                        fi
+                    else
+                        print_error "  处理文件失败: $file_name (sed 失败且 perl 不可用)"
+                        print_error "  sed 退出码: $sed_exit_code"
+                        print_error "  源文件: $sql_file"
+                        print_error "  目标文件: $target_file"
+                        exit 1
+                    fi
+                fi
             else
                 print_info "  复制文件: $file_name"
-                cp "$sql_file" "$target_file"
+                cp "$sql_file" "$target_file" || {
+                    print_error "  复制文件失败: $file_name"
+                    print_error "  源文件: $sql_file"
+                    print_error "  目标文件: $target_file"
+                    exit 1
+                }
             fi
 
             ((file_counter++))
