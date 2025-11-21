@@ -225,6 +225,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, BlsUser> implements
             throw BilliardsException.of(ResultCode.ERROR, "该充值记录已申请过退款");
         }
 
+        // 检查当前用户余额，余额必须大于0才支持退款
+        BlsWalletAccount walletAccount = walletAccountService.getWalletAccountByUserId(userId);
+        if (walletAccount == null || walletAccount.getBalance().compareTo(BigDecimal.ZERO) <= 0) {
+            throw BilliardsException.of(ResultCode.ERROR, "用户余额不足，无法申请退款");
+        }
+
         // 调用退款服务
         refundRecordService.refund(payRecordId, payRecord, payRecord.getAmount());
 
@@ -262,7 +268,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, BlsUser> implements
         if (refundRecord != null) {
             vo.setRefundStatus(refundRecord.getRefundStatus());
             vo.setRefundAmount(refundRecord.getAmount());
+        }else{
+            // 无需退款
+            vo.setRefundStatus(-1);
         }
+
 
         return vo;
     }

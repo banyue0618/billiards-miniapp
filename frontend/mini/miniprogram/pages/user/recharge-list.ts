@@ -84,7 +84,7 @@ Page({
           ...item,
           statusText,
           refundStatusText,
-          hasRefund: item.refundStatus !== undefined && item.refundStatus !== null
+          hasRefund: item.refundStatus !== 1
         }
       })
 
