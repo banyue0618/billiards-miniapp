@@ -39,7 +39,7 @@ public enum PaymentStatus {
     /**
      * 支付超时
      */
-    PAY_TIME(32, "支付超时");
+    PAY_TIME(64, "支付超时");
 
     private final int code;
     private final String description;
