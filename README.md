@@ -74,7 +74,7 @@ https://www.banyue.xin/billiards/
 - ✅ 桌台状态实时监控
 - ✅ 桌台预约与锁定
 
-### 3. 计费系统（已完成）
+### 3. 计费管理（已完成）
 - ✅ 标准计费规则
 - ✅ 阶梯计费规则
 - ✅ 会员价格配置
@@ -101,17 +101,18 @@ https://www.banyue.xin/billiards/
 
 ## 快速开始
 
-### 后端服务启动
+### 后端服务启动（手动部署模式）
 
 1. 准备环境：JDK 17+、Maven 3.6+、MySQL 8.0+、Redis 7.0+
 2. 创建数据库并导入SQL脚本：
-   ```sql
-   CREATE DATABASE billiards DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-   ```
+   - 先创建后台管理数据库（业务库与后台管理库分开管理）
+   - 管理端：`docs/sql/billiards-admin.sql`
 3. 导入数据库脚本（根据模式选择）：
    - 多租户（SaaS）：`docs/sql/billiards-saas.sql`
    - 单体（无租户）：`docs/sql/billiards.sql`
-4. 配置数据库连接信息（application-dev.yml）
+4. 配置数据库连接信息
+   - 编辑 `backend/billiards-admin/billiards-service/config/billiards-service/application-dev.yml`，修改数据库连接配置：
+   - 修改属性：username、password、url
 5. 构建与运行：
    ```bash
    cd backend/billiards-admin
